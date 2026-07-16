@@ -86,6 +86,28 @@ export function validateThemeDraft(draft: unknown): { ok: true; draft: any } | {
     }
     d.tokens = parsed.data;
   }
+  // 004D.3 — per-segment hero colours (nullable, plain colour strings).
+  const hero = d?.home?.hero;
+  if (hero && typeof hero === "object") {
+    const heroColorFields = [
+      "headlineAColor",
+      "headlineHighlightAColor",
+      "headlineBColor",
+      "headlineHighlightBColor",
+    ] as const;
+    for (const key of heroColorFields) {
+      const v = hero[key];
+      if (v === undefined || v === null || v === "") {
+        hero[key] = null;
+        continue;
+      }
+      const parsed = colorSchema.safeParse(v);
+      if (!parsed.success) {
+        return { ok: false, error: `home.hero.${key}: ${parsed.error.issues[0]?.message ?? "invalid colour"}` };
+      }
+      hero[key] = parsed.data;
+    }
+  }
   if (d?.navigation !== undefined) {
     const parsed = navigationSchema.safeParse(d.navigation);
     if (!parsed.success) {
