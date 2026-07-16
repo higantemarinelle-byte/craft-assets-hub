@@ -8,6 +8,60 @@ import { useTheme } from "@/lib/theme-context";
 import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
 import { resolveHeroColors } from "@/lib/theme";
 
+const LEGACY_CTA_MAP: Record<string, string> = {
+  "/products": "/shop",
+  "/gangsheet": "/gang-sheet",
+  "/gang_sheets": "/gang-sheet",
+  "/gang-sheets": "/gang-sheet",
+};
+
+type ResolvedCta =
+  | { kind: "internal"; to: string }
+  | { kind: "external"; href: string }
+  | { kind: "empty" };
+
+function resolveCtaHref(raw: string | undefined | null): ResolvedCta {
+  const value = (raw ?? "").trim();
+  if (!value) return { kind: "empty" };
+  if (/^(https?:|mailto:|tel:)/i.test(value)) return { kind: "external", href: value };
+  if (value.startsWith("#")) return { kind: "external", href: value };
+  const normalized = value.startsWith("/") ? value : `/${value}`;
+  const [pathOnly] = normalized.split(/[?#]/);
+  const mapped = LEGACY_CTA_MAP[pathOnly] ?? normalized;
+  return { kind: "internal", to: mapped };
+}
+
+function CtaLink({
+  cta,
+  className,
+  children,
+}: {
+  cta: ResolvedCta;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  if (cta.kind === "empty") {
+    return <span className={className} aria-disabled="true">{children}</span>;
+  }
+  if (cta.kind === "external") {
+    const external = /^https?:/i.test(cta.href);
+    return (
+      <a
+        href={cta.href}
+        className={className}
+        {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link to={cta.to} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 export const Route = createFileRoute("/")({
   ssr: false,
   component: Home,
@@ -20,6 +74,8 @@ function Home() {
 
   const hero = theme.home.hero;
   const heroColors = resolveHeroColors(theme);
+  const primaryCta = resolveCtaHref(hero.ctaPrimaryHref);
+  const secondaryCta = resolveCtaHref(hero.ctaSecondaryHref);
 
   return (
     <div className="bg-cream">
@@ -40,12 +96,12 @@ function Home() {
             </h1>
             <p className="mt-6 max-w-lg text-lg text-ink/75">{hero.body}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href={hero.ctaPrimaryHref} className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-ink px-6 py-3 text-sm font-bold text-cream transition hover:bg-magenta hover:border-magenta">
+              <CtaLink cta={primaryCta} className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-ink px-6 py-3 text-sm font-bold text-cream transition hover:bg-magenta hover:border-magenta">
                 {hero.ctaPrimaryLabel} <ArrowRight className="h-4 w-4" />
-              </a>
-              <a href={hero.ctaSecondaryHref} className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-cream px-6 py-3 text-sm font-bold text-ink transition hover:bg-yellow">
+              </CtaLink>
+              <CtaLink cta={secondaryCta} className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-cream px-6 py-3 text-sm font-bold text-ink transition hover:bg-yellow">
                 {hero.ctaSecondaryLabel}
-              </a>
+              </CtaLink>
             </div>
             <div className="mt-8 flex flex-wrap gap-6 text-xs font-semibold uppercase tracking-widest text-ink/60">
               {theme.pages.product.trustBadges.map((b) => <span key={b}>✓ {b}</span>)}
