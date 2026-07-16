@@ -25,6 +25,7 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPortalAdminRouteRouteImport } from './routes/_authenticated/portal-admin/route'
 import { Route as AuthenticatedPortalAdminIndexRouteImport } from './routes/_authenticated/portal-admin/index'
 import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects.$id'
+import { Route as AuthenticatedPortalAdminThemeRouteImport } from './routes/_authenticated/portal-admin/theme'
 import { Route as AuthenticatedPortalAdminProjectsRouteImport } from './routes/_authenticated/portal-admin/projects'
 import { Route as AuthenticatedPortalAdminProductsRouteImport } from './routes/_authenticated/portal-admin/products'
 import { Route as AuthenticatedPortalAdminOrdersRouteImport } from './routes/_authenticated/portal-admin/orders'
@@ -120,6 +121,12 @@ const AuthenticatedProjectsIdRoute = AuthenticatedProjectsIdRouteImport.update({
   path: '/projects/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPortalAdminThemeRoute =
+  AuthenticatedPortalAdminThemeRouteImport.update({
+    id: '/theme',
+    path: '/theme',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
 const AuthenticatedPortalAdminProjectsRoute =
   AuthenticatedPortalAdminProjectsRouteImport.update({
     id: '/projects',
@@ -220,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
   '/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
@@ -249,6 +257,7 @@ export interface FileRoutesByTo {
   '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin': typeof AuthenticatedPortalAdminIndexRoute
   '/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
@@ -281,6 +290,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   '/_authenticated/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/_authenticated/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/_authenticated/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
   '/_authenticated/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
@@ -313,6 +323,7 @@ export interface FileRouteTypes {
     | '/portal-admin/orders'
     | '/portal-admin/products'
     | '/portal-admin/projects'
+    | '/portal-admin/theme'
     | '/projects/$id'
     | '/portal-admin/'
     | '/portal-admin/craft-studio/assets'
@@ -342,6 +353,7 @@ export interface FileRouteTypes {
     | '/portal-admin/orders'
     | '/portal-admin/products'
     | '/portal-admin/projects'
+    | '/portal-admin/theme'
     | '/projects/$id'
     | '/portal-admin'
     | '/portal-admin/craft-studio/assets'
@@ -373,6 +385,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin/orders'
     | '/_authenticated/portal-admin/products'
     | '/_authenticated/portal-admin/projects'
+    | '/_authenticated/portal-admin/theme'
     | '/_authenticated/projects/$id'
     | '/_authenticated/portal-admin/'
     | '/_authenticated/portal-admin/craft-studio/assets'
@@ -510,6 +523,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/projects/$id'
       preLoaderRoute: typeof AuthenticatedProjectsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal-admin/theme': {
+      id: '/_authenticated/portal-admin/theme'
+      path: '/theme'
+      fullPath: '/portal-admin/theme'
+      preLoaderRoute: typeof AuthenticatedPortalAdminThemeRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
     '/_authenticated/portal-admin/projects': {
       id: '/_authenticated/portal-admin/projects'
@@ -691,6 +711,7 @@ interface AuthenticatedPortalAdminRouteRouteChildren {
   AuthenticatedPortalAdminOrdersRoute: typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   AuthenticatedPortalAdminProductsRoute: typeof AuthenticatedPortalAdminProductsRouteWithChildren
   AuthenticatedPortalAdminProjectsRoute: typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  AuthenticatedPortalAdminThemeRoute: typeof AuthenticatedPortalAdminThemeRoute
   AuthenticatedPortalAdminIndexRoute: typeof AuthenticatedPortalAdminIndexRoute
 }
 
@@ -710,6 +731,7 @@ const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteR
       AuthenticatedPortalAdminProductsRouteWithChildren,
     AuthenticatedPortalAdminProjectsRoute:
       AuthenticatedPortalAdminProjectsRouteWithChildren,
+    AuthenticatedPortalAdminThemeRoute: AuthenticatedPortalAdminThemeRoute,
     AuthenticatedPortalAdminIndexRoute: AuthenticatedPortalAdminIndexRoute,
   }
 
