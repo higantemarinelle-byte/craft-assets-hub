@@ -5,6 +5,7 @@ import { listCategories, listProducts } from "@/lib/products.functions";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Marquee } from "@/components/site/Marquee";
 import { useTheme } from "@/lib/theme-context";
+import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -48,8 +49,13 @@ function Home() {
           </div>
           <div className="relative md:col-span-5">
             <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border-2 border-ink bg-ink cmyk-shadow">
-              {hero.imageUrl ? (
-                <img src={hero.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              {hero.imageAssetId || hero.imageUrl ? (
+                <StorefrontAssetImage
+                  assetId={hero.imageAssetId}
+                  fallbackUrl={hero.imageUrl}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
               ) : (
                 <>
                   <div className="absolute inset-0 bg-gradient-to-br from-magenta via-magenta/70 to-cyan" />

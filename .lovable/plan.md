@@ -1,100 +1,86 @@
+# Engineering Task 004D — Theme Builder
 
-# Engineering Task 004C — Asset Manager, Design Tokens, Storefront Assets
+Build a complete visual Theme Builder for Craft Studio on top of the existing token foundation, without any DB migration and without disturbing Projects, Assets (004C), Homepage Builder (004B), or the publishing workflow.
 
-## Phase 0 — Import repo into this Lovable project
+## Approach
 
-The Lovable project is currently a blank TanStack Start template. Before Task 004C work begins:
+1. **Expand tokens** (`src/lib/storefront/tokens.ts`)
+   - New `StorefrontDesignTokens` (colors, typography, buttons, radius, spacing).
+   - Defaults reproduce current Craft & Cling look (ink/cream/CMYK).
+   - Export `DEFAULT_DESIGN_TOKENS`, `mergeDesignTokens`, `designTokensToCssVariables`, plus back-compat aliases (`DesignTokens`, `DEFAULT_TOKENS`, `tokensToCssVariables`).
 
-1. Extract `user-uploads://color-canvas-studio-main.zip` to `/tmp` and confirm no `.git` metadata is copied.
-2. Sync files into `/dev-server` with `rsync --exclude='.git'` (preserves this project's git state).
-3. Install dependencies (`bun install`) so the auto-build sees the new tree.
-4. Enable Lovable Cloud only if it isn't already wired; the repo already has `src/integrations/supabase/*`, so most likely we just need to confirm env + types.
-5. Verify the app builds and the existing Craft Studio + Homepage Builder routes render before making any 004C changes.
+2. **Theme model** (`src/lib/theme.ts`)
+   - Add `tokens: StorefrontDesignTokens` to `Theme`.
+   - `mergeTheme` deep-merges tokens; when tokens missing, seed `tokens.colors.primary/accent` from legacy `brand.primary/accent`.
+   - On save, keep `brand.primary/accent` synced from tokens for back-compat.
 
-No feature work happens until Phase 0 is green.
+3. **Validation** (`src/lib/storefront/tokens.validation.ts`)
+   - Zod schema; reject `url(`, `expression(`, `<script`, `;`, `{}`, remote URLs. Enum for button style, controlled font IDs, controlled radius/spacing tokens.
+   - Server-side `adminSaveThemeDraft` / `adminPublishTheme` validate before write.
 
-## Phase 1 — Centralized owner permissions
+4. **Font registry** (`src/lib/storefront/fonts.ts`)
+   - Controlled list: Space Grotesk, DM Sans, Inter, Poppins, Montserrat, Lora, Playfair Display, System Sans, System Serif.
+   - Load selected Google Fonts via `<link>` in `__root.tsx` head based on published theme.
 
-- New `src/lib/permissions.server.ts` exporting `requireStaffAccess`, `requireOwnerAccess`, `requireOwnerCapability`.
-  - Each helper takes the `requireSupabaseAuth` context, loads the user's role from `user_roles`, checks the email allowlist already defined in `src/lib/permissions.ts`, and throws a typed `ForbiddenError` (returned as `Response('Forbidden', { status: 403 })`).
-- Refactor every Craft Studio server function in `src/lib/theme.functions.ts` (draft read/save, publish, version history, revert) to use `requireOwnerAccess`. Keep the public published-theme reader open (no auth middleware).
-- Draft preview route on the storefront gated by the same helper via a server fn call.
+5. **CSS variable runtime**
+   - `theme-context.tsx` injects `<style>` with token → CSS-var mapping, scoped to `.storefront-theme`.
+   - Map new tokens to legacy vars (`--ink`, `--cream`, `--cmyk-*`) so existing utilities respond.
+   - Wrap storefront (public routes + storefront preview) in `StorefrontThemeScope`; do NOT apply to `/portal-admin/*`.
 
-## Phase 2 — Supabase schema (new migration)
+6. **Owner-only server functions** (`src/lib/theme.functions.ts`)
+   - Switch `adminGetTheme`, versions listing/revert to `requireOwnerAccess`.
+   - Draft preview gate in `theme-context.tsx` uses owner check (via existing permissions).
 
-One additive migration file under `supabase/migrations/` creating:
+7. **Theme Builder UI** — refactor `src/routes/_authenticated/portal-admin/theme.tsx` into thin route + `src/components/admin/craft-studio/theme/*`:
+   - `ThemeBuilder`, `ThemeBuilderHeader` (save/publish/preview/version), `ThemeSettingsPanel` (tabs: Brand, Colors, Typography, Buttons, Layout, Presets, Content), `ThemePreviewCanvas` + `ThemeDeviceSwitcher`, `ThemePresetPicker`, per-section editors, `ColorTokenField`, `FontSelector`, `TokenResetButton`, `ThemeVersionPanel`.
+   - Existing announcement/homepage/nav/footer/pages/inventory controls preserved under a "Content" tab.
 
-- `craft_asset_categories` (id, name, slug unique, description, sort_order, timestamps) + seed rows: Brand Assets, Logos, Hero Images, Homepage Images, Gallery, Campaign Assets, Icons, Product Collections, General.
-- `craft_asset_folders` (id, name, parent_id nullable self-ref, created_by, timestamps).
-- `craft_assets` (id, name, original_filename, bucket, storage_path unique, mime_type, size_bytes, width, height, alt_text, category_id, folder_id, tags text[], status text default 'active' check in ('active','archived'), uploaded_by, timestamps).
-- `craft_asset_usages` (id, asset_id fk → craft_assets on delete cascade, source_type, source_id, field_path, usage_scope check in ('draft','published'), metadata jsonb, timestamps) + unique index `(asset_id, source_type, source_id, field_path, usage_scope)`.
+8. **Presets** (in `tokens.ts`): Craft & Cling Default, Bold CMYK, Soft Craft, Minimal Ink. Apply only touches `tokens`, never content/assets.
 
-For every new public-schema table:
+9. **Preview canvas**
+   - In-page div, `.storefront-theme` scope with token style attribute from local unsaved draft. Renders announcement bar, header, nav, hero, buttons, card, form field, badge, footer sample. Device widths: 1280 / 834 / 390.
 
-- `GRANT SELECT` to `anon` on `craft_assets` + `craft_asset_categories` + `craft_asset_folders` (storefront needs to resolve public URLs).
-- `GRANT SELECT, INSERT, UPDATE, DELETE ... TO authenticated` and `GRANT ALL ... TO service_role`.
-- Enable RLS. Policies:
-  - `craft_assets`: anon `SELECT` where `status = 'active'`; authenticated full access filtered through `has_role(auth.uid(), 'owner')` (Craft Studio-only writes). Same shape for categories/folders/usages (owner-only writes; usages readable only to owners).
+10. **Media Picker integration**
+    - Brand logo + hero via existing `MediaPicker`; store `logoAssetId` / `imageAssetId`, keep legacy URL fallback.
+    - New `src/components/site/StorefrontAssetImage.tsx` — resolves Asset ID via existing public resolver with TanStack Query; falls back to legacy URL.
+    - Update `Header.tsx` and `routes/index.tsx` to use it.
 
-Nothing existing is dropped or altered.
+11. **Storefront wiring**
+    - Wrap storefront in `StorefrontThemeScope` (from `__root.tsx` for non-admin routes, or per-layout).
+    - Header/Footer/AnnouncementBar/ProductCard/Marquee reviewed to consume tokens via existing utility classes (already token-driven through legacy var mapping).
 
-## Phase 3 — Supabase Storage bucket
+12. **Query keys & dirty state**
+    - Keys: `["theme","admin"]`, `["theme","published"]`, `["theme","versions"]`, `["storefront-assets", id]`.
+    - Local draft state independent of query cache; dirty flag; `beforeunload` warning; scoped invalidations after save/publish.
 
-Create bucket `craft-studio-assets` via `supabase--storage_create_bucket` (public read). Policies on `storage.objects`:
+13. **Full draft preview**
+    - `/?theme=draft` continues; gate switches from `isStaff` to owner check.
 
-- Public `SELECT` for `bucket_id = 'craft-studio-assets'`.
-- INSERT/UPDATE/DELETE only when `has_role(auth.uid(), 'owner')` AND caller email in the allowlist (via a SECURITY DEFINER helper `public.is_craft_owner(uuid)`).
-- Object paths: `{ownerUserId}/{assetId}/{sanitizedFilename}` — generated server-side.
-- Server-side validation: MIME in {png,jpeg,jpg,webp,gif,avif}, size ≤ 15 MB. SVG deferred.
+## Technical Notes
 
-## Phase 4 — Storefront services (`src/lib/storefront/`)
+- No SQL migration.
+- No new tables or buckets.
+- Legacy `brand.primary/accent`, `logoUrl`, `imageUrl` preserved as fallbacks.
+- Admin UI is NOT wrapped in `.storefront-theme` scope; keeps shadcn defaults.
+- Fonts loaded via `<link rel="stylesheet">` in root head, built from published theme's font IDs (registry-controlled).
+- Zod validation shared between client (form) and server (functions).
 
-New folder — existing `src/lib/theme.ts` / `theme.functions.ts` untouched except for Asset ID additions.
+## Out of Scope
 
-- `assets.ts` — client-safe types (`CraftAsset`, `CraftAssetCategory`, `CraftAssetFolder`, `CraftAssetUsage`, `AssetUploadInput`, `AssetUpdateInput`, `AssetPickerValue`), pure helpers: `validateMimeType`, `validateSize`, `sanitizeFilename`, `buildStoragePath`, `readImageDimensions` (browser only), `resolvePublicUrl(bucket, path)`.
-- `assets.functions.ts` — server functions, all owner-gated except the public resolver:
-  - `listAssets`, `searchAssets`, `getAsset`, `createAsset` (metadata after upload), `updateAsset`, `archiveAsset`, `restoreAsset`, `deleteAsset` (blocked if usages exist), `getAssetUsage`.
-  - `listCategories`, `createCategory`, `updateCategory`.
-  - `listFolders`, `createFolder`, `updateFolder`.
-  - `resolvePublicAssets({ ids: string[] })` — no auth; returns only `{id, url, width, height, alt_text}` for `status='active'` rows.
-  - Uploads happen client-side via the browser Supabase client into the bucket after `createAsset` reserves the row + path; the server fn returns the signed upload target. Replace flow: upload new object under same asset id folder, update row, delete old object.
-- `asset-usage.ts` — pure functions: `extractAssetRefs(theme)`, `diffUsage(prev, next)`, `syncDraftUsage(assetRefs)`, `syncPublishedUsage(assetRefs)`. Initial tracked fields: `brand.logoAssetId`, homepage hero section `image.assetId`. Structure allows adding gallery/section/nav/footer/product later.
-- `tokens.ts` — typed design token schema (color, typography, radius, spacing) + `tokensToCssVariables(tokens)` returning a `Record<string,string>` mapped to the existing `--color-*` / `--radius-*` vars in `src/styles.css`. Consumer: `theme-context.tsx` will inject a `<style>` tag with the token vars scoped to `:root`. No visual regression: defaults mirror current tokens.
-- `index.ts` — re-exports.
+Navigation/Footer builder redesign, Publishing engine redesign, AI, custom CSS, payments, product changes.
 
-## Phase 5 — Asset IDs in the existing theme
+## Verification
 
-- Extend `ThemeConfig` in `src/lib/theme.ts`:
-  - `brand.logoAssetId: string | null` (add), keep `brand.logoUrl` optional for backward compatibility.
-  - Homepage hero section: add `image.assetId: string | null` alongside existing `image.url`.
-- Theme resolver: if `logoAssetId` set, resolve URL via `resolvePublicAssets`; else fall back to `logoUrl`. Same rule for hero image.
-- Migration for existing drafts: no data migration required — legacy URL fields keep working.
-- `theme.functions.ts` save/publish handlers call `syncDraftUsage` / `syncPublishedUsage` after write.
-
-## Phase 6 — Media Picker + Asset Manager UI
-
-- `src/components/admin/craft-studio/MediaPicker.tsx` — dialog with tabs (Library / Upload / URL fallback), category + folder filters, search, returns `AssetPickerValue`. Reused by future editors.
-- `src/routes/_authenticated/portal-admin/craft-studio.assets.tsx` — Asset Manager page (list, grid, filters, upload, edit metadata, archive/restore, delete-if-unused, usage panel). Owner-gated via existing `_authenticated` layout + Craft Studio route wrapper.
-- Wire MediaPicker into existing Logo and Hero editors on `craft-studio.tsx` (or the sub-route where they live) — only surfaces where Asset IDs are already in scope for Phase 5.
-
-## Phase 7 — Verify
-
-- `bun run build` (auto).
-- Manual: sign in as owner → open Asset Manager → upload → assign to hero → save draft → preview → publish → confirm asset URL resolves on storefront and usage row appears with `scope='published'`.
-- Non-owner login gets 403 from every Craft Studio fn.
-
-## Out of scope (deferred to 004D+)
-
-- Theme Builder UI for design tokens (only the token architecture + CSS var wiring lands here).
-- Nested folder tree UI (schema supports it; UI is flat for now).
-- Navigation, footer, gallery, campaign, product asset references (architecture ready; wiring later).
-- AI actions.
-- Version history changes.
-
-## Technical details
-
-- All new server fns follow `createServerFn().middleware([requireSupabaseAuth]).inputValidator(zod).handler(...)` with permission helper invoked first in the handler.
-- Storage writes from the browser use the user-session `supabase` client so RLS on `storage.objects` enforces the owner check — no service-role usage from client-reachable code.
-- `resolvePublicAssets` uses a server publishable client (per stack rules) so SSR works without a bearer token.
-- No changes to `src/routes/_authenticated/route.tsx` (integration-managed).
-
+- Production build (`bun run build` or project script).
+- Manual checklist:
+  1. `/portal-admin/theme` loads for owner, denied for non-owner.
+  2. Color/font/radius/button/layout edits reflect immediately in preview canvas.
+  3. Save → reopen, values persist.
+  4. Publish → storefront `/` reflects changes; `--ink/--cream/--cmyk-*` respond.
+  5. Preset applies to tokens only; content untouched.
+  6. Reset field / section / all works.
+  7. Unsaved-changes navigation warning fires.
+  8. Media Picker sets logo/hero Asset ID; `StorefrontAssetImage` renders it; legacy URL still works when no ID.
+  9. Admin pages (Projects, Assets) unaffected by storefront theme.
+  10. `/?theme=draft` shows draft only for owner.
+  11. Version revert loads snapshot into draft; old snapshots without tokens still work.
