@@ -37,6 +37,7 @@ import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes
 import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
 import { Route as AuthenticatedPortalAdminProductsIdRouteImport } from './routes/_authenticated/portal-admin/products.$id'
 import { Route as AuthenticatedPortalAdminCustomersIdRouteImport } from './routes/_authenticated/portal-admin/customers.$id'
+import { Route as AuthenticatedPortalAdminCraftStudioAssetsRouteImport } from './routes/_authenticated/portal-admin/craft-studio.assets'
 import { Route as AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport } from './routes/_authenticated/portal-admin/orders.$id.packing-slip'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -192,6 +193,12 @@ const AuthenticatedPortalAdminCustomersIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedPortalAdminCustomersRoute,
   } as any)
+const AuthenticatedPortalAdminCraftStudioAssetsRoute =
+  AuthenticatedPortalAdminCraftStudioAssetsRouteImport.update({
+    id: '/assets',
+    path: '/assets',
+    getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
+  } as any)
 const AuthenticatedPortalAdminOrdersIdPackingSlipRoute =
   AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport.update({
     id: '/$id/packing-slip',
@@ -213,7 +220,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
   '/account': typeof AuthenticatedAccountRoute
   '/shop/$slug': typeof ShopSlugRoute
-  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRoute
+  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
+  '/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
   '/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
   '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
@@ -242,7 +250,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
   '/shop/$slug': typeof ShopSlugRoute
-  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRoute
+  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
@@ -252,6 +260,7 @@ export interface FileRoutesByTo {
   '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin': typeof AuthenticatedPortalAdminIndexRoute
+  '/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
   '/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
   '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
@@ -274,7 +283,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/shop/$slug': typeof ShopSlugRoute
-  '/_authenticated/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRoute
+  '/_authenticated/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/_authenticated/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/_authenticated/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/_authenticated/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
@@ -284,6 +293,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
+  '/_authenticated/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
   '/_authenticated/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
   '/_authenticated/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/_authenticated/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/portal-admin/theme'
     | '/projects/$id'
     | '/portal-admin/'
+    | '/portal-admin/craft-studio/assets'
     | '/portal-admin/customers/$id'
     | '/portal-admin/products/$id'
     | '/portal-admin/products/new'
@@ -345,6 +356,7 @@ export interface FileRouteTypes {
     | '/portal-admin/theme'
     | '/projects/$id'
     | '/portal-admin'
+    | '/portal-admin/craft-studio/assets'
     | '/portal-admin/customers/$id'
     | '/portal-admin/products/$id'
     | '/portal-admin/products/new'
@@ -376,6 +388,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin/theme'
     | '/_authenticated/projects/$id'
     | '/_authenticated/portal-admin/'
+    | '/_authenticated/portal-admin/craft-studio/assets'
     | '/_authenticated/portal-admin/customers/$id'
     | '/_authenticated/portal-admin/products/$id'
     | '/_authenticated/portal-admin/products/new'
@@ -595,6 +608,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminCustomersIdRouteImport
       parentRoute: typeof AuthenticatedPortalAdminCustomersRoute
     }
+    '/_authenticated/portal-admin/craft-studio/assets': {
+      id: '/_authenticated/portal-admin/craft-studio/assets'
+      path: '/assets'
+      fullPath: '/portal-admin/craft-studio/assets'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+    }
     '/_authenticated/portal-admin/orders/$id/packing-slip': {
       id: '/_authenticated/portal-admin/orders/$id/packing-slip'
       path: '/$id/packing-slip'
@@ -604,6 +624,21 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedPortalAdminCraftStudioRouteChildren {
+  AuthenticatedPortalAdminCraftStudioAssetsRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
+}
+
+const AuthenticatedPortalAdminCraftStudioRouteChildren: AuthenticatedPortalAdminCraftStudioRouteChildren =
+  {
+    AuthenticatedPortalAdminCraftStudioAssetsRoute:
+      AuthenticatedPortalAdminCraftStudioAssetsRoute,
+  }
+
+const AuthenticatedPortalAdminCraftStudioRouteWithChildren =
+  AuthenticatedPortalAdminCraftStudioRoute._addFileChildren(
+    AuthenticatedPortalAdminCraftStudioRouteChildren,
+  )
 
 interface AuthenticatedPortalAdminCustomersRouteChildren {
   AuthenticatedPortalAdminCustomersIdRoute: typeof AuthenticatedPortalAdminCustomersIdRoute
@@ -669,7 +704,7 @@ const AuthenticatedPortalAdminProjectsRouteWithChildren =
   )
 
 interface AuthenticatedPortalAdminRouteRouteChildren {
-  AuthenticatedPortalAdminCraftStudioRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+  AuthenticatedPortalAdminCraftStudioRoute: typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   AuthenticatedPortalAdminCustomersRoute: typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   AuthenticatedPortalAdminDiscountsRoute: typeof AuthenticatedPortalAdminDiscountsRoute
   AuthenticatedPortalAdminEmployeesRoute: typeof AuthenticatedPortalAdminEmployeesRoute
@@ -683,7 +718,7 @@ interface AuthenticatedPortalAdminRouteRouteChildren {
 const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteRouteChildren =
   {
     AuthenticatedPortalAdminCraftStudioRoute:
-      AuthenticatedPortalAdminCraftStudioRoute,
+      AuthenticatedPortalAdminCraftStudioRouteWithChildren,
     AuthenticatedPortalAdminCustomersRoute:
       AuthenticatedPortalAdminCustomersRouteWithChildren,
     AuthenticatedPortalAdminDiscountsRoute:

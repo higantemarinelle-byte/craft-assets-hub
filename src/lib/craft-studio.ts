@@ -82,7 +82,8 @@ export const CRAFT_MODULES: CraftModule[] = [
     id: "media_library",
     title: "Media Library",
     description: "Manage banners, gallery images, logos and future media assets.",
-    status: "coming_soon",
+    status: "available",
+    href: "/portal-admin/craft-studio/assets",
     quickActionLabel: "Open library",
   },
   {
