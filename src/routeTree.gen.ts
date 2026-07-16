@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as QuoteSubmittedRouteImport } from './routes/quote-submitted'
 import { Route as ProjectSubmittedRouteImport } from './routes/project-submitted'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as GangSheetRouteImport } from './routes/gang-sheet'
@@ -52,6 +53,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteSubmittedRoute = QuoteSubmittedRouteImport.update({
+  id: '/quote-submitted',
+  path: '/quote-submitted',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectSubmittedRoute = ProjectSubmittedRouteImport.update({
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/gang-sheet': typeof GangSheetRoute
   '/how-it-works': typeof HowItWorksRoute
   '/project-submitted': typeof ProjectSubmittedRoute
+  '/quote-submitted': typeof QuoteSubmittedRoute
   '/shop': typeof ShopRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/gang-sheet': typeof GangSheetRoute
   '/how-it-works': typeof HowItWorksRoute
   '/project-submitted': typeof ProjectSubmittedRoute
+  '/quote-submitted': typeof QuoteSubmittedRoute
   '/shop': typeof ShopRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/gang-sheet': typeof GangSheetRoute
   '/how-it-works': typeof HowItWorksRoute
   '/project-submitted': typeof ProjectSubmittedRoute
+  '/quote-submitted': typeof QuoteSubmittedRoute
   '/shop': typeof ShopRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
@@ -351,6 +360,7 @@ export interface FileRouteTypes {
     | '/gang-sheet'
     | '/how-it-works'
     | '/project-submitted'
+    | '/quote-submitted'
     | '/shop'
     | '/sitemap.xml'
     | '/portal-admin'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/gang-sheet'
     | '/how-it-works'
     | '/project-submitted'
+    | '/quote-submitted'
     | '/shop'
     | '/sitemap.xml'
     | '/account'
@@ -421,6 +432,7 @@ export interface FileRouteTypes {
     | '/gang-sheet'
     | '/how-it-works'
     | '/project-submitted'
+    | '/quote-submitted'
     | '/shop'
     | '/sitemap.xml'
     | '/_authenticated/portal-admin'
@@ -458,6 +470,7 @@ export interface RootRouteChildren {
   GangSheetRoute: typeof GangSheetRoute
   HowItWorksRoute: typeof HowItWorksRoute
   ProjectSubmittedRoute: typeof ProjectSubmittedRoute
+  QuoteSubmittedRoute: typeof QuoteSubmittedRoute
   ShopRoute: typeof ShopRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -476,6 +489,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote-submitted': {
+      id: '/quote-submitted'
+      path: '/quote-submitted'
+      fullPath: '/quote-submitted'
+      preLoaderRoute: typeof QuoteSubmittedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/project-submitted': {
@@ -868,6 +888,7 @@ const rootRouteChildren: RootRouteChildren = {
   GangSheetRoute: GangSheetRoute,
   HowItWorksRoute: HowItWorksRoute,
   ProjectSubmittedRoute: ProjectSubmittedRoute,
+  QuoteSubmittedRoute: QuoteSubmittedRoute,
   ShopRoute: ShopRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
