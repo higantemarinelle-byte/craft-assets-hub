@@ -17,6 +17,8 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { ThemeProvider } from "@/lib/theme-context";
+import { StorefrontThemeScope } from "@/components/site/StorefrontThemeScope";
+import { useRouterState } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -115,17 +117,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAdmin = pathname.startsWith("/portal-admin");
+  const shell = (
+    <div className="flex min-h-screen flex-col">
+      <AnnouncementBar />
+      <Header />
+      <main className="flex-1"><Outlet /></main>
+      <Footer />
+    </div>
+  );
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider>
           <CartProvider>
-            <div className="flex min-h-screen flex-col">
-              <AnnouncementBar />
-              <Header />
-              <main className="flex-1"><Outlet /></main>
-              <Footer />
-            </div>
+            {isAdmin ? shell : <StorefrontThemeScope>{shell}</StorefrontThemeScope>}
             <Toaster />
           </CartProvider>
         </ThemeProvider>
