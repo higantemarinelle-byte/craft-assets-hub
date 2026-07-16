@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trash2, FileCheck2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
-import { money } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,7 @@ const ARTWORK_ACCEPT = ".png,.jpg,.jpeg,.pdf,.ai,.psd,.svg,image/*,application/p
 const ARTWORK_HELPER = "Accepted: PNG, JPG, PDF, AI, PSD, SVG · Max 25MB. Don't worry if your artwork isn't perfect — we'll review it and reach out with any suggestions before printing.";
 
 function Cart() {
-  const { items, setQty, remove, updateItem, subtotal } = useCart();
+  const { items, setQty, remove, updateItem } = useCart();
   const [info, setInfo] = useState<ProjectInfo>(emptyInfo);
 
   useEffect(() => {
