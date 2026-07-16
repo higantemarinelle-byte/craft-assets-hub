@@ -395,9 +395,9 @@ function migrateLegacySocials(legacy: any): SocialLink[] {
     pinterest: "pinterest",
     youtube: "youtube",
   };
-  return socials
+  return (socials as any[])
     .filter((s: any) => s && typeof s.href === "string")
-    .map<SocialLink>((s: any) => {
+    .map((s: any): SocialLink => {
       const platform: SocialPlatform = map[String(s.kind).toLowerCase()] ?? "other";
       return {
         id: newId("s"),
