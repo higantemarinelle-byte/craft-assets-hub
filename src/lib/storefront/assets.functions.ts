@@ -80,10 +80,14 @@ export const resolvePublicAssets = createServerFn({ method: "POST" })
     const supabase = supabaseAdmin;
     const { data: rows, error } = await supabase
       .from("craft_assets" as any)
-      .select("id, bucket, storage_path, width, height, alt_text, status")
+      .select("id, bucket, storage_path, width, height, alt_text, status, is_public")
       .in("id", data.ids)
-      .eq("status", "active");
-    if (error) throw new Error(error.message);
+      .eq("status", "active")
+      .eq("is_public", true);
+    if (error) {
+      console.error("[resolvePublicAssets] db error", error);
+      throw new Error("Unable to load assets");
+    }
     const list = (rows ?? []) as any[];
     const byBucket = new Map<string, string[]>();
     for (const r of list) {
