@@ -5,11 +5,75 @@ import {
   mergeDesignTokens,
   type StorefrontDesignTokens,
 } from "@/lib/storefront/tokens";
+import { newId, type SocialPlatform } from "@/lib/storefront/site-config";
 
 export type ThemeSocial = { kind: "instagram" | "tiktok" | "twitter" | "facebook" | "email"; href: string };
 export type ThemeLink = { label: string; href: string };
 export type ThemeFooterColumn = { title: string; links: ThemeLink[] };
 export type ThemeTestimonial = { quote: string; author: string };
+
+// ---------- 004E: Navigation + Footer typed schemas ----------
+
+export type NavigationLink = {
+  id: string;
+  label: string;
+  type: "internal" | "external";
+  href: string;
+  enabled: boolean;
+  openInNewTab: boolean;
+  children: NavigationLink[];
+};
+
+export type StorefrontNavigation = {
+  links: NavigationLink[];
+  showSearch: boolean;
+  showAccount: boolean;
+  showProjectCart: boolean;
+  projectCartLabel: string;
+  stickyHeader: boolean;
+};
+
+export type FooterLink = {
+  id: string;
+  label: string;
+  type: "internal" | "external";
+  href: string;
+  enabled: boolean;
+  openInNewTab: boolean;
+};
+
+export type FooterColumnV2 = {
+  id: string;
+  heading: string;
+  enabled: boolean;
+  links: FooterLink[];
+};
+
+export type SocialLink = {
+  id: string;
+  platform: SocialPlatform;
+  label: string;
+  url: string;
+  enabled: boolean;
+};
+
+export type StorefrontFooter = {
+  enabled: boolean;
+  logoAssetId: string | null;
+  logoUrl: string | null;
+  businessName: string;
+  description: string;
+  columns: FooterColumnV2[];
+  contact: {
+    enabled: boolean;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  socialLinks: SocialLink[];
+  copyrightText: string;
+  showPoweredBy: boolean;
+};
 
 export type ThemeHomeSection =
   | { id: string; type: "categories"; enabled: boolean; title?: string }
@@ -30,7 +94,11 @@ export type Theme = {
     accent: string;
   };
   announcement: { enabled: boolean; text: string; link?: string };
+  /** Legacy header link list — kept for backward compatibility. */
   nav: { items: ThemeLink[] };
+  /** 004E: Navigation Builder output. Renders the public header. */
+  navigation: StorefrontNavigation;
+  /** Legacy footer object — kept for backward compatibility. */
   footer: {
     blurb: string;
     columns: ThemeFooterColumn[];
@@ -38,6 +106,8 @@ export type Theme = {
     contactEmail?: string;
     legal?: string;
   };
+  /** 004E: Footer Builder output. Renders the public footer. */
+  footerV2: StorefrontFooter;
   home: {
     hero: {
       eyebrow: string;
@@ -84,6 +154,20 @@ export const DEFAULT_THEME: Theme = {
       { label: "Project Cart", href: "/cart" },
     ],
   },
+  navigation: {
+    links: [
+      { id: "n_home", label: "Home", type: "internal", href: "/", enabled: true, openInNewTab: false, children: [] },
+      { id: "n_products", label: "Products", type: "internal", href: "/shop", enabled: true, openInNewTab: false, children: [] },
+      { id: "n_custom", label: "Custom Prints", type: "internal", href: "/gang-sheet", enabled: true, openInNewTab: false, children: [] },
+      { id: "n_how", label: "How It Works", type: "internal", href: "/how-it-works", enabled: true, openInNewTab: false, children: [] },
+      { id: "n_about", label: "About", type: "internal", href: "/about", enabled: true, openInNewTab: false, children: [] },
+    ],
+    showSearch: true,
+    showAccount: true,
+    showProjectCart: true,
+    projectCartLabel: "Project Cart",
+    stickyHeader: true,
+  },
   footer: {
     blurb: "Premium DTF transfers and custom printing. Upload your artwork, build a project, and we'll guide you through every step.",
     columns: [
@@ -96,6 +180,44 @@ export const DEFAULT_THEME: Theme = {
     ],
     contactEmail: "hello@craftandcling.com",
     legal: "© Craft & Cling",
+  },
+  footerV2: {
+    enabled: true,
+    logoAssetId: null,
+    logoUrl: null,
+    businessName: "Craft & Cling",
+    description: "Premium DTF transfers and custom printing. Upload your artwork, build a project, and we'll guide you through every step.",
+    columns: [
+      {
+        id: "c_explore",
+        heading: "Explore",
+        enabled: true,
+        links: [
+          { id: "l_products", label: "Products", type: "internal", href: "/shop", enabled: true, openInNewTab: false },
+          { id: "l_gang", label: "Gang sheets", type: "internal", href: "/gang-sheet", enabled: true, openInNewTab: false },
+        ],
+      },
+      {
+        id: "c_learn",
+        heading: "Learn",
+        enabled: true,
+        links: [
+          { id: "l_how", label: "How it works", type: "internal", href: "/how-it-works", enabled: true, openInNewTab: false },
+          { id: "l_about", label: "About us", type: "internal", href: "/about", enabled: true, openInNewTab: false },
+        ],
+      },
+    ],
+    contact: {
+      enabled: true,
+      email: "hello@craftandcling.com",
+      phone: "",
+      address: "",
+    },
+    socialLinks: [
+      { id: "s_ig", platform: "instagram", label: "Instagram", url: "https://instagram.com", enabled: true },
+    ],
+    copyrightText: "© {year} Craft & Cling. All rights reserved.",
+    showPoweredBy: false,
   },
   home: {
     hero: {
@@ -153,7 +275,9 @@ export function mergeTheme(partial: any): Theme {
     brand,
     announcement: { ...DEFAULT_THEME.announcement, ...(p.announcement ?? {}) },
     nav: { items: p.nav?.items ?? DEFAULT_THEME.nav.items },
+    navigation: mergeNavigation(p.navigation, p.nav?.items),
     footer: { ...DEFAULT_THEME.footer, ...(p.footer ?? {}) },
+    footerV2: mergeFooterV2(p.footerV2, p.footer),
     home: {
       hero: { ...DEFAULT_THEME.home.hero, ...(p.home?.hero ?? {}) },
       marquee: { ...DEFAULT_THEME.home.marquee, ...(p.home?.marquee ?? {}) },
@@ -166,6 +290,197 @@ export function mergeTheme(partial: any): Theme {
     },
     inventory: { ...DEFAULT_THEME.inventory, ...(p.inventory ?? {}) },
     tokens,
+  };
+}
+
+// ---------- 004E migration helpers ----------
+
+function migrateLegacyNavItems(items: any[] | undefined): NavigationLink[] {
+  if (!Array.isArray(items) || items.length === 0) return DEFAULT_THEME.navigation.links;
+  return items
+    .filter((x) => x && typeof x.label === "string" && typeof x.href === "string")
+    .map<NavigationLink>((it) => ({
+      id: newId("n"),
+      label: String(it.label),
+      type: /^https?:\/\//i.test(it.href) ? "external" : "internal",
+      href: String(it.href),
+      enabled: true,
+      openInNewTab: false,
+      children: [],
+    }));
+}
+
+function normalizeNavLink(raw: any): NavigationLink | null {
+  if (!raw || typeof raw.label !== "string" || typeof raw.href !== "string") return null;
+  return {
+    id: typeof raw.id === "string" && raw.id ? raw.id : newId("n"),
+    label: String(raw.label),
+    type: raw.type === "external" ? "external" : "internal",
+    href: String(raw.href),
+    enabled: raw.enabled !== false,
+    openInNewTab: !!raw.openInNewTab,
+    children: Array.isArray(raw.children)
+      ? raw.children.map(normalizeNavLink).filter((x: NavigationLink | null): x is NavigationLink => !!x).map((c: NavigationLink) => ({ ...c, children: [] }))
+      : [],
+  };
+}
+
+function mergeNavigation(nav: any, legacyItems: any[] | undefined): StorefrontNavigation {
+  const d = DEFAULT_THEME.navigation;
+  if (!nav || !Array.isArray(nav.links)) {
+    // No new-shape navigation yet — migrate legacy items if present.
+    return {
+      links: migrateLegacyNavItems(legacyItems),
+      showSearch: nav?.showSearch ?? d.showSearch,
+      showAccount: nav?.showAccount ?? d.showAccount,
+      showProjectCart: nav?.showProjectCart ?? d.showProjectCart,
+      projectCartLabel: nav?.projectCartLabel ?? d.projectCartLabel,
+      stickyHeader: nav?.stickyHeader ?? d.stickyHeader,
+    };
+  }
+  const links = nav.links
+    .map(normalizeNavLink)
+    .filter((x: NavigationLink | null): x is NavigationLink => !!x);
+  return {
+    links: links.length ? links : d.links,
+    showSearch: nav.showSearch ?? d.showSearch,
+    showAccount: nav.showAccount ?? d.showAccount,
+    showProjectCart: nav.showProjectCart ?? d.showProjectCart,
+    projectCartLabel: typeof nav.projectCartLabel === "string" && nav.projectCartLabel ? nav.projectCartLabel : d.projectCartLabel,
+    stickyHeader: nav.stickyHeader ?? d.stickyHeader,
+  };
+}
+
+function normalizeFooterLink(raw: any): FooterLink | null {
+  if (!raw || typeof raw.label !== "string" || typeof raw.href !== "string") return null;
+  return {
+    id: typeof raw.id === "string" && raw.id ? raw.id : newId("l"),
+    label: String(raw.label),
+    type: raw.type === "external" ? "external" : "internal",
+    href: String(raw.href),
+    enabled: raw.enabled !== false,
+    openInNewTab: !!raw.openInNewTab,
+  };
+}
+
+function migrateLegacyFooter(legacy: any): FooterColumnV2[] {
+  const cols = Array.isArray(legacy?.columns) ? legacy.columns : [];
+  return cols
+    .map((c: any): FooterColumnV2 | null => {
+      if (!c || typeof c.title !== "string") return null;
+      const links: FooterLink[] = Array.isArray(c.links)
+        ? c.links
+            .filter((l: any) => l && typeof l.label === "string" && typeof l.href === "string")
+            .map((l: any): FooterLink => ({
+              id: newId("l"),
+              label: String(l.label),
+              type: /^https?:\/\//i.test(l.href) ? "external" : "internal",
+              href: String(l.href),
+              enabled: true,
+              openInNewTab: false,
+            }))
+        : [];
+      return { id: newId("c"), heading: String(c.title), enabled: true, links };
+    })
+    .filter((x: FooterColumnV2 | null): x is FooterColumnV2 => !!x);
+}
+
+function migrateLegacySocials(legacy: any): SocialLink[] {
+  const socials = Array.isArray(legacy?.socials) ? legacy.socials : [];
+  const map: Record<string, SocialPlatform> = {
+    instagram: "instagram",
+    tiktok: "tiktok",
+    facebook: "facebook",
+    linkedin: "linkedin",
+    pinterest: "pinterest",
+    youtube: "youtube",
+  };
+  return (socials as any[])
+    .filter((s: any) => s && typeof s.href === "string")
+    .map((s: any): SocialLink => {
+      const platform: SocialPlatform = map[String(s.kind).toLowerCase()] ?? "other";
+      return {
+        id: newId("s"),
+        platform,
+        label: platform === "other" ? "Link" : platform[0].toUpperCase() + platform.slice(1),
+        url: String(s.href),
+        enabled: true,
+      };
+    });
+}
+
+function mergeFooterV2(v2: any, legacy: any): StorefrontFooter {
+  const d = DEFAULT_THEME.footerV2;
+  if (!v2 || typeof v2 !== "object") {
+    const migrated = migrateLegacyFooter(legacy);
+    const socials = migrateLegacySocials(legacy);
+    return {
+      enabled: true,
+      logoAssetId: null,
+      logoUrl: null,
+      businessName: DEFAULT_THEME.brand.name,
+      description: typeof legacy?.blurb === "string" ? legacy.blurb : d.description,
+      columns: migrated.length ? migrated : d.columns,
+      contact: {
+        enabled: !!(legacy?.contactEmail),
+        email: typeof legacy?.contactEmail === "string" ? legacy.contactEmail : "",
+        phone: "",
+        address: "",
+      },
+      socialLinks: socials.length ? socials : d.socialLinks,
+      copyrightText: typeof legacy?.legal === "string" && legacy.legal ? legacy.legal : d.copyrightText,
+      showPoweredBy: false,
+    };
+  }
+  const columns: FooterColumnV2[] = Array.isArray(v2.columns)
+    ? v2.columns
+        .map((c: any): FooterColumnV2 | null => {
+          if (!c || typeof c.heading !== "string") return null;
+          const links: FooterLink[] = Array.isArray(c.links)
+            ? c.links.map(normalizeFooterLink).filter((l: FooterLink | null): l is FooterLink => !!l)
+            : [];
+          return {
+            id: typeof c.id === "string" && c.id ? c.id : newId("c"),
+            heading: String(c.heading),
+            enabled: c.enabled !== false,
+            links,
+          };
+        })
+        .filter((x: FooterColumnV2 | null): x is FooterColumnV2 => !!x)
+    : d.columns;
+  const socialLinks: SocialLink[] = Array.isArray(v2.socialLinks)
+    ? v2.socialLinks
+        .map((s: any): SocialLink | null => {
+          if (!s || typeof s.url !== "string") return null;
+          const platform: SocialPlatform = (["facebook","instagram","youtube","tiktok","linkedin","pinterest","other"] as const).includes(s.platform)
+            ? s.platform
+            : "other";
+          return {
+            id: typeof s.id === "string" && s.id ? s.id : newId("s"),
+            platform,
+            label: typeof s.label === "string" ? s.label : platform,
+            url: String(s.url),
+            enabled: s.enabled !== false,
+          };
+        })
+        .filter((x: SocialLink | null): x is SocialLink => !!x)
+    : d.socialLinks;
+  return {
+    enabled: v2.enabled !== false,
+    logoAssetId: typeof v2.logoAssetId === "string" ? v2.logoAssetId : null,
+    logoUrl: typeof v2.logoUrl === "string" ? v2.logoUrl : null,
+    businessName: typeof v2.businessName === "string" ? v2.businessName : d.businessName,
+    description: typeof v2.description === "string" ? v2.description : d.description,
+    columns,
+    contact: {
+      enabled: v2?.contact?.enabled !== false,
+      email: typeof v2?.contact?.email === "string" ? v2.contact.email : "",
+      phone: typeof v2?.contact?.phone === "string" ? v2.contact.phone : "",
+      address: typeof v2?.contact?.address === "string" ? v2.contact.address : "",
+    },
+    socialLinks,
+    copyrightText: typeof v2.copyrightText === "string" ? v2.copyrightText : d.copyrightText,
+    showPoweredBy: !!v2.showPoweredBy,
   };
 }
 

@@ -37,6 +37,8 @@ import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes
 import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
 import { Route as AuthenticatedPortalAdminProductsIdRouteImport } from './routes/_authenticated/portal-admin/products.$id'
 import { Route as AuthenticatedPortalAdminCustomersIdRouteImport } from './routes/_authenticated/portal-admin/customers.$id'
+import { Route as AuthenticatedPortalAdminCraftStudioNavigationRouteImport } from './routes/_authenticated/portal-admin/craft-studio.navigation'
+import { Route as AuthenticatedPortalAdminCraftStudioFooterRouteImport } from './routes/_authenticated/portal-admin/craft-studio.footer'
 import { Route as AuthenticatedPortalAdminCraftStudioAssetsRouteImport } from './routes/_authenticated/portal-admin/craft-studio.assets'
 import { Route as AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport } from './routes/_authenticated/portal-admin/orders.$id.packing-slip'
 
@@ -193,6 +195,18 @@ const AuthenticatedPortalAdminCustomersIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedPortalAdminCustomersRoute,
   } as any)
+const AuthenticatedPortalAdminCraftStudioNavigationRoute =
+  AuthenticatedPortalAdminCraftStudioNavigationRouteImport.update({
+    id: '/navigation',
+    path: '/navigation',
+    getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
+  } as any)
+const AuthenticatedPortalAdminCraftStudioFooterRoute =
+  AuthenticatedPortalAdminCraftStudioFooterRouteImport.update({
+    id: '/footer',
+    path: '/footer',
+    getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
+  } as any)
 const AuthenticatedPortalAdminCraftStudioAssetsRoute =
   AuthenticatedPortalAdminCraftStudioAssetsRouteImport.update({
     id: '/assets',
@@ -231,6 +245,8 @@ export interface FileRoutesByFullPath {
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
   '/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
+  '/portal-admin/craft-studio/footer': typeof AuthenticatedPortalAdminCraftStudioFooterRoute
+  '/portal-admin/craft-studio/navigation': typeof AuthenticatedPortalAdminCraftStudioNavigationRoute
   '/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
   '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
@@ -261,6 +277,8 @@ export interface FileRoutesByTo {
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin': typeof AuthenticatedPortalAdminIndexRoute
   '/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
+  '/portal-admin/craft-studio/footer': typeof AuthenticatedPortalAdminCraftStudioFooterRoute
+  '/portal-admin/craft-studio/navigation': typeof AuthenticatedPortalAdminCraftStudioNavigationRoute
   '/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
   '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
@@ -294,6 +312,8 @@ export interface FileRoutesById {
   '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
   '/_authenticated/portal-admin/craft-studio/assets': typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
+  '/_authenticated/portal-admin/craft-studio/footer': typeof AuthenticatedPortalAdminCraftStudioFooterRoute
+  '/_authenticated/portal-admin/craft-studio/navigation': typeof AuthenticatedPortalAdminCraftStudioNavigationRoute
   '/_authenticated/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
   '/_authenticated/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/_authenticated/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
@@ -327,6 +347,8 @@ export interface FileRouteTypes {
     | '/projects/$id'
     | '/portal-admin/'
     | '/portal-admin/craft-studio/assets'
+    | '/portal-admin/craft-studio/footer'
+    | '/portal-admin/craft-studio/navigation'
     | '/portal-admin/customers/$id'
     | '/portal-admin/products/$id'
     | '/portal-admin/products/new'
@@ -357,6 +379,8 @@ export interface FileRouteTypes {
     | '/projects/$id'
     | '/portal-admin'
     | '/portal-admin/craft-studio/assets'
+    | '/portal-admin/craft-studio/footer'
+    | '/portal-admin/craft-studio/navigation'
     | '/portal-admin/customers/$id'
     | '/portal-admin/products/$id'
     | '/portal-admin/products/new'
@@ -389,6 +413,8 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/$id'
     | '/_authenticated/portal-admin/'
     | '/_authenticated/portal-admin/craft-studio/assets'
+    | '/_authenticated/portal-admin/craft-studio/footer'
+    | '/_authenticated/portal-admin/craft-studio/navigation'
     | '/_authenticated/portal-admin/customers/$id'
     | '/_authenticated/portal-admin/products/$id'
     | '/_authenticated/portal-admin/products/new'
@@ -608,6 +634,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminCustomersIdRouteImport
       parentRoute: typeof AuthenticatedPortalAdminCustomersRoute
     }
+    '/_authenticated/portal-admin/craft-studio/navigation': {
+      id: '/_authenticated/portal-admin/craft-studio/navigation'
+      path: '/navigation'
+      fullPath: '/portal-admin/craft-studio/navigation'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioNavigationRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+    }
+    '/_authenticated/portal-admin/craft-studio/footer': {
+      id: '/_authenticated/portal-admin/craft-studio/footer'
+      path: '/footer'
+      fullPath: '/portal-admin/craft-studio/footer'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioFooterRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+    }
     '/_authenticated/portal-admin/craft-studio/assets': {
       id: '/_authenticated/portal-admin/craft-studio/assets'
       path: '/assets'
@@ -627,12 +667,18 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedPortalAdminCraftStudioRouteChildren {
   AuthenticatedPortalAdminCraftStudioAssetsRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
+  AuthenticatedPortalAdminCraftStudioFooterRoute: typeof AuthenticatedPortalAdminCraftStudioFooterRoute
+  AuthenticatedPortalAdminCraftStudioNavigationRoute: typeof AuthenticatedPortalAdminCraftStudioNavigationRoute
 }
 
 const AuthenticatedPortalAdminCraftStudioRouteChildren: AuthenticatedPortalAdminCraftStudioRouteChildren =
   {
     AuthenticatedPortalAdminCraftStudioAssetsRoute:
       AuthenticatedPortalAdminCraftStudioAssetsRoute,
+    AuthenticatedPortalAdminCraftStudioFooterRoute:
+      AuthenticatedPortalAdminCraftStudioFooterRoute,
+    AuthenticatedPortalAdminCraftStudioNavigationRoute:
+      AuthenticatedPortalAdminCraftStudioNavigationRoute,
   }
 
 const AuthenticatedPortalAdminCraftStudioRouteWithChildren =

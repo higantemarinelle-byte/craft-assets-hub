@@ -46,6 +46,16 @@ export function extractAssetRefs(theme: Theme | undefined | null): AssetRef[] {
     });
   }
 
+  const footerLogoId = (theme as any)?.footerV2?.logoAssetId as string | null | undefined;
+  if (footerLogoId) {
+    refs.push({
+      assetId: footerLogoId,
+      source_type: "theme",
+      source_id: null,
+      field_path: "footerV2.logoAssetId",
+    });
+  }
+
   return refs;
 }
 

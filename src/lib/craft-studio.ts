@@ -47,14 +47,16 @@ export const CRAFT_MODULES: CraftModule[] = [
     id: "navigation",
     title: "Navigation",
     description: "Header menu, links, and site structure.",
-    status: "coming_soon",
+    status: "available",
+    href: "/portal-admin/craft-studio/navigation",
     quickActionLabel: "Edit navigation",
   },
   {
     id: "footer",
     title: "Footer",
     description: "Footer columns, contact info, and social links.",
-    status: "coming_soon",
+    status: "available",
+    href: "/portal-admin/craft-studio/footer",
     quickActionLabel: "Edit footer",
   },
   {
