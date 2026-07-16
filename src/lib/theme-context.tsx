@@ -5,6 +5,7 @@ import { DEFAULT_THEME, mergeTheme, type Theme } from "./theme";
 import { useAuth } from "./auth";
 import { designTokensToCssVariables } from "./storefront/tokens";
 import { buildGoogleFontsHref } from "./storefront/fonts";
+import { themeQueryKeys } from "./theme-query-keys";
 
 const ThemeCtx = createContext<{ theme: Theme; isDraftPreview: boolean }>({ theme: DEFAULT_THEME, isDraftPreview: false });
 
@@ -23,15 +24,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const draftPreview = useIsDraftPreview() && isOwner;
 
   const { data } = useQuery({
-    queryKey: ["theme:published"],
+    queryKey: themeQueryKeys.published,
     queryFn: () => getPublishedTheme(),
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
   const { data: adminData } = useQuery({
-    queryKey: ["theme:draft"],
+    queryKey: themeQueryKeys.draft,
     queryFn: () => adminGetTheme(),
     enabled: draftPreview,
-    staleTime: 10_000,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const theme = useMemo(() => {

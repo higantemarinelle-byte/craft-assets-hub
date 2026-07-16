@@ -16,25 +16,31 @@ export type Database = {
     Tables: {
       categories: {
         Row: {
+          accent: string | null
           created_at: string
           description: string | null
           id: string
+          image_url: string | null
           name: string
           slug: string
           sort_order: number
         }
         Insert: {
+          accent?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           name: string
           slug: string
           sort_order?: number
         }
         Update: {
+          accent?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           name?: string
           slug?: string
           sort_order?: number
@@ -463,6 +469,7 @@ export type Database = {
           is_published: boolean
           name: string
           slug: string
+          sort_order: number
           tags: string[]
           updated_at: string
         }
@@ -478,6 +485,7 @@ export type Database = {
           is_published?: boolean
           name: string
           slug: string
+          sort_order?: number
           tags?: string[]
           updated_at?: string
         }
@@ -493,6 +501,7 @@ export type Database = {
           is_published?: boolean
           name?: string
           slug?: string
+          sort_order?: number
           tags?: string[]
           updated_at?: string
         }

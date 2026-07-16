@@ -14,6 +14,7 @@ import {
   adminSaveThemeDraft,
 } from "@/lib/theme.functions";
 import { mergeTheme, syncLegacyBrandFromTokens, type Theme } from "@/lib/theme";
+import { themeQueryKeys } from "@/lib/theme-query-keys";
 
 export function useThemeDraft() {
   const qc = useQueryClient();
@@ -22,7 +23,7 @@ export function useThemeDraft() {
   const publishFn = useServerFn(adminPublishTheme);
 
   const { data: row, isLoading, error } = useQuery({
-    queryKey: ["theme", "admin"],
+    queryKey: themeQueryKeys.admin,
     queryFn: () => getFn(),
   });
 
@@ -57,8 +58,10 @@ export function useThemeDraft() {
       await saveFn({ data: { draft: synced } });
       setDraft(synced);
       setDirty(false);
-      qc.invalidateQueries({ queryKey: ["theme", "admin"] });
-      qc.invalidateQueries({ queryKey: ["theme", "draft"] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: themeQueryKeys.admin }),
+        qc.invalidateQueries({ queryKey: themeQueryKeys.draft }),
+      ]);
       toast.success("Draft saved");
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to save draft");
@@ -78,10 +81,12 @@ export function useThemeDraft() {
       }
       await publishFn({ data: {} });
       setDirty(false);
-      qc.invalidateQueries({ queryKey: ["theme", "admin"] });
-      qc.invalidateQueries({ queryKey: ["theme", "published"] });
-      qc.invalidateQueries({ queryKey: ["theme", "draft"] });
-      qc.invalidateQueries({ queryKey: ["theme", "versions"] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: themeQueryKeys.admin }),
+        qc.invalidateQueries({ queryKey: themeQueryKeys.published, refetchType: "all" }),
+        qc.invalidateQueries({ queryKey: themeQueryKeys.draft }),
+        qc.invalidateQueries({ queryKey: themeQueryKeys.versions }),
+      ]);
       toast.success("Published live 🎉");
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to publish");
