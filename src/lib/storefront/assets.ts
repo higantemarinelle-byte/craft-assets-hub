@@ -169,16 +169,16 @@ export async function readImageDimensions(
   });
 }
 
-/** Build the public URL for a Supabase Storage object without a network call. */
-export function resolvePublicUrl(bucket: string, path: string): string {
-  const base =
-    (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_SUPABASE_URL) ||
-    (typeof process !== "undefined" && process.env?.SUPABASE_URL) ||
-    "";
-  if (!base) return "";
-  return `${base.replace(/\/$/, "")}/storage/v1/object/public/${bucket}/${path}`;
+/**
+ * The `craft-studio-assets` bucket is private. URLs are minted server-side
+ * as signed URLs (see `assets.functions.ts`). This client-safe stub exists
+ * only so legacy imports keep type-checking; it always returns an empty
+ * string. Do not use it in new code — attach `url` from the server response.
+ */
+export function resolvePublicUrl(_bucket: string, _path: string): string {
+  return "";
 }
 
-export function assetPublicUrl(asset: Pick<CraftAsset, "bucket" | "storage_path">): string {
-  return resolvePublicUrl(asset.bucket, asset.storage_path);
+export function assetPublicUrl(_asset: Pick<CraftAsset, "bucket" | "storage_path">): string {
+  return "";
 }
