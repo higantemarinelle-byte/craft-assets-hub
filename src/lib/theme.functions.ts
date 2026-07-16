@@ -28,18 +28,20 @@ export const getPublishedTheme = createServerFn({ method: "GET" }).handler(async
 export const adminGetTheme = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await assertStaff(context);
+    await requireStaffAccess(context as any);
+    const admin = serviceClient();
     const { data, error } = await admin.from("theme_settings" as any).select("*").limit(1).maybeSingle();
     if (error) throw new Error(error.message);
     return data;
   });
 
-// Staff: save draft.
+// Owner-only: save draft (Craft Studio is owner-gated).
 export const adminSaveThemeDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { draft: any }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await assertStaff(context);
+    await requireOwnerAccess(context as any);
+    const admin = serviceClient();
     const { data: row } = await admin.from("theme_settings" as any).select("id").limit(1).maybeSingle();
     if (!row) throw new Error("Theme row missing");
     const { error } = await admin
@@ -55,7 +57,8 @@ export const adminPublishTheme = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { label?: string }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await assertStaff(context, true);
+    await requireOwnerAccess(context as any);
+    const admin = serviceClient();
     const { data: row, error: readErr } = await admin.from("theme_settings" as any).select("*").limit(1).maybeSingle();
     if (readErr || !row) throw new Error(readErr?.message ?? "Theme row missing");
     // Snapshot current published (if any) into versions BEFORE overwriting.
@@ -74,11 +77,12 @@ export const adminPublishTheme = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// Staff: list version history.
+// Owner-only: list version history.
 export const adminListThemeVersions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await assertStaff(context);
+    await requireOwnerAccess(context as any);
+    const admin = serviceClient();
     const { data } = await admin
       .from("theme_versions" as any)
       .select("id, label, created_at, published_by")
@@ -92,7 +96,8 @@ export const adminRevertThemeVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { versionId: string }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await assertStaff(context, true);
+    await requireOwnerAccess(context as any);
+    const admin = serviceClient();
     const { data: v } = await admin.from("theme_versions" as any).select("snapshot").eq("id", data.versionId).maybeSingle();
     if (!v) throw new Error("Version not found");
     const { data: row } = await admin.from("theme_settings" as any).select("id").limit(1).maybeSingle();
