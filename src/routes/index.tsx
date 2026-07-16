@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/site/ProductCard";
 import { Marquee } from "@/components/site/Marquee";
 import { useTheme } from "@/lib/theme-context";
 import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
+import { resolveHeroColors } from "@/lib/theme";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -18,6 +19,7 @@ function Home() {
   const { data: featured = [] } = useQuery({ queryKey: ["home:featured"], queryFn: () => listProducts({ data: { featured: true, limit: 8 } }) });
 
   const hero = theme.home.hero;
+  const heroColors = resolveHeroColors(theme);
 
   return (
     <div className="bg-cream">
@@ -30,9 +32,11 @@ function Home() {
               <Sparkles className="h-3 w-3" /> {hero.eyebrow}
             </div>
             <h1 className="text-display text-[clamp(2.75rem,7vw,6rem)] leading-[0.9] tracking-tight text-ink">
-              {hero.headlineA} <span className="text-magenta">{hero.headlineHighlightA}</span>
+              <span style={{ color: heroColors.headlineA }}>{hero.headlineA}</span>{" "}
+              <span style={{ color: heroColors.headlineHighlightA }}>{hero.headlineHighlightA}</span>
               <br />
-              {hero.headlineB} <span className="text-cyan">{hero.headlineHighlightB}</span>
+              <span style={{ color: heroColors.headlineB }}>{hero.headlineB}</span>{" "}
+              <span style={{ color: heroColors.headlineHighlightB }}>{hero.headlineHighlightB}</span>
             </h1>
             <p className="mt-6 max-w-lg text-lg text-ink/75">{hero.body}</p>
             <div className="mt-8 flex flex-wrap gap-3">
