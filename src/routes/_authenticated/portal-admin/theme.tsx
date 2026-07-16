@@ -1,37 +1,23 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isOwnerUser } from "@/lib/permissions";
-import {
-  adminGetTheme,
-  adminSaveThemeDraft,
-  adminPublishTheme,
-  adminListThemeVersions,
-  adminRevertThemeVersion,
-} from "@/lib/theme.functions";
-import { mergeTheme, type Theme, type ThemeHomeSection } from "@/lib/theme";
-import { useAuth } from "@/lib/auth";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ExternalLink, Save, Rocket, Trash2, Plus, ArrowUp, ArrowDown, History } from "lucide-react";
+import { ThemeBuilder } from "@/components/admin/craft-studio/theme/ThemeBuilder";
 
 export const Route = createFileRoute("/_authenticated/portal-admin/theme")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Theme editor — Craft Studio" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [
+      { title: "Theme Builder — Craft Studio" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!isOwnerUser(data.user)) {
       throw redirect({ to: "/portal-admin" });
     }
   },
-  component: ThemeEditor,
+  component: ThemeBuilder,
 });
 
 function ThemeEditor() {
