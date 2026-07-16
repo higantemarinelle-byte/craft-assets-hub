@@ -1,7 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
 import { requireOwnerAccess } from "@/lib/permissions.server";
 import { extractAssetRefs } from "@/lib/storefront/asset-usage";
 import { mergeTheme } from "@/lib/theme";
@@ -35,27 +33,36 @@ async function syncThemeUsage(
   );
 }
 
-function publicClient(): any {
-  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-  });
-}
-
-function serviceClient(): any {
-  return createClient<Database>(process.env.SUPABASE_URL!, process.env.CRAFT_SUPABASE_ADMIN_KEY!, {
-    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-  });
+async function serviceClient(): Promise<any> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
 }
 
 // Public: read published theme JSON for the storefront.
+// Uses the centralized server-only admin client because theme_settings RLS
+// permits SELECT only to staff. We deliberately return only the published
+// fields — never draft, updated_by, or other internal metadata.
 export const getPublishedTheme = createServerFn({ method: "GET" }).handler(async () => {
-  const supabase = publicClient();
-  const { data, error } = await supabase.from("theme_settings" as any).select("published, published_at").limit(1).maybeSingle();
-  if (error) {
-    console.error("[getPublishedTheme]", error);
+  try {
+    const admin = await serviceClient();
+    const { data, error } = await admin
+      .from("theme_settings" as any)
+      .select("published, published_at")
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.error("[getPublishedTheme] supabase error:", {
+        message: error.message,
+        code: (error as any).code,
+        details: (error as any).details,
+      });
+      return { theme: {}, published_at: null };
+    }
+    return { theme: (data?.published as any) ?? {}, published_at: data?.published_at ?? null };
+  } catch (e: any) {
+    console.error("[getPublishedTheme] failed to load published theme:", e?.message ?? e);
     return { theme: {}, published_at: null };
   }
-  return { theme: (data?.published as any) ?? {}, published_at: data?.published_at ?? null };
 });
 
 // Staff: read both draft and published.
@@ -63,7 +70,7 @@ export const adminGetTheme = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireOwnerAccess(context as any);
-    const admin = serviceClient();
+    const admin = await serviceClient();
     const { data, error } = await admin.from("theme_settings" as any).select("*").limit(1).maybeSingle();
     if (error) throw new Error(error.message);
     return data;
@@ -78,7 +85,7 @@ export const adminSaveThemeDraft = createServerFn({ method: "POST" })
     const validation = validateThemeDraft(data.draft);
     if (!validation.ok) throw new Error(`Invalid theme: ${validation.error}`);
     const safeDraft = validation.draft;
-    const admin = serviceClient();
+    const admin = await serviceClient();
     const { data: row } = await admin.from("theme_settings" as any).select("id").limit(1).maybeSingle();
     if (!row) throw new Error("Theme row missing");
     const { error } = await admin
@@ -97,7 +104,7 @@ export const adminPublishTheme = createServerFn({ method: "POST" })
   .inputValidator((input: { label?: string }) => input)
   .handler(async ({ data, context }) => {
     await requireOwnerAccess(context as any);
-    const admin = serviceClient();
+    const admin = await serviceClient();
     const { data: row, error: readErr } = await admin.from("theme_settings" as any).select("*").limit(1).maybeSingle();
     if (readErr || !row) throw new Error(readErr?.message ?? "Theme row missing");
     // Re-validate draft before publishing to prevent bad data reaching prod.
@@ -112,13 +119,15 @@ export const adminPublishTheme = createServerFn({ method: "POST" })
         published_by: context.userId,
       });
     }
+    const publishedAt = new Date().toISOString();
     const { error } = await admin
       .from("theme_settings" as any)
-      .update({ published: safeDraft, published_at: new Date().toISOString(), updated_by: context.userId })
+      .update({ published: safeDraft, published_at: publishedAt, updated_by: context.userId })
       .eq("id", row.id);
     if (error) throw new Error(error.message);
     try { await syncThemeUsage(admin, "published", safeDraft); } catch (e) { console.warn("syncThemeUsage(published) failed:", e); }
-    return { ok: true };
+    console.log("[adminPublishTheme] published", { rowId: row.id, publishedAt, ok: true });
+    return { ok: true, published_at: publishedAt };
   });
 
 // Owner-only: list version history.
@@ -126,7 +135,7 @@ export const adminListThemeVersions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireOwnerAccess(context as any);
-    const admin = serviceClient();
+    const admin = await serviceClient();
     const { data } = await admin
       .from("theme_versions" as any)
       .select("id, label, created_at, published_by")
@@ -141,7 +150,7 @@ export const adminRevertThemeVersion = createServerFn({ method: "POST" })
   .inputValidator((input: { versionId: string }) => input)
   .handler(async ({ data, context }) => {
     await requireOwnerAccess(context as any);
-    const admin = serviceClient();
+    const admin = await serviceClient();
     const { data: v } = await admin.from("theme_versions" as any).select("snapshot").eq("id", data.versionId).maybeSingle();
     if (!v) throw new Error("Version not found");
     const { data: row } = await admin.from("theme_settings" as any).select("id").limit(1).maybeSingle();
