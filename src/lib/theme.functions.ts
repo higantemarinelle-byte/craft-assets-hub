@@ -79,6 +79,8 @@ export const adminSaveThemeDraft = createServerFn({ method: "POST" })
       .update({ draft: data.draft, draft_updated_at: new Date().toISOString(), updated_by: context.userId })
       .eq("id", row.id);
     if (error) throw new Error(error.message);
+    // Best-effort: don't fail the save if usage tracking table isn't ready.
+    try { await syncThemeUsage(admin, "draft", data.draft); } catch (e) { console.warn("syncThemeUsage(draft) failed:", e); }
     return { ok: true };
   });
 
@@ -104,6 +106,7 @@ export const adminPublishTheme = createServerFn({ method: "POST" })
       .update({ published: row.draft, published_at: new Date().toISOString(), updated_by: context.userId })
       .eq("id", row.id);
     if (error) throw new Error(error.message);
+    try { await syncThemeUsage(admin, "published", row.draft); } catch (e) { console.warn("syncThemeUsage(published) failed:", e); }
     return { ok: true };
   });
 
