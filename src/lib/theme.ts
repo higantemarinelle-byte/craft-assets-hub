@@ -68,7 +68,7 @@ export type Theme = {
 };
 
 export const DEFAULT_THEME: Theme = {
-  brand: { name: "Craft & Cling", tagline: "Bring your ideas to life.", logoAssetId: null, logoUrl: null, primary: "#ec3b83", accent: "#00b6d8" },
+  brand: { name: "Craft & Cling", tagline: "Crafted with care. Made to cling.", logoAssetId: null, logoUrl: null, primary: "#ec3b83", accent: "#00b6d8" },
   announcement: { enabled: true, text: "Upload artwork · Build a project · We'll quote within 24 hours", link: "/shop" },
   nav: {
     items: [

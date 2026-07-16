@@ -74,7 +74,10 @@ export const DEFAULT_DESIGN_TOKENS: StorefrontDesignTokens = {
     surfaceForeground: "oklch(0.15 0.02 260)",
     primary: "oklch(0.15 0.02 260)",       // ink
     primaryForeground: "oklch(0.98 0.01 90)",
-    secondary: "oklch(0.72 0.18 220)",     // cyan
+    // Neutral surface — matches the original storefront palette so
+    // shadcn `secondary` buttons/badges stay quiet. The bold CMYK cyan is
+    // still available as `--cmyk-cyan` / `bg-cyan` for poster accents.
+    secondary: "oklch(0.93 0.02 90)",
     secondaryForeground: "oklch(0.15 0.02 260)",
     accent: "oklch(0.63 0.28 0)",          // magenta
     accentForeground: "oklch(0.98 0.01 90)",
@@ -270,7 +273,9 @@ export function designTokensToCssVariables(tokens: StorefrontDesignTokens): Reco
     "--ink": c.primary,
     "--ink-foreground": c.primaryForeground,
     "--cream": c.background,
-    "--cmyk-cyan": c.secondary,
+    // CMYK poster accents — kept independent of shadcn `secondary` so the
+    // neutral secondary surface doesn't wash out the loud cyan utility.
+    "--cmyk-cyan": "oklch(0.72 0.18 220)",
     "--cmyk-magenta": c.accent,
     "--cmyk-yellow": c.highlight,
   };
