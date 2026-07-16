@@ -270,6 +270,72 @@ export type Database = {
         }
         Relationships: []
       }
+      gang_sheet_pricing_rules: {
+        Row: {
+          base_price: number
+          code: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          effective_from: string | null
+          fill_adjustment_type: string
+          fill_adjustment_value: number
+          fill_threshold_percent: number | null
+          height_inches: number | null
+          id: string
+          is_active: boolean
+          minimum_total: number
+          name: string
+          per_design_fee: number
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+          width_inches: number | null
+        }
+        Insert: {
+          base_price?: number
+          code: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          effective_from?: string | null
+          fill_adjustment_type?: string
+          fill_adjustment_value?: number
+          fill_threshold_percent?: number | null
+          height_inches?: number | null
+          id?: string
+          is_active?: boolean
+          minimum_total?: number
+          name: string
+          per_design_fee?: number
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          width_inches?: number | null
+        }
+        Update: {
+          base_price?: number
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          effective_from?: string | null
+          fill_adjustment_type?: string
+          fill_adjustment_value?: number
+          fill_threshold_percent?: number | null
+          height_inches?: number | null
+          id?: string
+          is_active?: boolean
+          minimum_total?: number
+          name?: string
+          per_design_fee?: number
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          width_inches?: number | null
+        }
+        Relationships: []
+      }
       gang_sheet_uploads: {
         Row: {
           created_at: string
@@ -663,7 +729,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "owner" | "employee" | "customer"

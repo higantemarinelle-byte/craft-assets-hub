@@ -4,6 +4,10 @@ import { Upload, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { money } from "@/lib/format";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
+import { listActivePricingRules } from "@/lib/gang-sheet/pricing.functions";
+import { calculateGangSheetPrice, type GangSheetPricingRule } from "@/lib/gang-sheet/pricing";
 
 export const Route = createFileRoute("/gang-sheet")({
   head: () => ({
@@ -27,27 +31,35 @@ type Design = {
   h: number;
 };
 
-const SHEETS: Record<string, { w: number; h: number; price: number }> = {
-  '12x12': { w: 12, h: 12, price: 12 },
-  '22x24': { w: 22, h: 24, price: 32 },
-  '22x36': { w: 22, h: 36, price: 45 },
-  '22x60': { w: 22, h: 60, price: 72 },
-};
-
 const PX_PER_INCH = 20; // display scale
 
 function GangSheet() {
-  const [sheetKey, setSheetKey] = useState<keyof typeof SHEETS>('22x24');
+  const fetchRules = useServerFn(listActivePricingRules);
+  const { data: rules = [], isLoading } = useQuery({
+    queryKey: ["gang-sheet", "pricing", "public"],
+    queryFn: () => fetchRules(),
+  });
+  const ruleList = rules as GangSheetPricingRule[];
+  const [sheetCode, setSheetCode] = useState<string>("");
+  const activeRule =
+    ruleList.find((r) => r.code === sheetCode) ?? ruleList[0] ?? null;
+  useEffect(() => {
+    if (!sheetCode && activeRule) setSheetCode(activeRule.code);
+  }, [activeRule, sheetCode]);
+
   const [designs, setDesigns] = useState<Design[]>([]);
   const [dragging, setDragging] = useState<{ id: string; offX: number; offY: number } | null>(null);
   const boardRef = useRef<HTMLDivElement | null>(null);
-  const sheet = SHEETS[sheetKey];
+  const sheetW = activeRule?.width_inches ?? 22;
+  const sheetH = activeRule?.height_inches ?? 24;
 
   const usedIn2 = designs.reduce((s, d) => s + d.w * d.h, 0);
-  const capIn2 = sheet.w * sheet.h;
-  const usedPct = Math.min(100, Math.round((usedIn2 / capIn2) * 100));
-  const utilizationBonus = usedIn2 > 0 ? Math.round((usedPct / 100) * 8) : 0;
-  const total = sheet.price + designs.length * 2 + utilizationBonus;
+  const capIn2 = sheetW * sheetH;
+  const usedPct = capIn2 > 0 ? Math.min(100, Math.round((usedIn2 / capIn2) * 100)) : 0;
+  const breakdown = activeRule
+    ? calculateGangSheetPrice(activeRule, { designCount: designs.length, fillPercent: usedPct })
+    : null;
+  const total = breakdown?.estimatedTotal ?? 0;
 
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -85,8 +97,8 @@ function GangSheet() {
           d.id === dragging.id
             ? {
                 ...d,
-                x: Math.max(0, Math.min(sheet.w - d.w, xIn)),
-                y: Math.max(0, Math.min(sheet.h - d.h, yIn)),
+                x: Math.max(0, Math.min(sheetW - d.w, xIn)),
+                y: Math.max(0, Math.min(sheetH - d.h, yIn)),
               }
             : d,
         ),
@@ -99,14 +111,14 @@ function GangSheet() {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
-  }, [dragging, sheet.w, sheet.h]);
+  }, [dragging, sheetW, sheetH]);
 
   const resize = (id: string, w: number) =>
     setDesigns((prev) =>
       prev.map((d) => {
         if (d.id !== id) return d;
         const ratio = d.h / d.w;
-        const newW = Math.max(1, Math.min(sheet.w, w));
+        const newW = Math.max(1, Math.min(sheetW, w));
         return { ...d, w: newW, h: +(newW * ratio).toFixed(2) };
       }),
     );
@@ -127,14 +139,16 @@ function GangSheet() {
         {/* Canvas */}
         <div className="rounded-lg border-2 border-ink bg-cream p-4">
           <div className="mb-3 flex items-center justify-between text-sm">
-            <div className="font-semibold">Sheet {sheetKey}" · {sheet.w}×{sheet.h} in</div>
+            <div className="font-semibold">
+              {activeRule ? `Sheet ${activeRule.name}" · ${sheetW}×${sheetH} in` : (isLoading ? "Loading pricing…" : "No pricing configured")}
+            </div>
             <div className="text-muted-foreground">Utilization: <span className="font-bold text-ink">{usedPct}%</span></div>
           </div>
           <div className="overflow-auto">
             <div
               ref={boardRef}
               className="relative rounded border-2 border-dashed border-ink bg-white halftone"
-              style={{ width: sheet.w * PX_PER_INCH, height: sheet.h * PX_PER_INCH, minWidth: 200 }}
+              style={{ width: sheetW * PX_PER_INCH, height: sheetH * PX_PER_INCH, minWidth: 200 }}
             >
               {designs.map((d) => (
                 <div
@@ -168,15 +182,18 @@ function GangSheet() {
           <div className="rounded-lg border-2 border-ink bg-cream p-4">
             <div className="mb-2 text-xs font-bold uppercase tracking-widest">Sheet size</div>
             <div className="grid grid-cols-2 gap-2">
-              {(Object.keys(SHEETS) as Array<keyof typeof SHEETS>).map((k) => (
+              {ruleList.map((r) => (
                 <button
-                  key={k}
-                  onClick={() => setSheetKey(k)}
-                  className={`rounded-md border-2 border-ink px-3 py-2 text-sm font-semibold ${sheetKey === k ? "bg-ink text-cream" : "bg-cream hover:bg-yellow"}`}
+                  key={r.code}
+                  onClick={() => setSheetCode(r.code)}
+                  className={`rounded-md border-2 border-ink px-3 py-2 text-sm font-semibold ${activeRule?.code === r.code ? "bg-ink text-cream" : "bg-cream hover:bg-yellow"}`}
                 >
-                  {k}"
+                  {r.name}"
                 </button>
               ))}
+              {!isLoading && ruleList.length === 0 && (
+                <div className="col-span-2 text-xs text-muted-foreground">No sheet sizes configured. Ask an owner to add pricing in Craft OS.</div>
+              )}
             </div>
           </div>
 
@@ -195,7 +212,7 @@ function GangSheet() {
                   <input
                     type="number"
                     min={1}
-                    max={sheet.w}
+                    max={sheetW}
                     value={d.w}
                     onChange={(e) => resize(d.id, +e.target.value)}
                     className="w-14 rounded border border-ink px-1 text-xs"
@@ -213,8 +230,14 @@ function GangSheet() {
           <div className="rounded-lg border-2 border-ink bg-ink p-5 text-cream cmyk-shadow">
             <div className="text-xs font-bold uppercase tracking-widest text-yellow">Estimated total</div>
             <div className="mt-1 text-display text-4xl">{money(total)}</div>
-            <div className="mt-2 text-xs text-cream/70">Sheet {money(sheet.price)} · {designs.length} designs × $2 · fill bonus</div>
-            <Button onClick={requestQuote} disabled={designs.length === 0} className="mt-4 w-full border-2 border-cream bg-magenta font-bold text-cream hover:bg-cream hover:text-ink">
+            {breakdown && (
+              <div className="mt-2 text-xs text-cream/70">
+                Sheet {money(breakdown.basePrice)} · {breakdown.designCount} designs × {money(breakdown.perDesignFee)}
+                {breakdown.fillAdjustmentAmount !== 0 ? ` · fill ${breakdown.fillAdjustmentAmount > 0 ? "+" : ""}${money(breakdown.fillAdjustmentAmount)}` : ""}
+                {breakdown.minimumAdjustment > 0 ? ` · min +${money(breakdown.minimumAdjustment)}` : ""}
+              </div>
+            )}
+            <Button onClick={requestQuote} disabled={designs.length === 0 || !activeRule} className="mt-4 w-full border-2 border-cream bg-magenta font-bold text-cream hover:bg-cream hover:text-ink">
               Save quote
             </Button>
             <p className="mt-2 flex items-start gap-1 text-[11px] text-cream/60">

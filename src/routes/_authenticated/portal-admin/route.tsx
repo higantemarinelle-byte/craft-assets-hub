@@ -17,6 +17,7 @@ import {
   Menu,
   ExternalLink,
   LogOut,
+  Layers,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { isOwnerUser } from "@/lib/permissions";
@@ -61,6 +62,7 @@ function AdminLayout() {
     { to: "/portal-admin/categories", label: "Categories", icon: Tags },
     { to: "/portal-admin/customers", label: "Customers", icon: UserCircle },
     { label: "Inventory", icon: Boxes, disabled: true },
+    { to: "/portal-admin/gang-sheet/pricing", label: "Gang Sheet Pricing", icon: Layers },
     ...(isCraftOwner
       ? [{ to: "/portal-admin/craft-studio", label: "Craft Studio", icon: Palette, ownerOnly: true }]
       : []),
