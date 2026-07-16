@@ -25,7 +25,6 @@ import {
   ALLOWED_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
   readImageDimensions,
-  resolvePublicUrl,
   type AssetPickerValue,
   type CraftAsset,
 } from "@/lib/storefront/assets";
