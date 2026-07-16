@@ -9,38 +9,466 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ShopRouteImport } from './routes/shop'
+import { Route as ProjectSubmittedRouteImport } from './routes/project-submitted'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as GangSheetRouteImport } from './routes/gang-sheet'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as CartRouteImport } from './routes/cart'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedPortalAdminRouteRouteImport } from './routes/_authenticated/portal-admin/route'
+import { Route as AuthenticatedPortalAdminIndexRouteImport } from './routes/_authenticated/portal-admin/index'
+import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects.$id'
+import { Route as AuthenticatedPortalAdminThemeRouteImport } from './routes/_authenticated/portal-admin/theme'
+import { Route as AuthenticatedPortalAdminProjectsRouteImport } from './routes/_authenticated/portal-admin/projects'
+import { Route as AuthenticatedPortalAdminProductsRouteImport } from './routes/_authenticated/portal-admin/products'
+import { Route as AuthenticatedPortalAdminOrdersRouteImport } from './routes/_authenticated/portal-admin/orders'
+import { Route as AuthenticatedPortalAdminEmployeesRouteImport } from './routes/_authenticated/portal-admin/employees'
+import { Route as AuthenticatedPortalAdminDiscountsRouteImport } from './routes/_authenticated/portal-admin/discounts'
+import { Route as AuthenticatedPortalAdminCustomersRouteImport } from './routes/_authenticated/portal-admin/customers'
+import { Route as AuthenticatedPortalAdminCraftStudioRouteImport } from './routes/_authenticated/portal-admin/craft-studio'
+import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes/_authenticated/portal-admin/projects.$id'
+import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
+import { Route as AuthenticatedPortalAdminProductsIdRouteImport } from './routes/_authenticated/portal-admin/products.$id'
+import { Route as AuthenticatedPortalAdminCustomersIdRouteImport } from './routes/_authenticated/portal-admin/customers.$id'
+import { Route as AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport } from './routes/_authenticated/portal-admin/orders.$id.packing-slip'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectSubmittedRoute = ProjectSubmittedRouteImport.update({
+  id: '/project-submitted',
+  path: '/project-submitted',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GangSheetRoute = GangSheetRouteImport.update({
+  id: '/gang-sheet',
+  path: '/gang-sheet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopSlugRoute = ShopSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ShopRoute,
+} as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPortalAdminRouteRoute =
+  AuthenticatedPortalAdminRouteRouteImport.update({
+    id: '/portal-admin',
+    path: '/portal-admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminIndexRoute =
+  AuthenticatedPortalAdminIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedProjectsIdRoute = AuthenticatedProjectsIdRouteImport.update({
+  id: '/projects/$id',
+  path: '/projects/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPortalAdminThemeRoute =
+  AuthenticatedPortalAdminThemeRouteImport.update({
+    id: '/theme',
+    path: '/theme',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminProjectsRoute =
+  AuthenticatedPortalAdminProjectsRouteImport.update({
+    id: '/projects',
+    path: '/projects',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminProductsRoute =
+  AuthenticatedPortalAdminProductsRouteImport.update({
+    id: '/products',
+    path: '/products',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminOrdersRoute =
+  AuthenticatedPortalAdminOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminEmployeesRoute =
+  AuthenticatedPortalAdminEmployeesRouteImport.update({
+    id: '/employees',
+    path: '/employees',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminDiscountsRoute =
+  AuthenticatedPortalAdminDiscountsRouteImport.update({
+    id: '/discounts',
+    path: '/discounts',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminCustomersRoute =
+  AuthenticatedPortalAdminCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminCraftStudioRoute =
+  AuthenticatedPortalAdminCraftStudioRouteImport.update({
+    id: '/craft-studio',
+    path: '/craft-studio',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminProjectsIdRoute =
+  AuthenticatedPortalAdminProjectsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortalAdminProjectsRoute,
+  } as any)
+const AuthenticatedPortalAdminProductsNewRoute =
+  AuthenticatedPortalAdminProductsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedPortalAdminProductsRoute,
+  } as any)
+const AuthenticatedPortalAdminProductsIdRoute =
+  AuthenticatedPortalAdminProductsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortalAdminProductsRoute,
+  } as any)
+const AuthenticatedPortalAdminCustomersIdRoute =
+  AuthenticatedPortalAdminCustomersIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortalAdminCustomersRoute,
+  } as any)
+const AuthenticatedPortalAdminOrdersIdPackingSlipRoute =
+  AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport.update({
+    id: '/$id/packing-slip',
+    path: '/$id/packing-slip',
+    getParentRoute: () => AuthenticatedPortalAdminOrdersRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/gang-sheet': typeof GangSheetRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/project-submitted': typeof ProjectSubmittedRoute
+  '/shop': typeof ShopRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
+  '/account': typeof AuthenticatedAccountRoute
+  '/shop/$slug': typeof ShopSlugRoute
+  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRoute
+  '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
+  '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
+  '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
+  '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
+  '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
+  '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdRoute
+  '/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
+  '/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
+  '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
+  '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
+  '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
+  '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/gang-sheet': typeof GangSheetRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/project-submitted': typeof ProjectSubmittedRoute
+  '/shop': typeof ShopRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/account': typeof AuthenticatedAccountRoute
+  '/shop/$slug': typeof ShopSlugRoute
+  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRoute
+  '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
+  '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
+  '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
+  '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
+  '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
+  '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdRoute
+  '/portal-admin': typeof AuthenticatedPortalAdminIndexRoute
+  '/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
+  '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
+  '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
+  '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
+  '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
+  '/gang-sheet': typeof GangSheetRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/project-submitted': typeof ProjectSubmittedRoute
+  '/shop': typeof ShopRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/shop/$slug': typeof ShopSlugRoute
+  '/_authenticated/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRoute
+  '/_authenticated/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
+  '/_authenticated/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
+  '/_authenticated/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
+  '/_authenticated/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
+  '/_authenticated/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
+  '/_authenticated/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/_authenticated/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
+  '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
+  '/_authenticated/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
+  '/_authenticated/portal-admin/customers/$id': typeof AuthenticatedPortalAdminCustomersIdRoute
+  '/_authenticated/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
+  '/_authenticated/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
+  '/_authenticated/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
+  '/_authenticated/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/cart'
+    | '/checkout'
+    | '/gang-sheet'
+    | '/how-it-works'
+    | '/project-submitted'
+    | '/shop'
+    | '/sitemap.xml'
+    | '/portal-admin'
+    | '/account'
+    | '/shop/$slug'
+    | '/portal-admin/craft-studio'
+    | '/portal-admin/customers'
+    | '/portal-admin/discounts'
+    | '/portal-admin/employees'
+    | '/portal-admin/orders'
+    | '/portal-admin/products'
+    | '/portal-admin/projects'
+    | '/portal-admin/theme'
+    | '/projects/$id'
+    | '/portal-admin/'
+    | '/portal-admin/customers/$id'
+    | '/portal-admin/products/$id'
+    | '/portal-admin/products/new'
+    | '/portal-admin/projects/$id'
+    | '/portal-admin/orders/$id/packing-slip'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/cart'
+    | '/checkout'
+    | '/gang-sheet'
+    | '/how-it-works'
+    | '/project-submitted'
+    | '/shop'
+    | '/sitemap.xml'
+    | '/account'
+    | '/shop/$slug'
+    | '/portal-admin/craft-studio'
+    | '/portal-admin/customers'
+    | '/portal-admin/discounts'
+    | '/portal-admin/employees'
+    | '/portal-admin/orders'
+    | '/portal-admin/products'
+    | '/portal-admin/projects'
+    | '/portal-admin/theme'
+    | '/projects/$id'
+    | '/portal-admin'
+    | '/portal-admin/customers/$id'
+    | '/portal-admin/products/$id'
+    | '/portal-admin/products/new'
+    | '/portal-admin/projects/$id'
+    | '/portal-admin/orders/$id/packing-slip'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/about'
+    | '/auth'
+    | '/cart'
+    | '/checkout'
+    | '/gang-sheet'
+    | '/how-it-works'
+    | '/project-submitted'
+    | '/shop'
+    | '/sitemap.xml'
+    | '/_authenticated/portal-admin'
+    | '/_authenticated/account'
+    | '/shop/$slug'
+    | '/_authenticated/portal-admin/craft-studio'
+    | '/_authenticated/portal-admin/customers'
+    | '/_authenticated/portal-admin/discounts'
+    | '/_authenticated/portal-admin/employees'
+    | '/_authenticated/portal-admin/orders'
+    | '/_authenticated/portal-admin/products'
+    | '/_authenticated/portal-admin/projects'
+    | '/_authenticated/portal-admin/theme'
+    | '/_authenticated/projects/$id'
+    | '/_authenticated/portal-admin/'
+    | '/_authenticated/portal-admin/customers/$id'
+    | '/_authenticated/portal-admin/products/$id'
+    | '/_authenticated/portal-admin/products/new'
+    | '/_authenticated/portal-admin/projects/$id'
+    | '/_authenticated/portal-admin/orders/$id/packing-slip'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
+  CartRoute: typeof CartRoute
+  CheckoutRoute: typeof CheckoutRoute
+  GangSheetRoute: typeof GangSheetRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  ProjectSubmittedRoute: typeof ProjectSubmittedRoute
+  ShopRoute: typeof ShopRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project-submitted': {
+      id: '/project-submitted'
+      path: '/project-submitted'
+      fullPath: '/project-submitted'
+      preLoaderRoute: typeof ProjectSubmittedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gang-sheet': {
+      id: '/gang-sheet'
+      path: '/gang-sheet'
+      fullPath: '/gang-sheet'
+      preLoaderRoute: typeof GangSheetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +476,274 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop/$slug': {
+      id: '/shop/$slug'
+      path: '/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal-admin': {
+      id: '/_authenticated/portal-admin'
+      path: '/portal-admin'
+      fullPath: '/portal-admin'
+      preLoaderRoute: typeof AuthenticatedPortalAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal-admin/': {
+      id: '/_authenticated/portal-admin/'
+      path: '/'
+      fullPath: '/portal-admin/'
+      preLoaderRoute: typeof AuthenticatedPortalAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/projects/$id': {
+      id: '/_authenticated/projects/$id'
+      path: '/projects/$id'
+      fullPath: '/projects/$id'
+      preLoaderRoute: typeof AuthenticatedProjectsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal-admin/theme': {
+      id: '/_authenticated/portal-admin/theme'
+      path: '/theme'
+      fullPath: '/portal-admin/theme'
+      preLoaderRoute: typeof AuthenticatedPortalAdminThemeRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/projects': {
+      id: '/_authenticated/portal-admin/projects'
+      path: '/projects'
+      fullPath: '/portal-admin/projects'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProjectsRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/products': {
+      id: '/_authenticated/portal-admin/products'
+      path: '/products'
+      fullPath: '/portal-admin/products'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProductsRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/orders': {
+      id: '/_authenticated/portal-admin/orders'
+      path: '/orders'
+      fullPath: '/portal-admin/orders'
+      preLoaderRoute: typeof AuthenticatedPortalAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/employees': {
+      id: '/_authenticated/portal-admin/employees'
+      path: '/employees'
+      fullPath: '/portal-admin/employees'
+      preLoaderRoute: typeof AuthenticatedPortalAdminEmployeesRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/discounts': {
+      id: '/_authenticated/portal-admin/discounts'
+      path: '/discounts'
+      fullPath: '/portal-admin/discounts'
+      preLoaderRoute: typeof AuthenticatedPortalAdminDiscountsRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/customers': {
+      id: '/_authenticated/portal-admin/customers'
+      path: '/customers'
+      fullPath: '/portal-admin/customers'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCustomersRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/craft-studio': {
+      id: '/_authenticated/portal-admin/craft-studio'
+      path: '/craft-studio'
+      fullPath: '/portal-admin/craft-studio'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/projects/$id': {
+      id: '/_authenticated/portal-admin/projects/$id'
+      path: '/$id'
+      fullPath: '/portal-admin/projects/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProjectsIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminProjectsRoute
+    }
+    '/_authenticated/portal-admin/products/new': {
+      id: '/_authenticated/portal-admin/products/new'
+      path: '/new'
+      fullPath: '/portal-admin/products/new'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProductsNewRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminProductsRoute
+    }
+    '/_authenticated/portal-admin/products/$id': {
+      id: '/_authenticated/portal-admin/products/$id'
+      path: '/$id'
+      fullPath: '/portal-admin/products/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProductsIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminProductsRoute
+    }
+    '/_authenticated/portal-admin/customers/$id': {
+      id: '/_authenticated/portal-admin/customers/$id'
+      path: '/$id'
+      fullPath: '/portal-admin/customers/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCustomersIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminCustomersRoute
+    }
+    '/_authenticated/portal-admin/orders/$id/packing-slip': {
+      id: '/_authenticated/portal-admin/orders/$id/packing-slip'
+      path: '/$id/packing-slip'
+      fullPath: '/portal-admin/orders/$id/packing-slip'
+      preLoaderRoute: typeof AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminOrdersRoute
+    }
   }
 }
 
+interface AuthenticatedPortalAdminCustomersRouteChildren {
+  AuthenticatedPortalAdminCustomersIdRoute: typeof AuthenticatedPortalAdminCustomersIdRoute
+}
+
+const AuthenticatedPortalAdminCustomersRouteChildren: AuthenticatedPortalAdminCustomersRouteChildren =
+  {
+    AuthenticatedPortalAdminCustomersIdRoute:
+      AuthenticatedPortalAdminCustomersIdRoute,
+  }
+
+const AuthenticatedPortalAdminCustomersRouteWithChildren =
+  AuthenticatedPortalAdminCustomersRoute._addFileChildren(
+    AuthenticatedPortalAdminCustomersRouteChildren,
+  )
+
+interface AuthenticatedPortalAdminOrdersRouteChildren {
+  AuthenticatedPortalAdminOrdersIdPackingSlipRoute: typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
+}
+
+const AuthenticatedPortalAdminOrdersRouteChildren: AuthenticatedPortalAdminOrdersRouteChildren =
+  {
+    AuthenticatedPortalAdminOrdersIdPackingSlipRoute:
+      AuthenticatedPortalAdminOrdersIdPackingSlipRoute,
+  }
+
+const AuthenticatedPortalAdminOrdersRouteWithChildren =
+  AuthenticatedPortalAdminOrdersRoute._addFileChildren(
+    AuthenticatedPortalAdminOrdersRouteChildren,
+  )
+
+interface AuthenticatedPortalAdminProductsRouteChildren {
+  AuthenticatedPortalAdminProductsIdRoute: typeof AuthenticatedPortalAdminProductsIdRoute
+  AuthenticatedPortalAdminProductsNewRoute: typeof AuthenticatedPortalAdminProductsNewRoute
+}
+
+const AuthenticatedPortalAdminProductsRouteChildren: AuthenticatedPortalAdminProductsRouteChildren =
+  {
+    AuthenticatedPortalAdminProductsIdRoute:
+      AuthenticatedPortalAdminProductsIdRoute,
+    AuthenticatedPortalAdminProductsNewRoute:
+      AuthenticatedPortalAdminProductsNewRoute,
+  }
+
+const AuthenticatedPortalAdminProductsRouteWithChildren =
+  AuthenticatedPortalAdminProductsRoute._addFileChildren(
+    AuthenticatedPortalAdminProductsRouteChildren,
+  )
+
+interface AuthenticatedPortalAdminProjectsRouteChildren {
+  AuthenticatedPortalAdminProjectsIdRoute: typeof AuthenticatedPortalAdminProjectsIdRoute
+}
+
+const AuthenticatedPortalAdminProjectsRouteChildren: AuthenticatedPortalAdminProjectsRouteChildren =
+  {
+    AuthenticatedPortalAdminProjectsIdRoute:
+      AuthenticatedPortalAdminProjectsIdRoute,
+  }
+
+const AuthenticatedPortalAdminProjectsRouteWithChildren =
+  AuthenticatedPortalAdminProjectsRoute._addFileChildren(
+    AuthenticatedPortalAdminProjectsRouteChildren,
+  )
+
+interface AuthenticatedPortalAdminRouteRouteChildren {
+  AuthenticatedPortalAdminCraftStudioRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+  AuthenticatedPortalAdminCustomersRoute: typeof AuthenticatedPortalAdminCustomersRouteWithChildren
+  AuthenticatedPortalAdminDiscountsRoute: typeof AuthenticatedPortalAdminDiscountsRoute
+  AuthenticatedPortalAdminEmployeesRoute: typeof AuthenticatedPortalAdminEmployeesRoute
+  AuthenticatedPortalAdminOrdersRoute: typeof AuthenticatedPortalAdminOrdersRouteWithChildren
+  AuthenticatedPortalAdminProductsRoute: typeof AuthenticatedPortalAdminProductsRouteWithChildren
+  AuthenticatedPortalAdminProjectsRoute: typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  AuthenticatedPortalAdminThemeRoute: typeof AuthenticatedPortalAdminThemeRoute
+  AuthenticatedPortalAdminIndexRoute: typeof AuthenticatedPortalAdminIndexRoute
+}
+
+const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteRouteChildren =
+  {
+    AuthenticatedPortalAdminCraftStudioRoute:
+      AuthenticatedPortalAdminCraftStudioRoute,
+    AuthenticatedPortalAdminCustomersRoute:
+      AuthenticatedPortalAdminCustomersRouteWithChildren,
+    AuthenticatedPortalAdminDiscountsRoute:
+      AuthenticatedPortalAdminDiscountsRoute,
+    AuthenticatedPortalAdminEmployeesRoute:
+      AuthenticatedPortalAdminEmployeesRoute,
+    AuthenticatedPortalAdminOrdersRoute:
+      AuthenticatedPortalAdminOrdersRouteWithChildren,
+    AuthenticatedPortalAdminProductsRoute:
+      AuthenticatedPortalAdminProductsRouteWithChildren,
+    AuthenticatedPortalAdminProjectsRoute:
+      AuthenticatedPortalAdminProjectsRouteWithChildren,
+    AuthenticatedPortalAdminThemeRoute: AuthenticatedPortalAdminThemeRoute,
+    AuthenticatedPortalAdminIndexRoute: AuthenticatedPortalAdminIndexRoute,
+  }
+
+const AuthenticatedPortalAdminRouteRouteWithChildren =
+  AuthenticatedPortalAdminRouteRoute._addFileChildren(
+    AuthenticatedPortalAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPortalAdminRouteRoute: typeof AuthenticatedPortalAdminRouteRouteWithChildren
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedProjectsIdRoute: typeof AuthenticatedProjectsIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPortalAdminRouteRoute:
+    AuthenticatedPortalAdminRouteRouteWithChildren,
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedProjectsIdRoute: AuthenticatedProjectsIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface ShopRouteChildren {
+  ShopSlugRoute: typeof ShopSlugRoute
+}
+
+const ShopRouteChildren: ShopRouteChildren = {
+  ShopSlugRoute: ShopSlugRoute,
+}
+
+const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
+  CartRoute: CartRoute,
+  CheckoutRoute: CheckoutRoute,
+  GangSheetRoute: GangSheetRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  ProjectSubmittedRoute: ProjectSubmittedRoute,
+  ShopRoute: ShopRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
