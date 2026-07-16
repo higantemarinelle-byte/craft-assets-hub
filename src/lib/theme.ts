@@ -305,6 +305,11 @@ export function mergeTheme(partial: any): Theme {
     },
     inventory: { ...DEFAULT_THEME.inventory, ...(p.inventory ?? {}) },
     tokens,
+    commerce: {
+      currency: ((SUPPORTED_CURRENCY_CODES as readonly string[]).includes(p?.commerce?.currency)
+        ? p.commerce.currency
+        : DEFAULT_THEME.commerce.currency) as StorefrontCurrency,
+    },
   };
 }
 
