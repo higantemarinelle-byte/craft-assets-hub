@@ -50,7 +50,8 @@ export const adminListProducts = createServerFn({ method: "GET" })
     const { admin } = await assertStaff(context);
     const { data, error } = await admin
       .from("products")
-      .select("id, slug, name, base_price, is_featured, is_published, images, categories:category_id(name), product_variants(stock)")
+      .select("id, slug, name, base_price, is_featured, is_published, images, category_id, sort_order, categories:category_id(name, slug), product_variants(stock)")
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return (data ?? []).map((p: any) => ({
@@ -61,6 +62,9 @@ export const adminListProducts = createServerFn({ method: "GET" })
       is_featured: p.is_featured,
       is_published: p.is_published,
       image: p.images?.[0] ?? null,
+      category_id: p.category_id ?? null,
+      category_slug: p.categories?.slug ?? null,
+      sort_order: p.sort_order ?? 0,
       category: p.categories?.name ?? null,
       total_stock: (p.product_variants ?? []).reduce((s: number, v: any) => s + (v.stock ?? 0), 0),
     }));
@@ -254,8 +258,80 @@ export const adminListCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { admin } = await assertStaff(context);
-    const { data } = await admin.from("categories").select("id, name, slug").order("sort_order");
+    const { data } = await (admin.from("categories") as any)
+      .select("id, name, slug, description, sort_order, image_url, accent")
+      .order("sort_order");
     return data ?? [];
+  });
+
+const categorySchema = z.object({
+  id: z.string().uuid().optional(),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, "lowercase letters, numbers, dashes only"),
+  name: z.string().min(1),
+  description: z.string().optional().nullable(),
+  image_url: z.string().optional().nullable(),
+  accent: z.string().optional().nullable(),
+  sort_order: z.number().int().default(0),
+});
+
+export const adminSaveCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: z.input<typeof categorySchema>) => categorySchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { admin } = await assertStaff(context);
+    if (data.id) {
+      const { error } = await admin.from("categories").update(data as any).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { id: data.id };
+    }
+    const { data: inserted, error } = await admin.from("categories").insert(data as any).select("id").single();
+    if (error) throw new Error(error.message);
+    return { id: inserted.id };
+  });
+
+export const adminDeleteCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => input)
+  .handler(async ({ data, context }) => {
+    const { admin } = await assertStaff(context);
+    // Detach products from this category (do not delete products).
+    await admin.from("products").update({ category_id: null }).eq("category_id", data.id);
+    const { error } = await admin.from("categories").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminReorderCategories = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { ids: string[] }) => input)
+  .handler(async ({ data, context }) => {
+    const { admin } = await assertStaff(context);
+    for (let i = 0; i < data.ids.length; i++) {
+      await admin.from("categories").update({ sort_order: i }).eq("id", data.ids[i]);
+    }
+    return { ok: true };
+  });
+
+export const adminReorderProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { ids: string[] }) => input)
+  .handler(async ({ data, context }) => {
+    const { admin } = await assertStaff(context);
+    for (let i = 0; i < data.ids.length; i++) {
+      await admin.from("products").update({ sort_order: i } as any).eq("id", data.ids[i]);
+    }
+    return { ok: true };
+  });
+
+export const adminToggleProductFlag = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; field: "is_featured" | "is_published"; value: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    const { admin } = await assertStaff(context);
+    const patch: any = { [data.field]: data.value };
+    const { error } = await admin.from("products").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 // ============== CUSTOMERS ==============

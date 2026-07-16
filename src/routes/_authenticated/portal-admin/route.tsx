@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard,
   Package,
+  Tags,
   ShoppingBag,
   Tag,
   Users,
@@ -57,6 +58,7 @@ function AdminLayout() {
     { to: "/portal-admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/portal-admin/projects", label: "Projects", icon: FolderKanban },
     { to: "/portal-admin/products", label: "Products", icon: Package },
+    { to: "/portal-admin/categories", label: "Categories", icon: Tags },
     { to: "/portal-admin/customers", label: "Customers", icon: UserCircle },
     { label: "Inventory", icon: Boxes, disabled: true },
     ...(isCraftOwner

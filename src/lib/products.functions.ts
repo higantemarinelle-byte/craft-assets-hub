@@ -12,12 +12,14 @@ function publicClient() {
 
 export const listCategories = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
-  const { data, error } = await sb
-    .from("categories")
-    .select("id, slug, name, description, sort_order")
+  const { data, error } = await (sb.from("categories") as any)
+    .select("id, slug, name, description, sort_order, image_url, accent")
     .order("sort_order");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as Array<{
+    id: string; slug: string; name: string; description: string | null;
+    sort_order: number; image_url: string | null; accent: string | null;
+  }>;
 });
 
 export const listProducts = createServerFn({ method: "GET" })
@@ -30,7 +32,7 @@ export const listProducts = createServerFn({ method: "GET" })
       .eq("is_published", true);
     if (data.featured) q = q.eq("is_featured", true);
     if (data.search) q = q.ilike("name", `%${data.search}%`);
-    q = q.order("is_featured", { ascending: false }).order("name");
+    q = q.order("sort_order", { ascending: true }).order("is_featured", { ascending: false }).order("name");
     if (data.limit) q = q.limit(data.limit);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
