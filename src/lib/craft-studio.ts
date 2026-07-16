@@ -38,10 +38,10 @@ export const CRAFT_MODULES: CraftModule[] = [
   {
     id: "theme",
     title: "Theme",
-    description: "Brand colors, typography, and global storefront styling.",
+    description: "Visual Theme Builder — colours, typography, buttons, layout, presets and version history.",
     status: "available",
     href: "/portal-admin/theme",
-    quickActionLabel: "Open theme editor",
+    quickActionLabel: "Open Theme Builder",
   },
   {
     id: "navigation",
