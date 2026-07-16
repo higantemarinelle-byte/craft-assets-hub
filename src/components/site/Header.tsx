@@ -4,6 +4,7 @@ import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme-context";
 import { Button } from "@/components/ui/button";
+import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,8 +26,13 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b-2 border-ink bg-cream/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 md:px-6">
         <Link to="/" className="flex items-center gap-2">
-          {theme.brand.logoUrl ? (
-            <img src={theme.brand.logoUrl} alt={name} className="h-9 w-auto" />
+          {theme.brand.logoAssetId || theme.brand.logoUrl ? (
+            <StorefrontAssetImage
+              assetId={theme.brand.logoAssetId}
+              fallbackUrl={theme.brand.logoUrl}
+              alt={name}
+              className="h-9 w-auto"
+            />
           ) : (
             <div className="flex items-baseline gap-0.5">
               <span className="text-display text-2xl leading-none tracking-tight text-ink">{first}</span>
