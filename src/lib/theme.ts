@@ -115,6 +115,11 @@ export type Theme = {
       headlineHighlightA: string;
       headlineB: string;
       headlineHighlightB: string;
+      /** 004D.3 — Independent per-segment hero colours. Null = use fallback. */
+      headlineAColor: string | null;
+      headlineHighlightAColor: string | null;
+      headlineBColor: string | null;
+      headlineHighlightBColor: string | null;
       body: string;
       ctaPrimaryLabel: string;
       ctaPrimaryHref: string;
@@ -226,6 +231,10 @@ export const DEFAULT_THEME: Theme = {
       headlineHighlightA: "Ideas",
       headlineB: "to",
       headlineHighlightB: "Life.",
+      headlineAColor: null,
+      headlineHighlightAColor: null,
+      headlineBColor: null,
+      headlineHighlightBColor: null,
       body: "Premium DTF transfers and custom printing for creators, businesses, and brands. Upload your artwork, build your project, and we'll guide you through every step.",
       ctaPrimaryLabel: "Start a Project",
       ctaPrimaryHref: "/shop",
@@ -495,5 +504,27 @@ export function syncLegacyBrandFromTokens(theme: Theme): Theme {
       primary: theme.tokens.colors.primary,
       accent: theme.tokens.colors.accent,
     },
+  };
+}
+
+// ---------- 004D.3: Hero per-segment colour resolution ----------
+
+/** Resolve the four hero text segment colours, falling back to design
+ *  tokens when the owner has not set a custom colour. Consumers should
+ *  apply these via inline `style={{ color }}` — never via Tailwind
+ *  dynamic class names. */
+export function resolveHeroColors(theme: Theme): {
+  headlineA: string;
+  headlineHighlightA: string;
+  headlineB: string;
+  headlineHighlightB: string;
+} {
+  const h = theme.home.hero;
+  const c = theme.tokens.colors;
+  return {
+    headlineA: h.headlineAColor ?? c.foreground,
+    headlineHighlightA: h.headlineHighlightAColor ?? c.accent,
+    headlineB: h.headlineBColor ?? c.foreground,
+    headlineHighlightB: h.headlineHighlightBColor ?? c.secondary,
   };
 }
