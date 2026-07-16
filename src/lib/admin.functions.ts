@@ -50,7 +50,8 @@ export const adminListProducts = createServerFn({ method: "GET" })
     const { admin } = await assertStaff(context);
     const { data, error } = await admin
       .from("products")
-      .select("id, slug, name, base_price, is_featured, is_published, images, categories:category_id(name), product_variants(stock)")
+      .select("id, slug, name, base_price, is_featured, is_published, images, category_id, sort_order, categories:category_id(name, slug), product_variants(stock)")
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return (data ?? []).map((p: any) => ({
@@ -61,6 +62,9 @@ export const adminListProducts = createServerFn({ method: "GET" })
       is_featured: p.is_featured,
       is_published: p.is_published,
       image: p.images?.[0] ?? null,
+      category_id: p.category_id ?? null,
+      category_slug: p.categories?.slug ?? null,
+      sort_order: p.sort_order ?? 0,
       category: p.categories?.name ?? null,
       total_stock: (p.product_variants ?? []).reduce((s: number, v: any) => s + (v.stock ?? 0), 0),
     }));
