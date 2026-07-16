@@ -165,10 +165,42 @@ export function ThemeContentEditor({ theme, update }: { theme: Theme; update: Up
         <Section title="Hero">
           <Field label="Eyebrow"><Input value={theme.home.hero.eyebrow} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, eyebrow: e.target.value } } }))} /></Field>
           <div className="grid gap-3 md:grid-cols-2">
-            <Field label="Headline line 1"><Input value={theme.home.hero.headlineA} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineA: e.target.value } } }))} /></Field>
-            <Field label="Highlight 1"><Input value={theme.home.hero.headlineHighlightA} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineHighlightA: e.target.value } } }))} /></Field>
-            <Field label="Headline line 2"><Input value={theme.home.hero.headlineB} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineB: e.target.value } } }))} /></Field>
-            <Field label="Highlight 2"><Input value={theme.home.hero.headlineHighlightB} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineHighlightB: e.target.value } } }))} /></Field>
+            <Field label="Headline line 1">
+              <Input value={theme.home.hero.headlineA} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineA: e.target.value } } }))} />
+              <ColorField
+                label="Headline Line 1 Colour"
+                value={theme.home.hero.headlineAColor}
+                fallback={theme.tokens.colors.foreground}
+                onChange={(v) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineAColor: v } } }))}
+              />
+            </Field>
+            <Field label="Highlight 1">
+              <Input value={theme.home.hero.headlineHighlightA} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineHighlightA: e.target.value } } }))} />
+              <ColorField
+                label="Highlight 1 Colour"
+                value={theme.home.hero.headlineHighlightAColor}
+                fallback={theme.tokens.colors.accent}
+                onChange={(v) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineHighlightAColor: v } } }))}
+              />
+            </Field>
+            <Field label="Headline line 2">
+              <Input value={theme.home.hero.headlineB} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineB: e.target.value } } }))} />
+              <ColorField
+                label="Headline Line 2 Colour"
+                value={theme.home.hero.headlineBColor}
+                fallback={theme.tokens.colors.foreground}
+                onChange={(v) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineBColor: v } } }))}
+              />
+            </Field>
+            <Field label="Highlight 2">
+              <Input value={theme.home.hero.headlineHighlightB} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineHighlightB: e.target.value } } }))} />
+              <ColorField
+                label="Highlight 2 Colour"
+                value={theme.home.hero.headlineHighlightBColor}
+                fallback={theme.tokens.colors.secondary}
+                onChange={(v) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, headlineHighlightBColor: v } } }))}
+              />
+            </Field>
           </div>
           <Field label="Body"><Textarea value={theme.home.hero.body} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, body: e.target.value } } }))} /></Field>
           <div className="grid gap-3 md:grid-cols-2">
