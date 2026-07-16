@@ -119,7 +119,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = pathname.startsWith("/portal-admin");
-  const shell = (
+  const storefrontShell = (
     <div className="flex min-h-screen flex-col">
       <AnnouncementBar />
       <Header />
@@ -127,12 +127,15 @@ function RootComponent() {
       <Footer />
     </div>
   );
+  const adminShell = (
+    <div className="min-h-screen"><Outlet /></div>
+  );
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider>
           <CartProvider>
-            {isAdmin ? shell : <StorefrontThemeScope>{shell}</StorefrontThemeScope>}
+            {isAdmin ? adminShell : <StorefrontThemeScope>{storefrontShell}</StorefrontThemeScope>}
             <Toaster />
           </CartProvider>
         </ThemeProvider>
