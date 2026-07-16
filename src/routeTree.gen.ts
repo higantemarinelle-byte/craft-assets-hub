@@ -33,6 +33,7 @@ import { Route as AuthenticatedPortalAdminEmployeesRouteImport } from './routes/
 import { Route as AuthenticatedPortalAdminDiscountsRouteImport } from './routes/_authenticated/portal-admin/discounts'
 import { Route as AuthenticatedPortalAdminCustomersRouteImport } from './routes/_authenticated/portal-admin/customers'
 import { Route as AuthenticatedPortalAdminCraftStudioRouteImport } from './routes/_authenticated/portal-admin/craft-studio'
+import { Route as AuthenticatedPortalAdminCategoriesRouteImport } from './routes/_authenticated/portal-admin/categories'
 import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes/_authenticated/portal-admin/projects.$id'
 import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
 import { Route as AuthenticatedPortalAdminProductsIdRouteImport } from './routes/_authenticated/portal-admin/products.$id'
@@ -171,6 +172,12 @@ const AuthenticatedPortalAdminCraftStudioRoute =
     path: '/craft-studio',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
+const AuthenticatedPortalAdminCategoriesRoute =
+  AuthenticatedPortalAdminCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
 const AuthenticatedPortalAdminProjectsIdRoute =
   AuthenticatedPortalAdminProjectsIdRouteImport.update({
     id: '/$id',
@@ -234,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
   '/account': typeof AuthenticatedAccountRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
   '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
@@ -266,6 +274,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
   '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
@@ -301,6 +310,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/shop/$slug': typeof ShopSlugRoute
+  '/_authenticated/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
   '/_authenticated/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/_authenticated/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/_authenticated/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/account'
     | '/shop/$slug'
+    | '/portal-admin/categories'
     | '/portal-admin/craft-studio'
     | '/portal-admin/customers'
     | '/portal-admin/discounts'
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/account'
     | '/shop/$slug'
+    | '/portal-admin/categories'
     | '/portal-admin/craft-studio'
     | '/portal-admin/customers'
     | '/portal-admin/discounts'
@@ -402,6 +414,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin'
     | '/_authenticated/account'
     | '/shop/$slug'
+    | '/_authenticated/portal-admin/categories'
     | '/_authenticated/portal-admin/craft-studio'
     | '/_authenticated/portal-admin/customers'
     | '/_authenticated/portal-admin/discounts'
@@ -606,6 +619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
+    '/_authenticated/portal-admin/categories': {
+      id: '/_authenticated/portal-admin/categories'
+      path: '/categories'
+      fullPath: '/portal-admin/categories'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCategoriesRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
     '/_authenticated/portal-admin/projects/$id': {
       id: '/_authenticated/portal-admin/projects/$id'
       path: '/$id'
@@ -750,6 +770,7 @@ const AuthenticatedPortalAdminProjectsRouteWithChildren =
   )
 
 interface AuthenticatedPortalAdminRouteRouteChildren {
+  AuthenticatedPortalAdminCategoriesRoute: typeof AuthenticatedPortalAdminCategoriesRoute
   AuthenticatedPortalAdminCraftStudioRoute: typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   AuthenticatedPortalAdminCustomersRoute: typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   AuthenticatedPortalAdminDiscountsRoute: typeof AuthenticatedPortalAdminDiscountsRoute
@@ -763,6 +784,8 @@ interface AuthenticatedPortalAdminRouteRouteChildren {
 
 const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteRouteChildren =
   {
+    AuthenticatedPortalAdminCategoriesRoute:
+      AuthenticatedPortalAdminCategoriesRoute,
     AuthenticatedPortalAdminCraftStudioRoute:
       AuthenticatedPortalAdminCraftStudioRouteWithChildren,
     AuthenticatedPortalAdminCustomersRoute:
