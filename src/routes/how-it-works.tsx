@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Flame, Package, Layers, Zap, Truck } from "lucide-react";
+import { Shirt, Package, Layers, Zap, Truck } from "lucide-react";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -15,11 +15,11 @@ export const Route = createFileRoute("/how-it-works")({
 
 function HowItWorks() {
   const steps = [
-    { i: Zap, n: "01", t: "You choose", d: "Pick a ready-to-press design, or upload your art onto a gang sheet in any size." },
+    { i: Zap, n: "01", t: "You choose", d: "Pick a ready-to-press design or upload your artwork and tell us the garment, size, and quantity." },
     { i: Package, n: "02", t: "We print", d: "CMYK + white ink on 75 micron PET film, powdered with hot-melt adhesive, cured at 320°F." },
-    { i: Layers, n: "03", t: "We QC + ship", d: "Every sheet inspected under daylight for color, edge sharpness, and adhesive coverage." },
-    { i: Flame, n: "04", t: "You press", d: "Position on garment, cover with parchment, press at 315°F for 15 seconds, warm peel." },
-    { i: Truck, n: "05", t: "You wear + wash", d: "Wait 24 hours, then wash inside-out cold. Rated for 50+ washes with proper care." },
+    { i: Layers, n: "03", t: "We QC", d: "Every sheet inspected under daylight for color, edge sharpness, and adhesive coverage before it goes to the press." },
+    { i: Shirt, n: "04", t: "We press onto the garment", d: "Our team positions and presses your design at 315°F for 15 seconds — you never touch a heat press." },
+    { i: Truck, n: "05", t: "You receive the finished garment", d: "Your order arrives ready to wear. Wash inside-out cold; rated for 50+ washes with proper care." },
   ];
   return (
     <div className="bg-cream">
