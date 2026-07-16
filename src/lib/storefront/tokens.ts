@@ -273,7 +273,9 @@ export function designTokensToCssVariables(tokens: StorefrontDesignTokens): Reco
     "--ink": c.primary,
     "--ink-foreground": c.primaryForeground,
     "--cream": c.background,
-    "--cmyk-cyan": c.secondary,
+    // CMYK poster accents — kept independent of shadcn `secondary` so the
+    // neutral secondary surface doesn't wash out the loud cyan utility.
+    "--cmyk-cyan": "oklch(0.72 0.18 220)",
     "--cmyk-magenta": c.accent,
     "--cmyk-yellow": c.highlight,
   };
