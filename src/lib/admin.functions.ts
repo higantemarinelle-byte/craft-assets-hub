@@ -258,8 +258,7 @@ export const adminListCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { admin } = await assertStaff(context);
-    const { data } = await admin
-      .from("categories")
+    const { data } = await (admin.from("categories") as any)
       .select("id, name, slug, description, sort_order, image_url, accent")
       .order("sort_order");
     return data ?? [];
