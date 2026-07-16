@@ -48,9 +48,12 @@ function serviceClient(): any {
 
 // Public: read published theme JSON for the storefront.
 export const getPublishedTheme = createServerFn({ method: "GET" }).handler(async () => {
-  const supabase = serviceClient();
+  const supabase = publicClient();
   const { data, error } = await supabase.from("theme_settings" as any).select("published, published_at").limit(1).maybeSingle();
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("[getPublishedTheme]", error);
+    return { theme: {}, published_at: null };
+  }
   return { theme: (data?.published as any) ?? {}, published_at: data?.published_at ?? null };
 });
 
