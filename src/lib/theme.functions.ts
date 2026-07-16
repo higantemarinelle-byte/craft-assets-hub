@@ -42,7 +42,7 @@ function publicClient(): any {
 }
 
 function serviceClient(): any {
-  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+  return createClient<Database>(process.env.SUPABASE_URL!, process.env.CRAFT_SUPABASE_ADMIN_KEY!, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
 }
