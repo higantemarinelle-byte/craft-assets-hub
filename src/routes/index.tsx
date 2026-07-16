@@ -8,6 +8,60 @@ import { useTheme } from "@/lib/theme-context";
 import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
 import { resolveHeroColors } from "@/lib/theme";
 
+const LEGACY_CTA_MAP: Record<string, string> = {
+  "/products": "/shop",
+  "/gangsheet": "/gang-sheet",
+  "/gang_sheets": "/gang-sheet",
+  "/gang-sheets": "/gang-sheet",
+};
+
+type ResolvedCta =
+  | { kind: "internal"; to: string }
+  | { kind: "external"; href: string }
+  | { kind: "empty" };
+
+function resolveCtaHref(raw: string | undefined | null): ResolvedCta {
+  const value = (raw ?? "").trim();
+  if (!value) return { kind: "empty" };
+  if (/^(https?:|mailto:|tel:)/i.test(value)) return { kind: "external", href: value };
+  if (value.startsWith("#")) return { kind: "external", href: value };
+  const normalized = value.startsWith("/") ? value : `/${value}`;
+  const [pathOnly] = normalized.split(/[?#]/);
+  const mapped = LEGACY_CTA_MAP[pathOnly] ?? normalized;
+  return { kind: "internal", to: mapped };
+}
+
+function CtaLink({
+  cta,
+  className,
+  children,
+}: {
+  cta: ResolvedCta;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  if (cta.kind === "empty") {
+    return <span className={className} aria-disabled="true">{children}</span>;
+  }
+  if (cta.kind === "external") {
+    const external = /^https?:/i.test(cta.href);
+    return (
+      <a
+        href={cta.href}
+        className={className}
+        {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link to={cta.to} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 export const Route = createFileRoute("/")({
   ssr: false,
   component: Home,
