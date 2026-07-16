@@ -643,6 +643,81 @@ export type Database = {
           },
         ]
       }
+      quote_requests: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string | null
+          design_count: number
+          designs: Json
+          estimated_total: number
+          fill_percent: number
+          id: string
+          notes: string | null
+          pricing_snapshot: Json
+          quote_notes: string | null
+          quoted_total: number | null
+          reference: string | null
+          sheet_code: string
+          sheet_height_inches: number | null
+          sheet_name: string
+          sheet_width_inches: number | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name: string
+          customer_phone?: string | null
+          design_count?: number
+          designs?: Json
+          estimated_total?: number
+          fill_percent?: number
+          id?: string
+          notes?: string | null
+          pricing_snapshot?: Json
+          quote_notes?: string | null
+          quoted_total?: number | null
+          reference?: string | null
+          sheet_code: string
+          sheet_height_inches?: number | null
+          sheet_name: string
+          sheet_width_inches?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string | null
+          design_count?: number
+          designs?: Json
+          estimated_total?: number
+          fill_percent?: number
+          id?: string
+          notes?: string | null
+          pricing_snapshot?: Json
+          quote_notes?: string | null
+          quoted_total?: number | null
+          reference?: string | null
+          sheet_code?: string
+          sheet_height_inches?: number | null
+          sheet_name?: string
+          sheet_width_inches?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       theme_settings: {
         Row: {
           created_at: string
