@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTheme } from "@/lib/theme-context";
 
 export const SUPPORTED_CURRENCIES = ["USD", "AUD", "EUR", "PHP"] as const;
 export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
@@ -23,9 +24,6 @@ export function money(n: number | string, currency: string = "USD"): string {
 
 /** Hook: currency-aware formatter bound to the storefront theme. */
 export function useMoney(overrideCurrency?: string) {
-  // Lazy import to avoid a hard cycle for non-storefront pages.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { useTheme } = require("@/lib/theme-context") as typeof import("@/lib/theme-context");
   const { theme } = useTheme();
   const currency = overrideCurrency ?? theme.commerce?.currency ?? "USD";
   return useMemo(() => (n: number | string) => money(n, currency), [currency]);
