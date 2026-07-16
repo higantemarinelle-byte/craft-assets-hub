@@ -11,8 +11,8 @@
 //   - Upload: upload a new file (reserves an asset row, then uploads to
 //     Supabase Storage via the user-session client — RLS enforces owner-only)
 
-import { useCallback, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient, useServerFn } from "@tanstack/react-query";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn as useServerFnRouter } from "@tanstack/react-start";
 import { Loader2, Upload, X } from "lucide-react";
 
@@ -258,8 +258,3 @@ function UploadPanel({ onUploaded }: { onUploaded: (v: AssetPickerValue) => void
     </div>
   );
 }
-
-// Silence unused imports pulled by IDE templates.
-void useCallback;
-void useMemo;
-void useServerFn;
