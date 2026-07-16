@@ -17,7 +17,6 @@ import {
   ALLOWED_MIME_TYPES,
   buildStoragePath,
   sanitizeFilename,
-  resolvePublicUrl,
   type AssetSourceType,
   type UsageScope,
 } from "./assets";
@@ -34,6 +33,39 @@ function serverPublishableClient() {
   });
 }
 
+// The craft-studio-assets bucket is private. Signed URLs are minted here
+// with a 1-hour TTL and returned to the client for direct <img src> use.
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
+
+async function signAssetUrl(
+  client: ReturnType<typeof serverPublishableClient>,
+  bucket: string,
+  path: string,
+): Promise<string> {
+  const { data, error } = await client.storage
+    .from(bucket)
+    .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
+  if (error || !data?.signedUrl) return "";
+  return data.signedUrl;
+}
+
+async function signManyAssetUrls(
+  client: ReturnType<typeof serverPublishableClient>,
+  bucket: string,
+  paths: string[],
+): Promise<Record<string, string>> {
+  if (paths.length === 0) return {};
+  const { data, error } = await client.storage
+    .from(bucket)
+    .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
+  if (error || !data) return {};
+  const map: Record<string, string> = {};
+  for (const entry of data) {
+    if (entry.path && entry.signedUrl) map[entry.path] = entry.signedUrl;
+  }
+  return map;
+}
+
 // ---------------------------------------------------------------------------
 // PUBLIC — resolve a supplied list of Asset IDs into safe public shape.
 // ---------------------------------------------------------------------------
@@ -44,17 +76,29 @@ export const resolvePublicAssets = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     if (data.ids.length === 0) return { assets: [] as Array<{ id: string; url: string; width: number | null; height: number | null; alt_text: string | null }> };
-    const supabase = serverPublishableClient();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabase = supabaseAdmin;
     const { data: rows, error } = await supabase
       .from("craft_assets" as any)
       .select("id, bucket, storage_path, width, height, alt_text, status")
       .in("id", data.ids)
       .eq("status", "active");
     if (error) throw new Error(error.message);
+    const list = (rows ?? []) as any[];
+    const byBucket = new Map<string, string[]>();
+    for (const r of list) {
+      if (!byBucket.has(r.bucket)) byBucket.set(r.bucket, []);
+      byBucket.get(r.bucket)!.push(r.storage_path);
+    }
+    const signed: Record<string, string> = {};
+    for (const [bucket, paths] of byBucket) {
+      const map = await signManyAssetUrls(supabase as any, bucket, paths);
+      for (const [k, v] of Object.entries(map)) signed[`${bucket}:${k}`] = v;
+    }
     return {
-      assets: (rows ?? []).map((r: any) => ({
+      assets: list.map((r: any) => ({
         id: r.id as string,
-        url: resolvePublicUrl(r.bucket as string, r.storage_path as string),
+        url: signed[`${r.bucket}:${r.storage_path}`] ?? "",
         width: (r.width as number | null) ?? null,
         height: (r.height as number | null) ?? null,
         alt_text: (r.alt_text as string | null) ?? null,
@@ -94,10 +138,16 @@ export const adminListAssets = createServerFn({ method: "POST" })
     }
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
+    const list = (rows ?? []) as any[];
+    const supa = (context as any).supabase;
+    const paths = list.map((r) => r.storage_path);
+    const signed = list.length > 0
+      ? await signManyAssetUrls(supa, list[0].bucket, paths)
+      : {};
     return {
-      assets: (rows ?? []).map((r: any) => ({
+      assets: list.map((r: any) => ({
         ...r,
-        url: resolvePublicUrl(r.bucket, r.storage_path),
+        url: signed[r.storage_path] ?? "",
       })),
     };
   });
@@ -114,7 +164,8 @@ export const adminGetAsset = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Asset not found");
-    return { asset: { ...row, url: resolvePublicUrl(row.bucket, row.storage_path) } };
+    const url = await signAssetUrl((context as any).supabase, row.bucket, row.storage_path);
+    return { asset: { ...row, url } };
   });
 
 /**
@@ -170,8 +221,10 @@ export const adminReserveAssetUpload = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!inserted) throw new Error("Failed to reserve asset row");
+    // No file uploaded yet, so no signed URL possible until the client
+    // finishes uploading. Return empty url; caller signs after upload.
     return {
-      asset: { ...inserted, url: resolvePublicUrl(inserted.bucket, inserted.storage_path) },
+      asset: { ...inserted, url: "" },
       bucket: CRAFT_ASSETS_BUCKET,
       path,
       ownerId,
