@@ -3,6 +3,36 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { requireOwnerAccess, requireStaffAccess } from "@/lib/permissions.server";
+import { extractAssetRefs } from "@/lib/storefront/asset-usage";
+import { mergeTheme } from "@/lib/theme";
+
+async function syncThemeUsage(
+  admin: any,
+  scope: "draft" | "published",
+  draft: unknown,
+): Promise<void> {
+  const theme = mergeTheme(draft as any);
+  const refs = extractAssetRefs(theme);
+  // Replace all theme-scoped rows for this scope. Future non-theme sources
+  // (products, campaigns) are synced from their own writers.
+  await admin
+    .from("craft_asset_usages" as any)
+    .delete()
+    .eq("usage_scope", scope)
+    .eq("source_type", "theme");
+  if (refs.length === 0) return;
+  await admin.from("craft_asset_usages" as any).upsert(
+    refs.map((r) => ({
+      asset_id: r.assetId,
+      source_type: r.source_type,
+      source_id: r.source_id,
+      field_path: r.field_path,
+      usage_scope: scope,
+      metadata: {},
+    })),
+    { onConflict: "asset_id,source_type,source_id,field_path,usage_scope" },
+  );
+}
 
 function publicClient(): any {
   return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
