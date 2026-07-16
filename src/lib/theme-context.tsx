@@ -1,9 +1,10 @@
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPublishedTheme, adminGetTheme } from "./theme.functions";
 import { DEFAULT_THEME, mergeTheme, type Theme } from "./theme";
 import { useAuth } from "./auth";
 import { designTokensToCssVariables } from "./storefront/tokens";
+import { buildGoogleFontsHref } from "./storefront/fonts";
 
 const ThemeCtx = createContext<{ theme: Theme; isDraftPreview: boolean }>({ theme: DEFAULT_THEME, isDraftPreview: false });
 
@@ -44,6 +45,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const lines = Object.entries(vars).map(([k, v]) => `${k}: ${v};`).join("\n  ");
     return `.storefront-theme {\n  ${lines}\n}`;
   }, [theme.tokens]);
+
+  // Load Google Fonts for the selected typography — only what's needed.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const href = buildGoogleFontsHref([theme.tokens.typography.headingFont, theme.tokens.typography.bodyFont]);
+    if (!href) return;
+    const id = "craft-studio-fonts";
+    const existing = document.getElementById(id) as HTMLLinkElement | null;
+    if (existing && existing.href === href) return;
+    if (existing) existing.remove();
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
+  }, [theme.tokens.typography.headingFont, theme.tokens.typography.bodyFont]);
 
   return (
     <ThemeCtx.Provider value={{ theme, isDraftPreview: draftPreview }}>
