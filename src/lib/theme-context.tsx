@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPublishedTheme, adminGetTheme } from "./theme.functions";
 import { DEFAULT_THEME, mergeTheme, type Theme } from "./theme";
 import { useAuth } from "./auth";
+import { designTokensToCssVariables } from "./storefront/tokens";
 
 const ThemeCtx = createContext<{ theme: Theme; isDraftPreview: boolean }>({ theme: DEFAULT_THEME, isDraftPreview: false });
 
@@ -16,8 +17,9 @@ function useIsDraftPreview() {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const { isStaff } = useAuth();
-  const draftPreview = useIsDraftPreview() && isStaff;
+  const { isOwner } = useAuth();
+  // Draft preview is gated on Craft Studio owner access, not general staff.
+  const draftPreview = useIsDraftPreview() && isOwner;
 
   const { data } = useQuery({
     queryKey: ["theme:published"],
@@ -37,7 +39,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return DEFAULT_THEME;
   }, [data, adminData, draftPreview]);
 
-  return <ThemeCtx.Provider value={{ theme, isDraftPreview: draftPreview }}>{children}</ThemeCtx.Provider>;
+  const cssText = useMemo(() => {
+    const vars = designTokensToCssVariables(theme.tokens);
+    const lines = Object.entries(vars).map(([k, v]) => `${k}: ${v};`).join("\n  ");
+    return `.storefront-theme {\n  ${lines}\n}`;
+  }, [theme.tokens]);
+
+  return (
+    <ThemeCtx.Provider value={{ theme, isDraftPreview: draftPreview }}>
+      {/* Scoped CSS variables — only apply where .storefront-theme is set. */}
+      <style dangerouslySetInnerHTML={{ __html: cssText }} />
+      {children}
+    </ThemeCtx.Provider>
+  );
 }
 
 export function useTheme() {
