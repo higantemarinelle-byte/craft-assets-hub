@@ -81,7 +81,7 @@ function Home() {
     <div className="bg-cream">
       {/* HERO */}
       <section className="relative overflow-hidden border-b-2 border-ink">
-        <div className="halftone absolute inset-0 opacity-[0.06]" />
+        <div className="halftone pointer-events-none absolute inset-0 opacity-[0.06]" />
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-12 md:gap-8 md:px-6 md:py-24">
           <div className="md:col-span-7">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-yellow px-3 py-1 text-xs font-bold uppercase tracking-widest">
