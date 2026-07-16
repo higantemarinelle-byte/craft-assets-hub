@@ -1,5 +1,11 @@
 // Shared theme type + defaults. Kept as plain types (client-safe).
 
+import {
+  DEFAULT_DESIGN_TOKENS,
+  mergeDesignTokens,
+  type StorefrontDesignTokens,
+} from "@/lib/storefront/tokens";
+
 export type ThemeSocial = { kind: "instagram" | "tiktok" | "twitter" | "facebook" | "email"; href: string };
 export type ThemeLink = { label: string; href: string };
 export type ThemeFooterColumn = { title: string; links: ThemeLink[] };
@@ -58,6 +64,7 @@ export type Theme = {
     about: { blocks: Array<{ heading: string; body: string }> };
   };
   inventory: { lowStockThreshold: number };
+  tokens: StorefrontDesignTokens;
 };
 
 export const DEFAULT_THEME: Theme = {
@@ -119,13 +126,32 @@ export const DEFAULT_THEME: Theme = {
     about: { blocks: [{ heading: "Built by makers, for makers", body: "We started Craft & Cling because DTF should be loud, reliable, and shipped on time." }] },
   },
   inventory: { lowStockThreshold: 10 },
+  tokens: DEFAULT_DESIGN_TOKENS,
 };
 
 // Deep-merge helper — user drafts may omit fields; fill in with defaults.
+// Older themes (pre-004D) do not include `tokens`; when missing, we seed
+// tokens from the legacy `brand.primary` / `brand.accent` values so the
+// upgrade is invisible.
 export function mergeTheme(partial: any): Theme {
   const p = partial ?? {};
+  const brand = { ...DEFAULT_THEME.brand, ...(p.brand ?? {}) };
+
+  let tokens: StorefrontDesignTokens;
+  if (p.tokens) {
+    tokens = mergeDesignTokens(p.tokens);
+  } else {
+    tokens = mergeDesignTokens({
+      colors: {
+        ...DEFAULT_DESIGN_TOKENS.colors,
+        ...(brand.primary ? { primary: brand.primary } : {}),
+        ...(brand.accent ? { accent: brand.accent } : {}),
+      },
+    });
+  }
+
   return {
-    brand: { ...DEFAULT_THEME.brand, ...(p.brand ?? {}) },
+    brand,
     announcement: { ...DEFAULT_THEME.announcement, ...(p.announcement ?? {}) },
     nav: { items: p.nav?.items ?? DEFAULT_THEME.nav.items },
     footer: { ...DEFAULT_THEME.footer, ...(p.footer ?? {}) },
@@ -140,5 +166,20 @@ export function mergeTheme(partial: any): Theme {
       about: { blocks: p.pages?.about?.blocks ?? DEFAULT_THEME.pages.about.blocks },
     },
     inventory: { ...DEFAULT_THEME.inventory, ...(p.inventory ?? {}) },
+    tokens,
+  };
+}
+
+/** Sync legacy `brand.primary` / `brand.accent` from tokens so older
+ *  storefront code paths that still read them stay consistent. Called
+ *  before persisting a draft. */
+export function syncLegacyBrandFromTokens(theme: Theme): Theme {
+  return {
+    ...theme,
+    brand: {
+      ...theme.brand,
+      primary: theme.tokens.colors.primary,
+      accent: theme.tokens.colors.accent,
+    },
   };
 }
