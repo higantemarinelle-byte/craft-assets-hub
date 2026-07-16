@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { money } from "@/lib/format";
 
 export type ProductCardData = {
   slug: string;
   name: string;
   category?: string | null;
-  base_price: number | string;
+  base_price?: number | string;
   images?: string[] | null;
   is_featured?: boolean;
 };
@@ -64,8 +63,8 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             </div>
           )}
         </div>
-        <div className="text-sm font-bold text-ink">
-          {money(product.base_price as number)}
+        <div className="text-[10px] font-bold uppercase tracking-widest text-magenta">
+          Quote
         </div>
       </div>
     </Link>
