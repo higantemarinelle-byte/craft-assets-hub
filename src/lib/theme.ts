@@ -141,13 +141,12 @@ export function mergeTheme(partial: any): Theme {
   if (p.tokens) {
     tokens = mergeDesignTokens(p.tokens);
   } else {
-    tokens = mergeDesignTokens({
-      colors: {
-        ...DEFAULT_DESIGN_TOKENS.colors,
-        ...(brand.primary ? { primary: brand.primary } : {}),
-        ...(brand.accent ? { accent: brand.accent } : {}),
-      },
-    });
+    // Legacy themes stored raw brand.primary/accent (e.g. bright pink/cyan)
+    // which previously drove the entire storefront palette. That palette
+    // is intentionally muted now — cream paper + ink, with magenta/cyan
+    // reserved as poster accents — so ignore legacy brand colors and use
+    // the default design tokens when no explicit tokens were saved.
+    tokens = DEFAULT_DESIGN_TOKENS;
   }
 
   return {
