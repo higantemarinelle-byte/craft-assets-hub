@@ -49,7 +49,11 @@ export function ThemeBuilder() {
   const versionsFn = useServerFn(adminListThemeVersions);
   const revertFn = useServerFn(adminRevertThemeVersion);
 
-  const { data: row, isLoading } = useQuery({ queryKey: ["theme", "admin"], queryFn: () => getFn() });
+  const { data: row, isLoading, error, refetch, isFetching } = useQuery({
+    queryKey: ["theme", "admin"],
+    queryFn: () => getFn(),
+    retry: false,
+  });
   const { data: versions = [] } = useQuery({ queryKey: ["theme", "versions"], queryFn: () => versionsFn() });
 
   const [draft, setDraft] = useState<Theme | null>(null);
@@ -57,9 +61,16 @@ export function ThemeBuilder() {
   const [busy, setBusy] = useState<"save" | "publish" | null>(null);
 
   // Hydrate once — do not stomp local edits when the query refreshes.
+  // If the theme_settings row is missing (row === null), still hydrate with
+  // DEFAULT_THEME so the editor is usable instead of stuck on "Loading…".
   useEffect(() => {
-    if (row && !draft) setDraft(mergeTheme((row as any).draft));
-  }, [row, draft]);
+    if (isLoading || draft) return;
+    if (row) {
+      setDraft(mergeTheme((row as any).draft));
+    } else if (!error) {
+      setDraft(mergeTheme(undefined));
+    }
+  }, [row, draft, isLoading, error]);
 
   // Warn on unload while dirty.
   useEffect(() => {
@@ -74,10 +85,32 @@ export function ThemeBuilder() {
     setDirty(true);
   }, []);
 
-  if (isLoading || !draft) {
+  if (isLoading && !draft) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" /> Loading theme…
+      </div>
+    );
+  }
+
+  if (error && !draft) {
+    return (
+      <div className="max-w-lg space-y-3 rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm">
+        <div className="font-medium text-destructive">Couldn't load theme</div>
+        <div className="text-muted-foreground break-words">
+          {(error as any)?.message ?? "Unknown error"}
+        </div>
+        <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>
+          {isFetching ? "Retrying…" : "Retry"}
+        </Button>
+      </div>
+    );
+  }
+
+  if (!draft) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Preparing editor…
       </div>
     );
   }
