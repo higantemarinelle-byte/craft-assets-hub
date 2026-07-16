@@ -13,7 +13,16 @@ export type ThemeHomeSection =
   | { id: string; type: "banner"; enabled: boolean; title?: string; body?: string; ctaLabel?: string; ctaHref?: string; bg?: string };
 
 export type Theme = {
-  brand: { name: string; tagline: string; logoUrl: string | null; primary: string; accent: string };
+  brand: {
+    name: string;
+    tagline: string;
+    /** Asset ID from craft_assets — new source of truth. */
+    logoAssetId: string | null;
+    /** Legacy URL — kept for backward compatibility with existing drafts. */
+    logoUrl: string | null;
+    primary: string;
+    accent: string;
+  };
   announcement: { enabled: boolean; text: string; link?: string };
   nav: { items: ThemeLink[] };
   footer: {
@@ -35,6 +44,9 @@ export type Theme = {
       ctaPrimaryHref: string;
       ctaSecondaryLabel: string;
       ctaSecondaryHref: string;
+      /** Asset ID from craft_assets — new source of truth. */
+      imageAssetId: string | null;
+      /** Legacy URL — kept for backward compatibility with existing drafts. */
       imageUrl: string | null;
     };
     marquee: { enabled: boolean; items: string[] };
@@ -49,7 +61,7 @@ export type Theme = {
 };
 
 export const DEFAULT_THEME: Theme = {
-  brand: { name: "Craft & Cling", tagline: "Bring your ideas to life.", logoUrl: null, primary: "#ec3b83", accent: "#00b6d8" },
+  brand: { name: "Craft & Cling", tagline: "Bring your ideas to life.", logoAssetId: null, logoUrl: null, primary: "#ec3b83", accent: "#00b6d8" },
   announcement: { enabled: true, text: "Upload artwork · Build a project · We'll quote within 24 hours", link: "/shop" },
   nav: {
     items: [
@@ -90,6 +102,7 @@ export const DEFAULT_THEME: Theme = {
       ctaPrimaryHref: "/shop",
       ctaSecondaryLabel: "Explore Products",
       ctaSecondaryHref: "/shop",
+      imageAssetId: null,
       imageUrl: null,
     },
     marquee: { enabled: true, items: ["Upload your artwork", "Free quotations", "No minimums", "Custom sizes welcome", "Reply within 24 hours"] },
