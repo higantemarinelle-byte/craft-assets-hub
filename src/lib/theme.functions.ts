@@ -2,9 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { requireOwnerAccess, requireStaffAccess } from "@/lib/permissions.server";
+import { requireOwnerAccess } from "@/lib/permissions.server";
 import { extractAssetRefs } from "@/lib/storefront/asset-usage";
 import { mergeTheme } from "@/lib/theme";
+import { validateThemeDraft } from "@/lib/storefront/tokens.validation";
 
 async function syncThemeUsage(
   admin: any,
@@ -61,7 +62,7 @@ export const getPublishedTheme = createServerFn({ method: "GET" }).handler(async
 export const adminGetTheme = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await requireStaffAccess(context as any);
+    await requireOwnerAccess(context as any);
     const admin = serviceClient();
     const { data, error } = await admin.from("theme_settings" as any).select("*").limit(1).maybeSingle();
     if (error) throw new Error(error.message);
@@ -74,16 +75,19 @@ export const adminSaveThemeDraft = createServerFn({ method: "POST" })
   .inputValidator((input: { draft: any }) => input)
   .handler(async ({ data, context }) => {
     await requireOwnerAccess(context as any);
+    const validation = validateThemeDraft(data.draft);
+    if (!validation.ok) throw new Error(`Invalid theme: ${validation.error}`);
+    const safeDraft = validation.draft;
     const admin = serviceClient();
     const { data: row } = await admin.from("theme_settings" as any).select("id").limit(1).maybeSingle();
     if (!row) throw new Error("Theme row missing");
     const { error } = await admin
       .from("theme_settings" as any)
-      .update({ draft: data.draft, draft_updated_at: new Date().toISOString(), updated_by: context.userId })
+      .update({ draft: safeDraft, draft_updated_at: new Date().toISOString(), updated_by: context.userId })
       .eq("id", row.id);
     if (error) throw new Error(error.message);
     // Best-effort: don't fail the save if usage tracking table isn't ready.
-    try { await syncThemeUsage(admin, "draft", data.draft); } catch (e) { console.warn("syncThemeUsage(draft) failed:", e); }
+    try { await syncThemeUsage(admin, "draft", safeDraft); } catch (e) { console.warn("syncThemeUsage(draft) failed:", e); }
     return { ok: true };
   });
 
@@ -96,6 +100,10 @@ export const adminPublishTheme = createServerFn({ method: "POST" })
     const admin = serviceClient();
     const { data: row, error: readErr } = await admin.from("theme_settings" as any).select("*").limit(1).maybeSingle();
     if (readErr || !row) throw new Error(readErr?.message ?? "Theme row missing");
+    // Re-validate draft before publishing to prevent bad data reaching prod.
+    const validation = validateThemeDraft(row.draft);
+    if (!validation.ok) throw new Error(`Invalid draft cannot be published: ${validation.error}`);
+    const safeDraft = validation.draft;
     // Snapshot current published (if any) into versions BEFORE overwriting.
     if (row.published && Object.keys(row.published as any).length) {
       await admin.from("theme_versions" as any).insert({
@@ -106,10 +114,10 @@ export const adminPublishTheme = createServerFn({ method: "POST" })
     }
     const { error } = await admin
       .from("theme_settings" as any)
-      .update({ published: row.draft, published_at: new Date().toISOString(), updated_by: context.userId })
+      .update({ published: safeDraft, published_at: new Date().toISOString(), updated_by: context.userId })
       .eq("id", row.id);
     if (error) throw new Error(error.message);
-    try { await syncThemeUsage(admin, "published", row.draft); } catch (e) { console.warn("syncThemeUsage(published) failed:", e); }
+    try { await syncThemeUsage(admin, "published", safeDraft); } catch (e) { console.warn("syncThemeUsage(published) failed:", e); }
     return { ok: true };
   });
 
