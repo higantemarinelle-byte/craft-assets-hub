@@ -78,14 +78,14 @@ function Cart() {
                   {item.name}
                 </Link>
                 <div className="text-xs uppercase tracking-widest text-muted-foreground">{item.variantLabel}</div>
-                <div className="mt-1 text-sm">{money(item.price)} est.</div>
+                <div className="mt-1 text-xs font-bold uppercase tracking-widest text-magenta">Quoted after review</div>
               </div>
               <div className="flex items-center rounded-md border-2 border-ink">
                 <button onClick={() => setQty(item.variantId, item.quantity - 1)} className="px-3 py-1 font-bold">−</button>
                 <div className="w-8 text-center font-bold">{item.quantity}</div>
                 <button onClick={() => setQty(item.variantId, item.quantity + 1)} className="px-3 py-1 font-bold">+</button>
               </div>
-              <div className="hidden w-20 text-right font-bold sm:block">{money(item.price * item.quantity)}</div>
+              <div className="hidden w-20 text-right text-xs font-semibold uppercase tracking-widest text-muted-foreground sm:block">Quote</div>
               <button onClick={() => remove(item.variantId)} aria-label="Remove" className="rounded p-2 text-muted-foreground hover:bg-ink/5 hover:text-destructive">
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -174,9 +174,9 @@ function Cart() {
         </div>
 
         <div className="rounded-lg border-2 border-ink bg-cream p-5">
-          <div className="text-xs font-bold uppercase tracking-widest">Estimated Project Value</div>
-          <div className="mt-2 text-3xl font-bold">{money(subtotal)}</div>
-          <div className="text-xs italic text-muted-foreground">Subject to review — final pricing confirmed after our team reviews your artwork and project details.</div>
+          <div className="text-xs font-bold uppercase tracking-widest">Quotation</div>
+          <div className="mt-2 text-xl font-bold">We'll quote your project after review</div>
+          <div className="mt-1 text-xs italic text-muted-foreground">No online payments. Our team reviews your artwork and details, then sends a quote — production starts after you approve it.</div>
           <div className="mt-5 flex flex-col gap-2">
             <Link to="/checkout">
               <Button size="lg" className="w-full border-2 border-ink bg-ink font-bold text-cream hover:bg-magenta hover:border-magenta">
