@@ -159,6 +159,7 @@ export type Database = {
           folder_id: string | null
           height: number | null
           id: string
+          is_public: boolean
           mime_type: string
           name: string
           original_filename: string
@@ -178,6 +179,7 @@ export type Database = {
           folder_id?: string | null
           height?: number | null
           id?: string
+          is_public?: boolean
           mime_type: string
           name: string
           original_filename: string
@@ -197,6 +199,7 @@ export type Database = {
           folder_id?: string | null
           height?: number | null
           id?: string
+          is_public?: boolean
           mime_type?: string
           name?: string
           original_filename?: string
