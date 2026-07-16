@@ -18,6 +18,7 @@ import {
   ExternalLink,
   LogOut,
   Layers,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { isOwnerUser } from "@/lib/permissions";
@@ -58,6 +59,7 @@ function AdminLayout() {
   const nav: NavItem[] = [
     { to: "/portal-admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/portal-admin/projects", label: "Projects", icon: FolderKanban },
+    { to: "/portal-admin/quote-requests", label: "Quote Requests", icon: FileText },
     { to: "/portal-admin/products", label: "Products", icon: Package },
     { to: "/portal-admin/categories", label: "Categories", icon: Tags },
     { to: "/portal-admin/customers", label: "Customers", icon: UserCircle },
