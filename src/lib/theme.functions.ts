@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { requireOwnerAccess, requireStaffAccess } from "@/lib/permissions.server";
 
 function publicClient(): any {
   return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
@@ -13,18 +14,6 @@ function serviceClient(): any {
   return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
-}
-
-async function assertStaff(ctx: any, ownerOnly = false) {
-  const admin = serviceClient();
-  const { data } = await admin.from("user_roles").select("role").eq("user_id", ctx.userId);
-  const roles = (data ?? []).map((r: any) => r.role);
-  if (ownerOnly) {
-    if (!roles.includes("owner")) throw new Error("Forbidden");
-  } else {
-    if (!roles.includes("owner") && !roles.includes("employee")) throw new Error("Forbidden");
-  }
-  return { admin, roles };
 }
 
 // Public: read published theme JSON for the storefront.
