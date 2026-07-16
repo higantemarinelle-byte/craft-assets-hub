@@ -506,3 +506,25 @@ export function syncLegacyBrandFromTokens(theme: Theme): Theme {
     },
   };
 }
+
+// ---------- 004D.3: Hero per-segment colour resolution ----------
+
+/** Resolve the four hero text segment colours, falling back to design
+ *  tokens when the owner has not set a custom colour. Consumers should
+ *  apply these via inline `style={{ color }}` — never via Tailwind
+ *  dynamic class names. */
+export function resolveHeroColors(theme: Theme): {
+  headlineA: string;
+  headlineHighlightA: string;
+  headlineB: string;
+  headlineHighlightB: string;
+} {
+  const h = theme.home.hero;
+  const c = theme.tokens.colors;
+  return {
+    headlineA: h.headlineAColor ?? c.foreground,
+    headlineHighlightA: h.headlineHighlightAColor ?? c.accent,
+    headlineB: h.headlineBColor ?? c.foreground,
+    headlineHighlightB: h.headlineHighlightBColor ?? c.secondary,
+  };
+}
