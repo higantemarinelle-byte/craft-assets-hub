@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { money } from "@/lib/format";
+import { useTheme } from "@/lib/theme-context";
 
 export const Route = createFileRoute("/_authenticated/portal-admin/gang-sheet/pricing")({
   head: () => ({ meta: [{ title: "Gang Sheet Pricing — Craft OS" }, { name: "robots", content: "noindex" }] }),
@@ -47,6 +48,8 @@ function blank(): Draft {
 }
 
 function PricingPage() {
+  const { theme } = useTheme();
+  const themeCurrency = theme.commerce?.currency ?? "USD";
   const list = useServerFn(adminListPricingRules);
   const save = useServerFn(adminSavePricingRule);
   const del = useServerFn(adminDeletePricingRule);
