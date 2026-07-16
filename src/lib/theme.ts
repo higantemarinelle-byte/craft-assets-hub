@@ -115,6 +115,11 @@ export type Theme = {
       headlineHighlightA: string;
       headlineB: string;
       headlineHighlightB: string;
+      /** 004D.3 — Independent per-segment hero colours. Null = use fallback. */
+      headlineAColor: string | null;
+      headlineHighlightAColor: string | null;
+      headlineBColor: string | null;
+      headlineHighlightBColor: string | null;
       body: string;
       ctaPrimaryLabel: string;
       ctaPrimaryHref: string;
