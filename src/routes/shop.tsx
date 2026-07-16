@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 const search = z.object({
   category: z.string().optional(),
   q: z.string().optional(),
-  sort: z.enum(["featured", "price-asc", "price-desc", "name"]).optional(),
+  sort: z.enum(["featured", "name"]).optional(),
 });
 
 export const Route = createFileRoute("/shop")({
@@ -38,8 +38,6 @@ function Shop() {
     if (searchParams.category) list = list.filter((p) => p.category_slug === searchParams.category);
     if (q) list = list.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
     switch (searchParams.sort) {
-      case "price-asc": list = [...list].sort((a, b) => a.base_price - b.base_price); break;
-      case "price-desc": list = [...list].sort((a, b) => b.base_price - a.base_price); break;
       case "name": list = [...list].sort((a, b) => a.name.localeCompare(b.name)); break;
       default: list = [...list].sort((a, b) => Number(b.is_featured) - Number(a.is_featured));
     }
@@ -66,8 +64,6 @@ function Shop() {
           className="rounded-md border-2 border-ink bg-cream px-3 py-2 text-sm font-medium"
         >
           <option value="featured">Featured</option>
-          <option value="price-asc">Price: low → high</option>
-          <option value="price-desc">Price: high → low</option>
           <option value="name">Name</option>
         </select>
       </div>
