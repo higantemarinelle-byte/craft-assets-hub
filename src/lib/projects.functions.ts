@@ -11,6 +11,11 @@ function serviceClient() {
   });
 }
 
+function safeThrow(context: string, err: unknown, userMessage: string): never {
+  console.error(`[${context}]`, err);
+  throw new Error(userMessage);
+}
+
 async function assertStaff(ctx: any) {
   const admin = serviceClient();
   const { data } = await admin.from("user_roles").select("role").eq("user_id", ctx.userId);
@@ -35,7 +40,7 @@ export const listMyProjects = createServerFn({ method: "GET" })
       .select(PROJECT_LIST_COLS)
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) safeThrow("listMyProjects", error, "Unable to load your projects.");
     return data ?? [];
   });
 
@@ -49,7 +54,7 @@ export const getMyProject = createServerFn({ method: "GET" })
       .eq("id", data.id)
       .eq("user_id", context.userId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) safeThrow("getMyProject", error, "Unable to load this project.");
     if (!project) throw new Error("Project not found");
 
     const { data: history } = await context.supabase
