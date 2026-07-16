@@ -43,6 +43,11 @@ function serviceClient() {
   });
 }
 
+function safeThrow(context: string, err: unknown, userMessage: string): never {
+  console.error(`[${context}]`, err);
+  throw new Error(userMessage);
+}
+
 /** Authenticated checkout — creates an order for the signed-in user. */
 export const placeOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -55,11 +60,11 @@ export const placeOrder = createServerFn({ method: "POST" })
       .from("product_variants")
       .select("id, product_id, price, label, stock, products(name)")
       .in("id", variantIds);
-    if (vErr) throw new Error(vErr.message);
+    if (vErr) safeThrow("placeOrder.variants", vErr, "Unable to submit your project. Please try again.");
 
     const itemsWithPrice = data.items.map((it) => {
       const v = variants?.find((x: any) => x.id === it.variantId);
-      if (!v) throw new Error("Variant not found");
+      if (!v) safeThrow("placeOrder.variantMissing", { variantId: it.variantId }, "One of the selected items is no longer available.");
       const price = Number((v as any).price);
       return {
         variant_id: it.variantId,
@@ -90,12 +95,12 @@ export const placeOrder = createServerFn({ method: "POST" })
       })
       .select("id, order_number, project_reference")
       .single();
-    if (oErr) throw new Error(oErr.message);
+    if (oErr) safeThrow("placeOrder.insertOrder", oErr, "Unable to submit your project. Please try again.");
 
     const { error: iErr } = await admin
       .from("order_items")
       .insert(itemsWithPrice.map((i) => ({ ...i, order_id: order.id })));
-    if (iErr) throw new Error(iErr.message);
+    if (iErr) safeThrow("placeOrder.insertItems", iErr, "Unable to submit your project. Please try again.");
 
     return { id: order.id, orderNumber: order.order_number, reference: (order as any).project_reference as string };
   });
@@ -108,7 +113,7 @@ export const listMyOrders = createServerFn({ method: "GET" })
       .select("id, order_number, status, total, created_at, order_items(product_name, variant_label, quantity)")
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) safeThrow("listMyOrders", error, "Unable to load your projects.");
     return data ?? [];
   });
 
@@ -122,6 +127,6 @@ export const getMyOrder = createServerFn({ method: "GET" })
       .eq("id", data.id)
       .eq("user_id", context.userId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) safeThrow("getMyOrder", error, "Unable to load this project.");
     return order;
   });
