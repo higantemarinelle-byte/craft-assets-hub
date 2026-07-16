@@ -41,6 +41,190 @@ export type Database = {
         }
         Relationships: []
       }
+      craft_asset_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      craft_asset_folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craft_asset_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "craft_asset_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      craft_asset_usages: {
+        Row: {
+          asset_id: string
+          created_at: string
+          field_path: string
+          id: string
+          metadata: Json
+          source_id: string | null
+          source_type: string
+          updated_at: string
+          usage_scope: string
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          field_path: string
+          id?: string
+          metadata?: Json
+          source_id?: string | null
+          source_type: string
+          updated_at?: string
+          usage_scope: string
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          field_path?: string
+          id?: string
+          metadata?: Json
+          source_id?: string | null
+          source_type?: string
+          updated_at?: string
+          usage_scope?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craft_asset_usages_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "craft_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      craft_assets: {
+        Row: {
+          alt_text: string | null
+          bucket: string
+          category_id: string | null
+          created_at: string
+          folder_id: string | null
+          height: number | null
+          id: string
+          mime_type: string
+          name: string
+          original_filename: string
+          size_bytes: number | null
+          status: string
+          storage_path: string
+          tags: string[]
+          updated_at: string
+          uploaded_by: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          bucket: string
+          category_id?: string | null
+          created_at?: string
+          folder_id?: string | null
+          height?: number | null
+          id?: string
+          mime_type: string
+          name: string
+          original_filename: string
+          size_bytes?: number | null
+          status?: string
+          storage_path: string
+          tags?: string[]
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          bucket?: string
+          category_id?: string | null
+          created_at?: string
+          folder_id?: string | null
+          height?: number | null
+          id?: string
+          mime_type?: string
+          name?: string
+          original_filename?: string
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string
+          tags?: string[]
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craft_assets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "craft_asset_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craft_assets_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "craft_asset_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discount_codes: {
         Row: {
           amount: number
@@ -474,6 +658,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_craft_owner: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
