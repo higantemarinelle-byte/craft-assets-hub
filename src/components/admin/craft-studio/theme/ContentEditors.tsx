@@ -15,6 +15,55 @@ import type { Theme, ThemeHomeSection } from "@/lib/theme";
 
 type Updater = (fn: (t: Theme) => Theme) => void;
 
+function ColorField({
+  label,
+  value,
+  fallback,
+  onChange,
+}: {
+  label: string;
+  value: string | null;
+  fallback: string;
+  onChange: (v: string | null) => void;
+}) {
+  const active = value ?? "";
+  // <input type=color> only accepts #RRGGBB; use it as an aid.
+  const hexForPicker = /^#[0-9a-fA-F]{6}$/.test(active) ? active : "#000000";
+  return (
+    <div className="mt-2">
+      <Label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</Label>
+      <div className="flex items-center gap-2">
+        <span
+          className="inline-block h-8 w-8 shrink-0 rounded border-2 border-ink/40"
+          style={{ background: value ?? fallback }}
+          aria-hidden
+        />
+        <input
+          type="color"
+          value={hexForPicker}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-8 w-10 shrink-0 cursor-pointer rounded border-2 border-ink/20 bg-transparent p-0"
+          aria-label={`${label} picker`}
+        />
+        <Input
+          value={active}
+          onChange={(e) => onChange(e.target.value === "" ? null : e.target.value)}
+          placeholder={`Default (${fallback})`}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onChange(null)}
+          disabled={value === null}
+        >
+          Reset
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
