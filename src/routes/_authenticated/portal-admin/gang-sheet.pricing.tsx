@@ -29,13 +29,13 @@ export const Route = createFileRoute("/_authenticated/portal-admin/gang-sheet/pr
 
 type Draft = Partial<GangSheetPricingRule> & { fill_adjustment_type: FillAdjustmentType };
 
-function blank(): Draft {
+function blank(currency: string = "USD"): Draft {
   return {
     code: "",
     name: "",
     width_inches: null,
     height_inches: null,
-    currency: "USD",
+    currency,
     base_price: 0,
     per_design_fee: 0,
     fill_adjustment_type: "none",
@@ -108,7 +108,7 @@ function PricingPage() {
             Controls the estimated total on the public Gang Sheet Builder. Historical quote requests keep the pricing that was active when they were submitted.
           </p>
         </div>
-        <Button onClick={() => setEditing(blank())}>
+        <Button onClick={() => setEditing(blank(themeCurrency))}>
           <Plus className="mr-1 h-4 w-4" /> New sheet size
         </Button>
       </div>
@@ -145,8 +145,8 @@ function PricingPage() {
                   <td className="p-3 text-slate-600">
                     {r.width_inches && r.height_inches ? `${r.width_inches}×${r.height_inches} in` : "—"}
                   </td>
-                  <td className="p-3 text-right">{money(r.base_price)}</td>
-                  <td className="p-3 text-right">{money(r.per_design_fee)}</td>
+                  <td className="p-3 text-right">{money(r.base_price, r.currency)}</td>
+                  <td className="p-3 text-right">{money(r.per_design_fee, r.currency)}</td>
                   <td className="p-3 text-xs">
                     {r.fill_adjustment_type === "none" ? "—" : (
                       <div>
@@ -158,7 +158,7 @@ function PricingPage() {
                       </div>
                     )}
                   </td>
-                  <td className="p-3 text-right">{r.minimum_total > 0 ? money(r.minimum_total) : "—"}</td>
+                  <td className="p-3 text-right">{r.minimum_total > 0 ? money(r.minimum_total, r.currency) : "—"}</td>
                   <td className="p-3 text-center">
                     <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${r.is_active ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
                       {r.is_active ? "Active" : "Hidden"}
@@ -211,16 +211,16 @@ function PricingPage() {
           </div>
           {previewBreakdown && (
             <div className="mt-4 rounded bg-slate-50 p-3 text-xs">
-              <div className="flex justify-between"><span>Base</span><span>{money(previewBreakdown.basePrice)}</span></div>
-              <div className="flex justify-between"><span>{previewBreakdown.designCount} × {money(previewBreakdown.perDesignFee)}</span><span>{money(previewBreakdown.designsSubtotal)}</span></div>
+              <div className="flex justify-between"><span>Base</span><span>{money(previewBreakdown.basePrice, previewBreakdown.currency)}</span></div>
+              <div className="flex justify-between"><span>{previewBreakdown.designCount} × {money(previewBreakdown.perDesignFee, previewBreakdown.currency)}</span><span>{money(previewBreakdown.designsSubtotal, previewBreakdown.currency)}</span></div>
               {previewBreakdown.fillAdjustmentAmount !== 0 && (
-                <div className="flex justify-between"><span>Fill adjustment</span><span>{money(previewBreakdown.fillAdjustmentAmount)}</span></div>
+                <div className="flex justify-between"><span>Fill adjustment</span><span>{money(previewBreakdown.fillAdjustmentAmount, previewBreakdown.currency)}</span></div>
               )}
               {previewBreakdown.minimumAdjustment > 0 && (
-                <div className="flex justify-between"><span>Minimum top-up</span><span>{money(previewBreakdown.minimumAdjustment)}</span></div>
+                <div className="flex justify-between"><span>Minimum top-up</span><span>{money(previewBreakdown.minimumAdjustment, previewBreakdown.currency)}</span></div>
               )}
               <div className="mt-2 flex justify-between border-t pt-2 text-base font-semibold">
-                <span>Estimated total</span><span>{money(previewBreakdown.estimatedTotal)}</span>
+                <span>Estimated total</span><span>{money(previewBreakdown.estimatedTotal, previewBreakdown.currency)}</span>
               </div>
             </div>
           )}
