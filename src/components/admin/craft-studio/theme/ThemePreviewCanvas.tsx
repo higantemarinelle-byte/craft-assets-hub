@@ -54,7 +54,10 @@ export function ThemePreviewCanvas({ theme }: { theme: Theme }) {
                 {hero.eyebrow}
               </div>
               <h1 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)", letterSpacing: "var(--font-heading-letter-spacing)" }} className="text-3xl leading-tight md:text-5xl">
-                {hero.headlineA} <span style={{ color: "var(--accent)" }}>{hero.headlineHighlightA}</span> {hero.headlineB} <span style={{ color: "var(--secondary)" }}>{hero.headlineHighlightB}</span>
+                <span style={{ color: hero.headlineAColor ?? "var(--foreground)" }}>{hero.headlineA}</span>{" "}
+                <span style={{ color: hero.headlineHighlightAColor ?? "var(--accent)" }}>{hero.headlineHighlightA}</span>{" "}
+                <span style={{ color: hero.headlineBColor ?? "var(--foreground)" }}>{hero.headlineB}</span>{" "}
+                <span style={{ color: hero.headlineHighlightBColor ?? "var(--secondary)" }}>{hero.headlineHighlightB}</span>
               </h1>
               <p className="mt-3 max-w-md text-sm opacity-80">{hero.body}</p>
               <div className="mt-5 flex flex-wrap gap-2">
