@@ -1,13 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
-import { Upload, Trash2, Info } from "lucide-react";
+import { Upload, Trash2, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { money } from "@/lib/format";
+import { useMoney } from "@/lib/format";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listActivePricingRules } from "@/lib/gang-sheet/pricing.functions";
 import { calculateGangSheetPrice, type GangSheetPricingRule } from "@/lib/gang-sheet/pricing";
+import { submitQuoteRequest } from "@/lib/quotes/quotes.functions";
 
 export const Route = createFileRoute("/gang-sheet")({
   head: () => ({
@@ -34,6 +39,9 @@ type Design = {
 const PX_PER_INCH = 20; // display scale
 
 function GangSheet() {
+  const router = useRouter();
+  const money = useMoney();
+  const submit = useServerFn(submitQuoteRequest);
   const fetchRules = useServerFn(listActivePricingRules);
   const { data: rules = [], isLoading } = useQuery({
     queryKey: ["gang-sheet", "pricing", "public"],
@@ -123,8 +131,47 @@ function GangSheet() {
       }),
     );
 
-  const requestQuote = () => {
-    toast.success("Sheet saved!", { description: `Estimated ${money(total)}. Our team will confirm and email you.` });
+  const [showIntake, setShowIntake] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", notes: "" });
+
+  const openIntake = () => {
+    if (designs.length === 0 || !activeRule) return;
+    setShowIntake(true);
+  };
+
+  const sendQuote = async () => {
+    if (!activeRule) return;
+    if (!form.name.trim() || !form.email.trim()) {
+      toast.error("Please add your name and email.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const payload = {
+        sheet_code: activeRule.code,
+        fill_percent: usedPct,
+        customer_name: form.name.trim(),
+        customer_email: form.email.trim(),
+        customer_phone: form.phone.trim(),
+        notes: form.notes.trim(),
+        designs: designs.map((d) => ({
+          name: d.name,
+          dataUrl: d.src,
+          width_in: d.w,
+          height_in: d.h,
+          x_in: d.x,
+          y_in: d.y,
+        })),
+      };
+      const res = await submit({ data: payload as any });
+      toast.success("Quote request sent!");
+      router.navigate({ to: "/quote-submitted", search: { ref: res.reference } as any });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to send quote request");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -237,8 +284,8 @@ function GangSheet() {
                 {breakdown.minimumAdjustment > 0 ? ` · min +${money(breakdown.minimumAdjustment)}` : ""}
               </div>
             )}
-            <Button onClick={requestQuote} disabled={designs.length === 0 || !activeRule} className="mt-4 w-full border-2 border-cream bg-magenta font-bold text-cream hover:bg-cream hover:text-ink">
-              Save quote
+            <Button onClick={openIntake} disabled={designs.length === 0 || !activeRule} className="mt-4 w-full border-2 border-cream bg-magenta font-bold text-cream hover:bg-cream hover:text-ink">
+              Submit quote request
             </Button>
             <p className="mt-2 flex items-start gap-1 text-[11px] text-cream/60">
               <Info className="mt-0.5 h-3 w-3 shrink-0" /> Estimate only — we'll confirm and email a printable proof.
@@ -246,6 +293,37 @@ function GangSheet() {
           </div>
         </aside>
       </div>
+
+      {showIntake && activeRule && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => !submitting && setShowIntake(false)}>
+          <div className="w-full max-w-lg rounded-lg border-2 border-ink bg-cream p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="text-xs font-bold uppercase tracking-widest text-magenta">Almost done</div>
+            <h2 className="text-display text-2xl">Your details</h2>
+            <p className="mt-1 text-sm text-muted-foreground">We'll review the artwork and confirm your quote by email.</p>
+
+            <div className="mt-4 grid gap-3">
+              <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Jane Doe" /></div>
+              <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="jane@example.com" /></div>
+              <div><Label>Phone (optional)</Label><Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} /></div>
+              <div><Label>Notes (optional)</Label><Textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Anything we should know about colours, deadlines, etc." /></div>
+            </div>
+
+            <div className="mt-4 rounded border-2 border-ink/20 bg-white p-3 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Sheet</span><span className="font-semibold">{activeRule.name}"</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Designs</span><span className="font-semibold">{designs.length}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Fill</span><span className="font-semibold">{usedPct}%</span></div>
+              <div className="mt-1 flex justify-between border-t pt-1"><span className="text-muted-foreground">Estimated total</span><span className="font-bold">{money(total)}</span></div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowIntake(false)} disabled={submitting}>Cancel</Button>
+              <Button onClick={sendQuote} disabled={submitting} className="bg-magenta text-cream hover:bg-magenta/90">
+                {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending…</> : "Submit quote request"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

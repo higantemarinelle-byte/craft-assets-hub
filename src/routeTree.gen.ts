@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as QuoteSubmittedRouteImport } from './routes/quote-submitted'
 import { Route as ProjectSubmittedRouteImport } from './routes/project-submitted'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as GangSheetRouteImport } from './routes/gang-sheet'
@@ -26,6 +27,7 @@ import { Route as AuthenticatedPortalAdminRouteRouteImport } from './routes/_aut
 import { Route as AuthenticatedPortalAdminIndexRouteImport } from './routes/_authenticated/portal-admin/index'
 import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects.$id'
 import { Route as AuthenticatedPortalAdminThemeRouteImport } from './routes/_authenticated/portal-admin/theme'
+import { Route as AuthenticatedPortalAdminQuoteRequestsRouteImport } from './routes/_authenticated/portal-admin/quote-requests'
 import { Route as AuthenticatedPortalAdminProjectsRouteImport } from './routes/_authenticated/portal-admin/projects'
 import { Route as AuthenticatedPortalAdminProductsRouteImport } from './routes/_authenticated/portal-admin/products'
 import { Route as AuthenticatedPortalAdminOrdersRouteImport } from './routes/_authenticated/portal-admin/orders'
@@ -34,6 +36,7 @@ import { Route as AuthenticatedPortalAdminDiscountsRouteImport } from './routes/
 import { Route as AuthenticatedPortalAdminCustomersRouteImport } from './routes/_authenticated/portal-admin/customers'
 import { Route as AuthenticatedPortalAdminCraftStudioRouteImport } from './routes/_authenticated/portal-admin/craft-studio'
 import { Route as AuthenticatedPortalAdminCategoriesRouteImport } from './routes/_authenticated/portal-admin/categories'
+import { Route as AuthenticatedPortalAdminQuoteRequestsIdRouteImport } from './routes/_authenticated/portal-admin/quote-requests.$id'
 import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes/_authenticated/portal-admin/projects.$id'
 import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
 import { Route as AuthenticatedPortalAdminProductsIdRouteImport } from './routes/_authenticated/portal-admin/products.$id'
@@ -52,6 +55,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteSubmittedRoute = QuoteSubmittedRouteImport.update({
+  id: '/quote-submitted',
+  path: '/quote-submitted',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectSubmittedRoute = ProjectSubmittedRouteImport.update({
@@ -131,6 +139,12 @@ const AuthenticatedPortalAdminThemeRoute =
     path: '/theme',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
+const AuthenticatedPortalAdminQuoteRequestsRoute =
+  AuthenticatedPortalAdminQuoteRequestsRouteImport.update({
+    id: '/quote-requests',
+    path: '/quote-requests',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
 const AuthenticatedPortalAdminProjectsRoute =
   AuthenticatedPortalAdminProjectsRouteImport.update({
     id: '/projects',
@@ -178,6 +192,12 @@ const AuthenticatedPortalAdminCategoriesRoute =
     id: '/categories',
     path: '/categories',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminQuoteRequestsIdRoute =
+  AuthenticatedPortalAdminQuoteRequestsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortalAdminQuoteRequestsRoute,
   } as any)
 const AuthenticatedPortalAdminProjectsIdRoute =
   AuthenticatedPortalAdminProjectsIdRouteImport.update({
@@ -243,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/gang-sheet': typeof GangSheetRoute
   '/how-it-works': typeof HowItWorksRoute
   '/project-submitted': typeof ProjectSubmittedRoute
+  '/quote-submitted': typeof QuoteSubmittedRoute
   '/shop': typeof ShopRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
@@ -256,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/portal-admin/quote-requests': typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
@@ -267,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
+  '/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
   '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRoutesByTo {
@@ -278,6 +301,7 @@ export interface FileRoutesByTo {
   '/gang-sheet': typeof GangSheetRoute
   '/how-it-works': typeof HowItWorksRoute
   '/project-submitted': typeof ProjectSubmittedRoute
+  '/quote-submitted': typeof QuoteSubmittedRoute
   '/shop': typeof ShopRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -290,6 +314,7 @@ export interface FileRoutesByTo {
   '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/portal-admin/quote-requests': typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/portal-admin': typeof AuthenticatedPortalAdminIndexRoute
@@ -301,6 +326,7 @@ export interface FileRoutesByTo {
   '/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
+  '/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
   '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRoutesById {
@@ -314,6 +340,7 @@ export interface FileRoutesById {
   '/gang-sheet': typeof GangSheetRoute
   '/how-it-works': typeof HowItWorksRoute
   '/project-submitted': typeof ProjectSubmittedRoute
+  '/quote-submitted': typeof QuoteSubmittedRoute
   '/shop': typeof ShopRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
@@ -327,6 +354,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   '/_authenticated/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/_authenticated/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  '/_authenticated/portal-admin/quote-requests': typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   '/_authenticated/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
   '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/portal-admin/': typeof AuthenticatedPortalAdminIndexRoute
@@ -338,6 +366,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin/products/$id': typeof AuthenticatedPortalAdminProductsIdRoute
   '/_authenticated/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/_authenticated/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
+  '/_authenticated/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
   '/_authenticated/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRouteTypes {
@@ -351,6 +380,7 @@ export interface FileRouteTypes {
     | '/gang-sheet'
     | '/how-it-works'
     | '/project-submitted'
+    | '/quote-submitted'
     | '/shop'
     | '/sitemap.xml'
     | '/portal-admin'
@@ -364,6 +394,7 @@ export interface FileRouteTypes {
     | '/portal-admin/orders'
     | '/portal-admin/products'
     | '/portal-admin/projects'
+    | '/portal-admin/quote-requests'
     | '/portal-admin/theme'
     | '/projects/$id'
     | '/portal-admin/'
@@ -375,6 +406,7 @@ export interface FileRouteTypes {
     | '/portal-admin/products/$id'
     | '/portal-admin/products/new'
     | '/portal-admin/projects/$id'
+    | '/portal-admin/quote-requests/$id'
     | '/portal-admin/orders/$id/packing-slip'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -386,6 +418,7 @@ export interface FileRouteTypes {
     | '/gang-sheet'
     | '/how-it-works'
     | '/project-submitted'
+    | '/quote-submitted'
     | '/shop'
     | '/sitemap.xml'
     | '/account'
@@ -398,6 +431,7 @@ export interface FileRouteTypes {
     | '/portal-admin/orders'
     | '/portal-admin/products'
     | '/portal-admin/projects'
+    | '/portal-admin/quote-requests'
     | '/portal-admin/theme'
     | '/projects/$id'
     | '/portal-admin'
@@ -409,6 +443,7 @@ export interface FileRouteTypes {
     | '/portal-admin/products/$id'
     | '/portal-admin/products/new'
     | '/portal-admin/projects/$id'
+    | '/portal-admin/quote-requests/$id'
     | '/portal-admin/orders/$id/packing-slip'
   id:
     | '__root__'
@@ -421,6 +456,7 @@ export interface FileRouteTypes {
     | '/gang-sheet'
     | '/how-it-works'
     | '/project-submitted'
+    | '/quote-submitted'
     | '/shop'
     | '/sitemap.xml'
     | '/_authenticated/portal-admin'
@@ -434,6 +470,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin/orders'
     | '/_authenticated/portal-admin/products'
     | '/_authenticated/portal-admin/projects'
+    | '/_authenticated/portal-admin/quote-requests'
     | '/_authenticated/portal-admin/theme'
     | '/_authenticated/projects/$id'
     | '/_authenticated/portal-admin/'
@@ -445,6 +482,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin/products/$id'
     | '/_authenticated/portal-admin/products/new'
     | '/_authenticated/portal-admin/projects/$id'
+    | '/_authenticated/portal-admin/quote-requests/$id'
     | '/_authenticated/portal-admin/orders/$id/packing-slip'
   fileRoutesById: FileRoutesById
 }
@@ -458,6 +496,7 @@ export interface RootRouteChildren {
   GangSheetRoute: typeof GangSheetRoute
   HowItWorksRoute: typeof HowItWorksRoute
   ProjectSubmittedRoute: typeof ProjectSubmittedRoute
+  QuoteSubmittedRoute: typeof QuoteSubmittedRoute
   ShopRoute: typeof ShopRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -476,6 +515,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote-submitted': {
+      id: '/quote-submitted'
+      path: '/quote-submitted'
+      fullPath: '/quote-submitted'
+      preLoaderRoute: typeof QuoteSubmittedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/project-submitted': {
@@ -583,6 +629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminThemeRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
+    '/_authenticated/portal-admin/quote-requests': {
+      id: '/_authenticated/portal-admin/quote-requests'
+      path: '/quote-requests'
+      fullPath: '/portal-admin/quote-requests'
+      preLoaderRoute: typeof AuthenticatedPortalAdminQuoteRequestsRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
     '/_authenticated/portal-admin/projects': {
       id: '/_authenticated/portal-admin/projects'
       path: '/projects'
@@ -638,6 +691,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/portal-admin/categories'
       preLoaderRoute: typeof AuthenticatedPortalAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/quote-requests/$id': {
+      id: '/_authenticated/portal-admin/quote-requests/$id'
+      path: '/$id'
+      fullPath: '/portal-admin/quote-requests/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminQuoteRequestsIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminQuoteRequestsRoute
     }
     '/_authenticated/portal-admin/projects/$id': {
       id: '/_authenticated/portal-admin/projects/$id'
@@ -789,6 +849,21 @@ const AuthenticatedPortalAdminProjectsRouteWithChildren =
     AuthenticatedPortalAdminProjectsRouteChildren,
   )
 
+interface AuthenticatedPortalAdminQuoteRequestsRouteChildren {
+  AuthenticatedPortalAdminQuoteRequestsIdRoute: typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
+}
+
+const AuthenticatedPortalAdminQuoteRequestsRouteChildren: AuthenticatedPortalAdminQuoteRequestsRouteChildren =
+  {
+    AuthenticatedPortalAdminQuoteRequestsIdRoute:
+      AuthenticatedPortalAdminQuoteRequestsIdRoute,
+  }
+
+const AuthenticatedPortalAdminQuoteRequestsRouteWithChildren =
+  AuthenticatedPortalAdminQuoteRequestsRoute._addFileChildren(
+    AuthenticatedPortalAdminQuoteRequestsRouteChildren,
+  )
+
 interface AuthenticatedPortalAdminRouteRouteChildren {
   AuthenticatedPortalAdminCategoriesRoute: typeof AuthenticatedPortalAdminCategoriesRoute
   AuthenticatedPortalAdminCraftStudioRoute: typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
@@ -798,6 +873,7 @@ interface AuthenticatedPortalAdminRouteRouteChildren {
   AuthenticatedPortalAdminOrdersRoute: typeof AuthenticatedPortalAdminOrdersRouteWithChildren
   AuthenticatedPortalAdminProductsRoute: typeof AuthenticatedPortalAdminProductsRouteWithChildren
   AuthenticatedPortalAdminProjectsRoute: typeof AuthenticatedPortalAdminProjectsRouteWithChildren
+  AuthenticatedPortalAdminQuoteRequestsRoute: typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   AuthenticatedPortalAdminThemeRoute: typeof AuthenticatedPortalAdminThemeRoute
   AuthenticatedPortalAdminIndexRoute: typeof AuthenticatedPortalAdminIndexRoute
   AuthenticatedPortalAdminGangSheetPricingRoute: typeof AuthenticatedPortalAdminGangSheetPricingRoute
@@ -821,6 +897,8 @@ const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteR
       AuthenticatedPortalAdminProductsRouteWithChildren,
     AuthenticatedPortalAdminProjectsRoute:
       AuthenticatedPortalAdminProjectsRouteWithChildren,
+    AuthenticatedPortalAdminQuoteRequestsRoute:
+      AuthenticatedPortalAdminQuoteRequestsRouteWithChildren,
     AuthenticatedPortalAdminThemeRoute: AuthenticatedPortalAdminThemeRoute,
     AuthenticatedPortalAdminIndexRoute: AuthenticatedPortalAdminIndexRoute,
     AuthenticatedPortalAdminGangSheetPricingRoute:
@@ -868,6 +946,7 @@ const rootRouteChildren: RootRouteChildren = {
   GangSheetRoute: GangSheetRoute,
   HowItWorksRoute: HowItWorksRoute,
   ProjectSubmittedRoute: ProjectSubmittedRoute,
+  QuoteSubmittedRoute: QuoteSubmittedRoute,
   ShopRoute: ShopRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }

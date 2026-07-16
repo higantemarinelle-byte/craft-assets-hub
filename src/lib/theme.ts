@@ -7,6 +7,9 @@ import {
 } from "@/lib/storefront/tokens";
 import { newId, type SocialPlatform } from "@/lib/storefront/site-config";
 
+export const SUPPORTED_CURRENCY_CODES = ["USD", "AUD", "EUR", "PHP"] as const;
+export type StorefrontCurrency = (typeof SUPPORTED_CURRENCY_CODES)[number];
+
 export type ThemeSocial = { kind: "instagram" | "tiktok" | "twitter" | "facebook" | "email"; href: string };
 export type ThemeLink = { label: string; href: string };
 export type ThemeFooterColumn = { title: string; links: ThemeLink[] };
@@ -140,6 +143,8 @@ export type Theme = {
   };
   inventory: { lowStockThreshold: number };
   tokens: StorefrontDesignTokens;
+  /** 005A — Storefront-wide currency for pricing displays and quotes. */
+  commerce: { currency: StorefrontCurrency };
 };
 
 export const DEFAULT_THEME: Theme = {
@@ -258,6 +263,7 @@ export const DEFAULT_THEME: Theme = {
   },
   inventory: { lowStockThreshold: 10 },
   tokens: DEFAULT_DESIGN_TOKENS,
+  commerce: { currency: "USD" },
 };
 
 // Deep-merge helper — user drafts may omit fields; fill in with defaults.
@@ -299,6 +305,11 @@ export function mergeTheme(partial: any): Theme {
     },
     inventory: { ...DEFAULT_THEME.inventory, ...(p.inventory ?? {}) },
     tokens,
+    commerce: {
+      currency: ((SUPPORTED_CURRENCY_CODES as readonly string[]).includes(p?.commerce?.currency)
+        ? p.commerce.currency
+        : DEFAULT_THEME.commerce.currency) as StorefrontCurrency,
+    },
   };
 }
 

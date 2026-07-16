@@ -79,6 +79,12 @@ export type ValidatedDesignTokens = z.infer<typeof storefrontDesignTokensSchema>
  *  keeps saving until dedicated builders take over in later tasks. */
 export function validateThemeDraft(draft: unknown): { ok: true; draft: any } | { ok: false; error: string } {
   const d = (draft ?? {}) as any;
+  if (d?.commerce !== undefined) {
+    const cur = d.commerce?.currency;
+    if (!["USD", "AUD", "EUR", "PHP"].includes(cur)) {
+      return { ok: false, error: `commerce.currency: must be USD, AUD, EUR, or PHP` };
+    }
+  }
   if (d?.tokens !== undefined) {
     const parsed = storefrontDesignTokensSchema.safeParse(d.tokens);
     if (!parsed.success) {

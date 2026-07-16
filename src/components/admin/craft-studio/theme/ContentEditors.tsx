@@ -12,6 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
 import { MediaPicker } from "@/components/admin/craft-studio/MediaPicker";
 import type { Theme, ThemeHomeSection } from "@/lib/theme";
+import { SUPPORTED_CURRENCY_CODES } from "@/lib/theme";
 
 type Updater = (fn: (t: Theme) => Theme) => void;
 
@@ -150,6 +151,7 @@ export function ThemeContentEditor({ theme, update }: { theme: Theme; update: Up
         <TabsTrigger value="footer">Footer</TabsTrigger>
         <TabsTrigger value="pages">Pages</TabsTrigger>
         <TabsTrigger value="inventory">Inventory</TabsTrigger>
+        <TabsTrigger value="commerce">Commerce</TabsTrigger>
       </TabsList>
 
       <TabsContent value="announcement" className="space-y-4">
@@ -293,6 +295,25 @@ export function ThemeContentEditor({ theme, update }: { theme: Theme; update: Up
           <Input type="number" min={0} value={theme.inventory.lowStockThreshold} onChange={(e) => update((t) => ({ ...t, inventory: { lowStockThreshold: Number(e.target.value) || 0 } }))} />
         </Field>
         <p className="text-xs text-muted-foreground">Variants at or below this stock level are flagged as low stock.</p>
+      </TabsContent>
+
+      <TabsContent value="commerce" className="space-y-4">
+        <Field label="Storefront currency">
+          <select
+            value={theme.commerce.currency}
+            onChange={(e) => update((t) => ({ ...t, commerce: { currency: e.target.value as any } }))}
+            className="w-full rounded border-2 border-ink bg-cream px-3 py-2 text-sm font-semibold"
+          >
+            {SUPPORTED_CURRENCY_CODES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </Field>
+        <p className="text-xs text-muted-foreground">
+          Sets the currency shown across the storefront (gang sheet builder, quote requests, and pricing controls).
+          Amounts are entered directly in this currency — no automatic conversion. Update your pricing rules in
+          Craft OS → Gang Sheet Pricing after changing this.
+        </p>
       </TabsContent>
     </Tabs>
   );
