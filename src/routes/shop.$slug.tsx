@@ -1,13 +1,12 @@
 import { createFileRoute, notFound, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ChevronLeft, ShoppingBag, Truck, Flame } from "lucide-react";
+import { ChevronLeft, ShoppingBag, Truck, Shirt } from "lucide-react";
 import { getProduct, listProducts } from "@/lib/products.functions";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/lib/cart";
-import { money } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/$slug")({
@@ -62,7 +61,6 @@ function Product() {
 
   const variant = useMemo(() => (product.variants as Array<{id:string;label:string;price:number;stock:number}>).find((v) => v.id === variantId), [variantId, product.variants]);
   const relatedList = related.filter((p) => p.slug !== product.slug).slice(0, 4);
-  const price = variant ? variant.price : product.base_price;
 
   const handleAdd = () => {
     if (!variant) return;
@@ -126,7 +124,9 @@ function Product() {
             <div className="text-xs font-bold uppercase tracking-widest text-magenta">{product.category}</div>
           )}
           <h1 className="mt-1 text-display text-4xl md:text-5xl">{product.name}</h1>
-          <div className="mt-4 text-3xl font-bold">{money(price)}</div>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-yellow px-3 py-1 text-xs font-bold uppercase tracking-widest text-ink">
+            Quoted per project
+          </div>
           {product.description && (
             <p className="mt-4 text-ink/75">{product.description}</p>
           )}
@@ -143,7 +143,6 @@ function Product() {
                     className={`rounded-md border-2 border-ink px-4 py-2 text-sm font-semibold transition ${v.id === variantId ? "bg-ink text-cream" : "bg-cream hover:bg-yellow"} disabled:cursor-not-allowed disabled:opacity-40`}
                   >
                     {v.label}
-                    <span className="ml-2 text-xs opacity-70">{money(v.price)}</span>
                   </button>
                 ))}
               </div>
@@ -162,7 +161,7 @@ function Product() {
               className="flex-1 border-2 border-ink bg-ink font-bold text-cream hover:bg-magenta hover:border-magenta"
               size="lg"
             >
-              <ShoppingBag className="mr-2 h-4 w-4" /> Add to Project · {money(price * qty)}
+              <ShoppingBag className="mr-2 h-4 w-4" /> Add to Project
             </Button>
           </div>
 
@@ -170,15 +169,15 @@ function Product() {
             <div className="flex items-start gap-2 rounded-md border-2 border-ink/10 bg-cream p-3">
               <Truck className="mt-0.5 h-4 w-4 text-magenta" />
               <div>
-                <div className="font-semibold">Ships in 48h</div>
-                <div className="text-xs text-muted-foreground">Free over $75</div>
+                <div className="font-semibold">Ships finished</div>
+                <div className="text-xs text-muted-foreground">Delivered ready to wear</div>
               </div>
             </div>
             <div className="flex items-start gap-2 rounded-md border-2 border-ink/10 bg-cream p-3">
-              <Flame className="mt-0.5 h-4 w-4 text-magenta" />
+              <Shirt className="mt-0.5 h-4 w-4 text-magenta" />
               <div>
-                <div className="font-semibold">Press-ready</div>
-                <div className="text-xs text-muted-foreground">315°F · 15s · warm peel</div>
+                <div className="font-semibold">We press it for you</div>
+                <div className="text-xs text-muted-foreground">Pro heat press · CMYK+W</div>
               </div>
             </div>
           </div>
