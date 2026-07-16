@@ -12,12 +12,14 @@ function publicClient() {
 
 export const listCategories = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
-  const { data, error } = await sb
-    .from("categories")
+  const { data, error } = await (sb.from("categories") as any)
     .select("id, slug, name, description, sort_order, image_url, accent")
     .order("sort_order");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as Array<{
+    id: string; slug: string; name: string; description: string | null;
+    sort_order: number; image_url: string | null; accent: string | null;
+  }>;
 });
 
 export const listProducts = createServerFn({ method: "GET" })
