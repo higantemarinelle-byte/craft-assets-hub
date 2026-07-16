@@ -204,7 +204,10 @@ function UploadPanel({ onUploaded }: { onUploaded: (v: AssetPickerValue) => void
         .from(reserved.bucket)
         .upload(reserved.path, file, { contentType: file.type, upsert: false });
       if (upErr) throw new Error(upErr.message);
-      const url = resolvePublicUrl(reserved.bucket, reserved.path);
+      const { data: signed } = await supabase.storage
+        .from(reserved.bucket)
+        .createSignedUrl(reserved.path, 60 * 60);
+      const url = signed?.signedUrl ?? "";
       onUploaded({
         assetId: reserved.asset.id,
         url,
