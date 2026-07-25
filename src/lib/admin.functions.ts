@@ -271,9 +271,11 @@ export const adminListCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { admin } = await getStaffAdmin(context);
-    const { data } = await (admin.from("categories") as any)
+    const { data, error } = await admin
+      .from("categories")
       .select("id, name, slug, description, sort_order, image_url, accent")
       .order("sort_order");
+    if (error) throw new Error(error.message);
     return data ?? [];
   });
 
@@ -320,7 +322,8 @@ export const adminReorderCategories = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { admin } = await getStaffAdmin(context);
     for (let i = 0; i < data.ids.length; i++) {
-      await admin.from("categories").update({ sort_order: i }).eq("id", data.ids[i]);
+      const { error } = await admin.from("categories").update({ sort_order: i }).eq("id", data.ids[i]);
+      if (error) throw new Error(error.message);
     }
     return { ok: true };
   });
@@ -331,7 +334,8 @@ export const adminReorderProducts = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { admin } = await getStaffAdmin(context);
     for (let i = 0; i < data.ids.length; i++) {
-      await admin.from("products").update({ sort_order: i } as any).eq("id", data.ids[i]);
+      const { error } = await admin.from("products").update({ sort_order: i } as any).eq("id", data.ids[i]);
+      if (error) throw new Error(error.message);
     }
     return { ok: true };
   });
