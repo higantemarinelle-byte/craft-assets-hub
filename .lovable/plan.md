@@ -1,86 +1,53 @@
-# Engineering Task 004D — Theme Builder
+## Repair Pre-made Product editor
 
-Build a complete visual Theme Builder for Craft Studio on top of the existing token foundation, without any DB migration and without disturbing Projects, Assets (004C), Homepage Builder (004B), or the publishing workflow.
+### Root causes (confirmed from reads)
 
-## Approach
+1. **Silent partial saves** — `adminSaveProduct` (`src/lib/admin.functions.ts`) never checks `error` on variant `update`/`insert`/`delete`. A failed variant leaves the parent product updated and reports success.
+2. **Weak edit route** (`products.$id.tsx`) — no error UI, no retry; `!data` collapses "not found" and "fetch error" into the same message.
+3. **Form gaps** (`ProductForm.tsx`) — images are a raw textarea of URLs (no MediaPicker), no Status (Active/Archived), no Save-and-continue, no Cancel with unsaved-changes guard, no Preview. Label reads "Featured / best-seller" instead of "Show in Popular Designs".
+4. **Inconsistent query keys** — admin uses `["admin:products"]`, storefront uses different keys, so save invalidations don't refresh the edit view or the public shop.
 
-1. **Expand tokens** (`src/lib/storefront/tokens.ts`)
-   - New `StorefrontDesignTokens` (colors, typography, buttons, radius, spacing).
-   - Defaults reproduce current Craft & Cling look (ink/cream/CMYK).
-   - Export `DEFAULT_DESIGN_TOKENS`, `mergeDesignTokens`, `designTokensToCssVariables`, plus back-compat aliases (`DesignTokens`, `DEFAULT_TOKENS`, `tokensToCssVariables`).
+### Scope
 
-2. **Theme model** (`src/lib/theme.ts`)
-   - Add `tokens: StorefrontDesignTokens` to `Theme`.
-   - `mergeTheme` deep-merges tokens; when tokens missing, seed `tokens.colors.primary/accent` from legacy `brand.primary/accent`.
-   - On save, keep `brand.primary/accent` synced from tokens for back-compat.
+Catalog code only. No DB migration. No changes to Projects, Cart, Craft Studio, Theme, Gang Sheet, or Asset Manager internals. Archived = existing `is_published=false` + `archived` tag.
 
-3. **Validation** (`src/lib/storefront/tokens.validation.ts`)
-   - Zod schema; reject `url(`, `expression(`, `<script`, `;`, `{}`, remote URLs. Enum for button style, controlled font IDs, controlled radius/spacing tokens.
-   - Server-side `adminSaveThemeDraft` / `adminPublishTheme` validate before write.
+### Changes
 
-4. **Font registry** (`src/lib/storefront/fonts.ts`)
-   - Controlled list: Space Grotesk, DM Sans, Inter, Poppins, Montserrat, Lora, Playfair Display, System Sans, System Serif.
-   - Load selected Google Fonts via `<link>` in `__root.tsx` head based on published theme.
+- **`src/lib/admin.functions.ts`**
+  - Rewrite `adminSaveProduct`: check every Supabase error, abort on first failure, return `{ id, variants }`.
+  - `adminGetProduct`: return `null` on not-found, throw with message on error.
+  - Keep existing `serviceClient()`/`assertStaff` usage (no auth refactor this pass).
 
-5. **CSS variable runtime**
-   - `theme-context.tsx` injects `<style>` with token → CSS-var mapping, scoped to `.storefront-theme`.
-   - Map new tokens to legacy vars (`--ink`, `--cream`, `--cmyk-*`) so existing utilities respond.
-   - Wrap storefront (public routes + storefront preview) in `StorefrontThemeScope`; do NOT apply to `/portal-admin/*`.
+- **`src/routes/_authenticated/portal-admin/products.$id.tsx`**
+  - Loading state, error state with **Retry**, explicit "Product not found" vs error.
+  - Query key `["admin","catalog","product", id]`.
 
-6. **Owner-only server functions** (`src/lib/theme.functions.ts`)
-   - Switch `adminGetTheme`, versions listing/revert to `requireOwnerAccess`.
-   - Draft preview gate in `theme-context.tsx` uses owner check (via existing permissions).
+- **`src/routes/_authenticated/portal-admin/products.tsx`**
+  - Title → **"Pre-made Products"**.
+  - Query keys → `["admin","catalog","products"]`, `["admin","catalog","categories"]`.
+  - After save/toggle/reorder invalidate admin keys AND storefront keys (`["catalog","products"]`, `["catalog","featured"]`, `["catalog","product", slug]`).
 
-7. **Theme Builder UI** — refactor `src/routes/_authenticated/portal-admin/theme.tsx` into thin route + `src/components/admin/craft-studio/theme/*`:
-   - `ThemeBuilder`, `ThemeBuilderHeader` (save/publish/preview/version), `ThemeSettingsPanel` (tabs: Brand, Colors, Typography, Buttons, Layout, Presets, Content), `ThemePreviewCanvas` + `ThemeDeviceSwitcher`, `ThemePresetPicker`, per-section editors, `ColorTokenField`, `FontSelector`, `TokenResetButton`, `ThemeVersionPanel`.
-   - Existing announcement/homepage/nav/footer/pages/inventory controls preserved under a "Content" tab.
+- **`src/routes/_authenticated/portal-admin/products.new.tsx`**
+  - Route to edit page after create (enables Save-and-continue on new).
 
-8. **Presets** (in `tokens.ts`): Craft & Cling Default, Bold CMYK, Soft Craft, Minimal Ink. Apply only touches `tokens`, never content/assets.
+- **`src/components/admin/ProductForm.tsx`** (bulk of the UX work)
+  - Replace images textarea with **MediaPicker** — primary + gallery, reorder, remove. Store Asset IDs as `asset:<uuid>` in existing `images text[]`; legacy URL strings continue to work.
+  - Rename toggle to **"Show in Popular Designs"** with helper text.
+  - Add **Status** control (Active / Archived): Archived sets `is_published=false` and appends `archived` tag; Active removes it.
+  - Variants: validation, ↑/↓ reorder, delete guard, persistent `sort_order`.
+  - Buttons: **Save**, **Save and Continue Editing**, **Cancel** (unsaved-changes confirm), **Preview** (opens `/shop/{slug}` in new tab; disabled while dirty or unpublished).
+  - `beforeunload` guard when the form is dirty.
+  - Invalidate all admin + storefront catalog keys on save.
 
-9. **Preview canvas**
-   - In-page div, `.storefront-theme` scope with token style attribute from local unsaved draft. Renders announcement bar, header, nav, hero, buttons, card, form field, badge, footer sample. Device widths: 1280 / 834 / 390.
+- **`src/components/site/ProductCard.tsx`, `src/routes/shop.$slug.tsx`, `src/routes/shop.tsx`**
+  - When an image entry starts with `asset:`, render via `StorefrontAssetImage`; otherwise use the URL as today. Additive only.
 
-10. **Media Picker integration**
-    - Brand logo + hero via existing `MediaPicker`; store `logoAssetId` / `imageAssetId`, keep legacy URL fallback.
-    - New `src/components/site/StorefrontAssetImage.tsx` — resolves Asset ID via existing public resolver with TanStack Query; falls back to legacy URL.
-    - Update `Header.tsx` and `routes/index.tsx` to use it.
+### Verification (before claiming done)
 
-11. **Storefront wiring**
-    - Wrap storefront in `StorefrontThemeScope` (from `__root.tsx` for non-admin routes, or per-layout).
-    - Header/Footer/AnnouncementBar/ProductCard/Marquee reviewed to consume tokens via existing utility classes (already token-driven through legacy var mapping).
+1. Build + lint.
+2. Manual on an existing product: edit name/description/category/price → add/edit/delete a variant → pick an image via Media Picker → **Save and Continue Editing** → refresh → confirm persistence → view `/shop` and `/shop/{slug}` → toggle **Archived** → confirm hidden from `/shop` and Popular Designs → toggle back → confirm reappears.
+3. Force a variant error and confirm the save reports failure (no false success toast).
 
-12. **Query keys & dirty state**
-    - Keys: `["theme","admin"]`, `["theme","published"]`, `["theme","versions"]`, `["storefront-assets", id]`.
-    - Local draft state independent of query cache; dirty flag; `beforeunload` warning; scoped invalidations after save/publish.
+### Out of scope
 
-13. **Full draft preview**
-    - `/?theme=draft` continues; gate switches from `isStaff` to owner check.
-
-## Technical Notes
-
-- No SQL migration.
-- No new tables or buckets.
-- Legacy `brand.primary/accent`, `logoUrl`, `imageUrl` preserved as fallbacks.
-- Admin UI is NOT wrapped in `.storefront-theme` scope; keeps shadcn defaults.
-- Fonts loaded via `<link rel="stylesheet">` in root head, built from published theme's font IDs (registry-controlled).
-- Zod validation shared between client (form) and server (functions).
-
-## Out of Scope
-
-Navigation/Footer builder redesign, Publishing engine redesign, AI, custom CSS, payments, product changes.
-
-## Verification
-
-- Production build (`bun run build` or project script).
-- Manual checklist:
-  1. `/portal-admin/theme` loads for owner, denied for non-owner.
-  2. Color/font/radius/button/layout edits reflect immediately in preview canvas.
-  3. Save → reopen, values persist.
-  4. Publish → storefront `/` reflects changes; `--ink/--cream/--cmyk-*` respond.
-  5. Preset applies to tokens only; content untouched.
-  6. Reset field / section / all works.
-  7. Unsaved-changes navigation warning fires.
-  8. Media Picker sets logo/hero Asset ID; `StorefrontAssetImage` renders it; legacy URL still works when no ID.
-  9. Admin pages (Projects, Assets) unaffected by storefront theme.
-  10. `/?theme=draft` shows draft only for owner.
-  11. Version revert loads snapshot into draft; old snapshots without tokens still work.
+No DB migration, no auth-helper refactor, no changes to Projects/Cart/Craft Studio/Theme/Gang Sheet/Asset Manager internals, no new upload pipeline.

@@ -78,7 +78,12 @@ export const adminGetProduct = createServerFn({ method: "GET" })
     const { data: product, error } = await admin
       .from("products").select("*, product_variants(*)").eq("id", data.id).maybeSingle();
     if (error) throw new Error(error.message);
-    return product;
+    if (!product) return null;
+    // Sort variants by sort_order for stable form rendering.
+    const variants = ((product as any).product_variants ?? []).slice().sort(
+      (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+    );
+    return { ...(product as any), product_variants: variants };
   });
 
 export const adminSaveProduct = createServerFn({ method: "POST" })
@@ -96,19 +101,30 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       productId = inserted.id;
     }
-    // Sync variants — delete missing, upsert given
-    const { data: existing } = await admin.from("product_variants").select("id").eq("product_id", productId!);
+    // Sync variants — delete missing, upsert given. Check every error so a
+    // partial variant failure never reports success.
+    const { data: existing, error: existErr } = await admin
+      .from("product_variants").select("id").eq("product_id", productId!);
+    if (existErr) throw new Error(`Load variants failed: ${existErr.message}`);
     const keepIds = new Set(variants.filter((v) => v.id).map((v) => v.id));
     const toDelete = (existing ?? []).map((v: any) => v.id).filter((id: string) => !keepIds.has(id));
-    if (toDelete.length) await admin.from("product_variants").delete().in("id", toDelete);
+    if (toDelete.length) {
+      const { error: delErr } = await admin.from("product_variants").delete().in("id", toDelete);
+      if (delErr) throw new Error(`Delete variants failed: ${delErr.message}`);
+    }
     for (const v of variants) {
       if (v.id) {
-        await admin.from("product_variants").update({ label: v.label, price: v.price, stock: v.stock, sort_order: v.sort_order }).eq("id", v.id);
+        const { error: uErr } = await admin.from("product_variants")
+          .update({ label: v.label, price: v.price, stock: v.stock, sort_order: v.sort_order })
+          .eq("id", v.id);
+        if (uErr) throw new Error(`Update variant "${v.label}" failed: ${uErr.message}`);
       } else {
-        await admin.from("product_variants").insert({ product_id: productId, label: v.label, price: v.price, stock: v.stock, sort_order: v.sort_order });
+        const { error: iErr } = await admin.from("product_variants")
+          .insert({ product_id: productId, label: v.label, price: v.price, stock: v.stock, sort_order: v.sort_order });
+        if (iErr) throw new Error(`Insert variant "${v.label}" failed: ${iErr.message}`);
       }
     }
-    return { id: productId };
+    return { id: productId!, variantCount: variants.length };
   });
 
 export const adminDeleteProduct = createServerFn({ method: "POST" })

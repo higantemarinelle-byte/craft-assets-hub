@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ShoppingBag, Truck, Shirt } from "lucide-react";
 import { getProduct, listProducts } from "@/lib/products.functions";
 import { ProductCard } from "@/components/site/ProductCard";
+import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/lib/cart";
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/shop/$slug")({
   ssr: false,
   loader: async ({ context, params }) => {
     const product = await context.queryClient.ensureQueryData({
-      queryKey: ["product", params.slug],
+      queryKey: ["catalog", "product", params.slug],
       queryFn: () => getProduct({ data: { slug: params.slug } }),
     });
     if (!product) throw notFound();
@@ -26,7 +27,9 @@ export const Route = createFileRoute("/shop/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Product — Craft & Cling" }] };
     const p = loaderData.product;
-    const img = p.images?.[0];
+    const first = p.images?.[0];
+    // Only surface direct URLs in og:image — asset:<id> refs need signing.
+    const img = first && !first.startsWith("asset:") ? first : undefined;
     return {
       meta: [
         { title: `${p.name} — Craft & Cling` },
@@ -93,7 +96,7 @@ function Product() {
         <div>
           <div className="relative aspect-square overflow-hidden rounded-lg border-2 border-ink bg-cream cmyk-shadow">
             {product.images[activeImg] ? (
-              <img src={product.images[activeImg]} alt={product.name} className="h-full w-full object-cover" />
+              <ProductImage src={product.images[activeImg]} alt={product.name} className="h-full w-full object-cover" />
             ) : (
               <div className={`relative flex h-full w-full items-center justify-center bg-gradient-to-br ${gradientClass} p-10`}>
                 <div className="halftone absolute inset-0 opacity-20" />
@@ -111,7 +114,7 @@ function Product() {
                   onClick={() => setActiveImg(i)}
                   className={`h-16 w-16 overflow-hidden rounded border-2 ${i === activeImg ? "border-magenta" : "border-ink/30"}`}
                 >
-                  <img src={img} alt="" className="h-full w-full object-cover" />
+                  <ProductImage src={img} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
@@ -207,4 +210,11 @@ function Product() {
       )}
     </div>
   );
+}
+
+function ProductImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  if (src.startsWith("asset:")) {
+    return <StorefrontAssetImage assetId={src.slice("asset:".length)} alt={alt} className={className} />;
+  }
+  return <img src={src} alt={alt} className={className} />;
 }

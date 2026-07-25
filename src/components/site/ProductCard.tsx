@@ -1,4 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
+
+const ASSET_PREFIX = "asset:";
 
 export type ProductCardData = {
   slug: string;
@@ -24,7 +27,10 @@ const gradientForSlug = (slug: string) => {
 };
 
 export function ProductCard({ product }: { product: ProductCardData }) {
-  const img = product.images?.[0];
+  const first = product.images?.[0];
+  const isAsset = !!first && first.startsWith(ASSET_PREFIX);
+  const assetId = isAsset ? first!.slice(ASSET_PREFIX.length) : null;
+  const img = !isAsset ? first : null;
   const grad = gradientForSlug(product.slug);
   return (
     <Link
@@ -33,7 +39,14 @@ export function ProductCard({ product }: { product: ProductCardData }) {
       className="group block"
     >
       <div className="relative aspect-square overflow-hidden rounded-lg border-2 border-ink bg-cream transition group-hover:cmyk-shadow">
-        {img ? (
+        {assetId ? (
+          <StorefrontAssetImage
+            assetId={assetId}
+            alt={product.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+        ) : img ? (
           <img
             src={img}
             alt={product.name}

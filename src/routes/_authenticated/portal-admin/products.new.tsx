@@ -11,7 +11,14 @@ function NewProduct() {
   return (
     <ProductForm
       initial={null}
-      onSaved={() => navigate({ to: "/portal-admin/products" })}
+      onSaved={(id, mode) => {
+        if (mode === "continue") {
+          navigate({ to: "/portal-admin/products/$id", params: { id } });
+        } else {
+          navigate({ to: "/portal-admin/products" });
+        }
+      }}
+      onCancel={() => navigate({ to: "/portal-admin/products" })}
     />
   );
 }
