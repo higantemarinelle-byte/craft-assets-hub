@@ -1,26 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import { requireStaffAccess, requireOwnerAccess } from "@/lib/permissions.server";
 import { z } from "zod";
 
-function serviceClient() {
-  return createClient<Database>(process.env.SUPABASE_URL!, process.env.CRAFT_SUPABASE_ADMIN_KEY!, {
-    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-  });
+// Route every admin server function through the centralized permission helpers
+// and the centralized Supabase admin client. Do NOT create another Supabase
+// client anywhere in this file — the centralized one handles the current
+// sb_secret_* key format correctly.
+async function getStaffAdmin(ctx: any, ownerOnly = false) {
+  const access = ownerOnly
+    ? await requireOwnerAccess(ctx)
+    : await requireStaffAccess(ctx);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return { admin: supabaseAdmin, roles: access.roles };
 }
 
-async function assertStaff(ctx: any, ownerOnly = false) {
-  const admin = serviceClient();
-  const { data } = await admin.from("user_roles").select("role").eq("user_id", ctx.userId);
-  const roles = (data ?? []).map((r: any) => r.role);
-  if (ownerOnly) {
-    if (!roles.includes("owner")) throw new Error("Forbidden");
-  } else {
-    if (!roles.includes("owner") && !roles.includes("employee")) throw new Error("Forbidden");
-  }
-  return { admin, roles };
-}
+const uuidSchema = z.string().uuid();
 
 // ============== PRODUCTS ==============
 const productSchema = z.object({
