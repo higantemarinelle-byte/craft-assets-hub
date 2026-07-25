@@ -58,11 +58,60 @@ function AuthPage() {
   };
 
   const onGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const redirectPath = (search.redirect as string) || "/account";
+    const callbackUrl = `${window.location.origin}/auth/callback`;
+
+    // Open the popup synchronously so browsers don't block it after the async call.
+    const popup = window.open("about:blank", "cc-google-oauth", "width=520,height=640");
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}${(search.redirect as string) || "/account"}` },
+      options: {
+        redirectTo: callbackUrl,
+        skipBrowserRedirect: !!popup,
+      },
     });
-    if (error) return toast.error("Google sign-in failed", { description: error.message });
+
+    if (error) {
+      popup?.close();
+      return toast.error("Google sign-in failed", { description: error.message });
+    }
+
+    // Fallback: popup blocked → full-page redirect (Supabase already navigated when skipBrowserRedirect was false).
+    if (!popup) return;
+    if (!data?.url) {
+      popup.close();
+      return toast.error("Google sign-in failed", { description: "Missing authorization URL." });
+    }
+
+    popup.location.href = data.url;
+
+    const cleanup = () => {
+      window.removeEventListener("message", onMessage);
+      clearInterval(timer);
+    };
+    const onMessage = async (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const payload = event.data as { type?: string; ok?: boolean; error?: string } | null;
+      if (!payload || payload.type !== "cc-google-auth") return;
+      cleanup();
+      try { popup.close(); } catch {}
+      if (!payload.ok) {
+        return toast.error("Google sign-in failed", { description: payload.error || "Cancelled" });
+      }
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        return toast.error("Google sign-in failed", { description: "No session established." });
+      }
+      toast.success("Signed in");
+      navigate({ to: redirectPath as any });
+    };
+    window.addEventListener("message", onMessage);
+    const timer = setInterval(() => {
+      if (popup.closed) {
+        cleanup();
+      }
+    }, 500);
   };
 
   return (
