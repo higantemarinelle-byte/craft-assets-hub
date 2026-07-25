@@ -22,6 +22,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedPortalAdminRouteRouteImport } from './routes/_authenticated/portal-admin/route'
 import { Route as AuthenticatedPortalAdminIndexRouteImport } from './routes/_authenticated/portal-admin/index'
@@ -110,6 +111,11 @@ const ShopSlugRoute = ShopSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ShopRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
@@ -257,7 +263,7 @@ const AuthenticatedPortalAdminOrdersIdPackingSlipRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/gang-sheet': typeof GangSheetRoute
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
   '/account': typeof AuthenticatedAccountRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
   '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
@@ -295,7 +302,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/gang-sheet': typeof GangSheetRoute
@@ -305,6 +312,7 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
   '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
@@ -334,7 +342,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/gang-sheet': typeof GangSheetRoute
@@ -345,6 +353,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/portal-admin': typeof AuthenticatedPortalAdminRouteRouteWithChildren
   '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/_authenticated/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
   '/_authenticated/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
@@ -385,6 +394,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/portal-admin'
     | '/account'
+    | '/auth/callback'
     | '/shop/$slug'
     | '/portal-admin/categories'
     | '/portal-admin/craft-studio'
@@ -422,6 +432,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/sitemap.xml'
     | '/account'
+    | '/auth/callback'
     | '/shop/$slug'
     | '/portal-admin/categories'
     | '/portal-admin/craft-studio'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/portal-admin'
     | '/_authenticated/account'
+    | '/auth/callback'
     | '/shop/$slug'
     | '/_authenticated/portal-admin/categories'
     | '/_authenticated/portal-admin/craft-studio'
@@ -490,7 +502,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   GangSheetRoute: typeof GangSheetRoute
@@ -593,6 +605,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/shop/$slug'
       preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof ShopRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_authenticated/account': {
       id: '/_authenticated/account'
@@ -926,6 +945,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface ShopRouteChildren {
   ShopSlugRoute: typeof ShopSlugRoute
 }
@@ -940,7 +969,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   GangSheetRoute: GangSheetRoute,
