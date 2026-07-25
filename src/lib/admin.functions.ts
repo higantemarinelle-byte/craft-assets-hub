@@ -74,16 +74,24 @@ export const adminGetProduct = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await assertStaff(context);
-    const { data: product, error } = await admin
-      .from("products").select("*, product_variants(*)").eq("id", data.id).maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!product) return null;
-    // Sort variants by sort_order for stable form rendering.
-    const variants = ((product as any).product_variants ?? []).slice().sort(
-      (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-    );
-    return { ...(product as any), product_variants: variants };
+    try {
+      const { admin } = await assertStaff(context);
+      const { data: product, error } = await admin
+        .from("products").select("*, product_variants(*)").eq("id", data.id).maybeSingle();
+      if (error) {
+        console.error("[adminGetProduct] supabase error", { id: data.id, error });
+        throw new Error(error.message);
+      }
+      if (!product) return null;
+      // Sort variants by sort_order for stable form rendering.
+      const variants = ((product as any).product_variants ?? []).slice().sort(
+        (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+      );
+      return { ...(product as any), product_variants: variants };
+    } catch (err) {
+      console.error("[adminGetProduct] failed", { id: data.id, err });
+      throw err;
+    }
   });
 
 export const adminSaveProduct = createServerFn({ method: "POST" })
