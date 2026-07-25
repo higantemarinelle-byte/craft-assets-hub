@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/portal-admin/products")({
-  head: () => ({ meta: [{ title: "Products — Admin" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Pre-made Products — Admin" }, { name: "robots", content: "noindex" }] }),
   component: ProductsPage,
 });
 
@@ -28,8 +28,8 @@ function ProductsPage() {
   const toggleFlag = useServerFn(adminToggleProductFlag);
   const reorder = useServerFn(adminReorderProducts);
   const qc = useQueryClient();
-  const { data = [] } = useQuery({ queryKey: ["admin:products"], queryFn: () => fetchProducts() });
-  const { data: categories = [] } = useQuery({ queryKey: ["admin:cats"], queryFn: () => fetchCats() });
+  const { data = [] } = useQuery({ queryKey: ["admin", "catalog", "products"], queryFn: () => fetchProducts() });
+  const { data: categories = [] } = useQuery({ queryKey: ["admin", "catalog", "categories"], queryFn: () => fetchCats() });
 
   const [q, setQ] = useState("");
   const [catFilter, setCatFilter] = useState<string>("");
@@ -46,9 +46,16 @@ function ProductsPage() {
     });
   }, [data, q, catFilter, statusFilter]);
 
+  const invalidateAll = () => {
+    qc.invalidateQueries({ queryKey: ["admin", "catalog", "products"] });
+    qc.invalidateQueries({ queryKey: ["products"] });
+    qc.invalidateQueries({ queryKey: ["catalog", "products"] });
+    qc.invalidateQueries({ queryKey: ["catalog", "featured"] });
+  };
+
   const onToggle = async (id: string, field: "is_featured" | "is_published", value: boolean) => {
     await toggleFlag({ data: { id, field, value } });
-    qc.invalidateQueries({ queryKey: ["admin:products"] });
+    invalidateAll();
   };
 
   const move = async (idx: number, dir: -1 | 1) => {
@@ -59,21 +66,21 @@ function ProductsPage() {
     if (j < 0 || j >= ids.length) return;
     [ids[realIdx], ids[j]] = [ids[j], ids[realIdx]];
     await reorder({ data: { ids } });
-    qc.invalidateQueries({ queryKey: ["admin:products"] });
+    invalidateAll();
   };
 
   const onDelete = async (id: string) => {
     if (!confirm("Delete this product?")) return;
     await delProduct({ data: { id } });
     toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["admin:products"] });
+    invalidateAll();
   };
 
   return (
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Products</h1>
+          <h1 className="text-2xl font-bold">Pre-made Products</h1>
           <p className="mt-1 text-sm text-slate-500">
             Manages pre-made products across the shop, category pages, and Popular Designs.
           </p>
