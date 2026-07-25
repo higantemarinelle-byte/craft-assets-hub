@@ -236,9 +236,9 @@ export const adminListStaff = createServerFn({ method: "GET" })
     const { admin } = await getStaffAdmin(context, true);
     const { data: roles } = await admin.from("user_roles").select("user_id, role").in("role", ["owner", "employee"]);
     if (!roles?.length) return [];
-    const userIds = [...new Set(roles.map((r: any) => r.user_id))];
+    const userIds: string[] = [...new Set(roles.map((r: any) => String(r.user_id)))];
     const { data: profiles } = await admin.from("profiles").select("id, email, full_name").in("id", userIds);
-    return userIds.map((uid) => {
+    return userIds.map((uid: string) => {
       const prof = profiles?.find((p: any) => p.id === uid);
       const userRoles = roles.filter((r: any) => r.user_id === uid).map((r: any) => r.role);
       return { user_id: uid, email: prof?.email, full_name: prof?.full_name, roles: userRoles };
