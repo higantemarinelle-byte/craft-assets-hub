@@ -67,26 +67,17 @@ export const adminListProducts = createServerFn({ method: "GET" })
 
 export const adminGetProduct = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => input)
+  .inputValidator((input: { id: string }) => ({ id: uuidSchema.parse(input.id) }))
   .handler(async ({ data, context }) => {
-    try {
-      const { admin } = await getStaffAdmin(context);
-      const { data: product, error } = await admin
-        .from("products").select("*, product_variants(*)").eq("id", data.id).maybeSingle();
-      if (error) {
-        console.error("[adminGetProduct] supabase error", { id: data.id, error });
-        throw new Error(error.message);
-      }
-      if (!product) return null;
-      // Sort variants by sort_order for stable form rendering.
-      const variants = ((product as any).product_variants ?? []).slice().sort(
-        (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-      );
-      return { ...(product as any), product_variants: variants };
-    } catch (err) {
-      console.error("[adminGetProduct] failed", { id: data.id, err });
-      throw err;
-    }
+    const { admin } = await getStaffAdmin(context);
+    const { data: product, error } = await admin
+      .from("products").select("*, product_variants(*)").eq("id", data.id).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!product) return null;
+    const variants = ((product as any).product_variants ?? []).slice().sort(
+      (a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+    );
+    return { ...(product as any), product_variants: variants };
   });
 
 export const adminSaveProduct = createServerFn({ method: "POST" })
@@ -96,11 +87,14 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
     const { admin } = await getStaffAdmin(context);
     const { variants, ...prod } = data;
     let productId = prod.id;
+    // Never send `id` in the update/insert payload — it's the row key,
+    // not a mutable column.
+    const { id: _omit, ...prodPayload } = prod;
     if (productId) {
-      const { error } = await admin.from("products").update({ ...prod }).eq("id", productId);
+      const { error } = await admin.from("products").update(prodPayload).eq("id", productId);
       if (error) throw new Error(error.message);
     } else {
-      const { data: inserted, error } = await admin.from("products").insert({ ...prod }).select("id").single();
+      const { data: inserted, error } = await admin.from("products").insert(prodPayload).select("id").single();
       if (error) throw new Error(error.message);
       productId = inserted.id;
     }
@@ -132,7 +126,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
 
 export const adminDeleteProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => input)
+  .inputValidator((input: { id: string }) => ({ id: uuidSchema.parse(input.id) }))
   .handler(async ({ data, context }) => {
     const { admin } = await getStaffAdmin(context);
     const { error } = await admin.from("products").delete().eq("id", data.id);
