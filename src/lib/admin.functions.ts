@@ -157,16 +157,6 @@ export const adminStats = createServerFn({ method: "GET" })
   });
 
 // ============== DISCOUNTS ==============
-const discountSchema = z.object({
-  id: z.string().uuid().optional(),
-  code: z.string().min(1),
-  kind: z.enum(["percent", "fixed"]),
-  amount: z.number().positive(),
-  max_uses: z.number().int().positive().optional().nullable(),
-  expires_at: z.string().optional().nullable(),
-  is_active: z.boolean().default(true),
-});
-
 export const adminListDiscounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -250,16 +240,6 @@ export const adminListCategories = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data ?? [];
   });
-
-const categorySchema = z.object({
-  id: z.string().uuid().optional(),
-  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, "lowercase letters, numbers, dashes only"),
-  name: z.string().min(1),
-  description: z.string().optional().nullable(),
-  image_url: z.string().optional().nullable(),
-  accent: z.string().optional().nullable(),
-  sort_order: z.number().int().default(0),
-});
 
 export const adminSaveCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
