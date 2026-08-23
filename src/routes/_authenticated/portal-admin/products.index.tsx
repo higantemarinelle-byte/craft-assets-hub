@@ -16,7 +16,7 @@ import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Star, Eye } from "lucide-reac
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
-export const Route = createFileRoute("/_authenticated/portal-admin/products")({
+export const Route = createFileRoute("/_authenticated/portal-admin/products/")({
   head: () => ({ meta: [{ title: "Pre-made Products — Admin" }, { name: "robots", content: "noindex" }] }),
   component: ProductsPage,
 });
