@@ -14,7 +14,7 @@ import type { z } from "zod";
 export const adminListProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data, error } = await admin
       .from("products")
       .select("id, slug, name, base_price, is_featured, is_published, images, category_id, sort_order, categories:category_id(name, slug), product_variants(stock)")
@@ -41,7 +41,7 @@ export const adminGetProduct = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => ({ id: uuidSchema.parse(input.id) }))
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data: product, error } = await admin
       .from("products").select("*, product_variants(*)").eq("id", data.id).maybeSingle();
     if (error) throw new Error(error.message);
@@ -56,7 +56,7 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: z.input<typeof productSchema>) => productSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { variants, ...prod } = data;
     let productId = prod.id;
     // Never send `id` in the update/insert payload — it's the row key,
@@ -100,7 +100,7 @@ export const adminDeleteProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => ({ id: uuidSchema.parse(input.id) }))
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { error } = await admin.from("products").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -110,7 +110,7 @@ export const adminDeleteProduct = createServerFn({ method: "POST" })
 export const adminListOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data, error } = await admin
       .from("orders")
       .select("id, order_number, email, full_name, total, status, created_at, order_items(quantity)")
@@ -128,7 +128,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; status: "pending" | "processing" | "printed" | "shipped" | "delivered" | "cancelled" }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { error } = await admin.from("orders").update({ status: data.status }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -138,7 +138,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
 export const adminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin, roles } = await getStaffAdmin(context);
+    const { admin, roles } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const [{ count: orderCount }, { count: productCount }, { data: recent }] = await Promise.all([
       admin.from("orders").select("id", { count: "exact", head: true }),
       admin.from("products").select("id", { count: "exact", head: true }),
@@ -170,7 +170,7 @@ const discountSchema = z.object({
 export const adminListDiscounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data, error } = await admin.from("discount_codes").select("*").order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -180,7 +180,7 @@ export const adminSaveDiscount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: z.input<typeof discountSchema>) => discountSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const payload = { ...data, code: data.code.toUpperCase() };
     if (payload.id) {
       const { error } = await admin.from("discount_codes").update(payload).eq("id", payload.id);
@@ -196,7 +196,7 @@ export const adminDeleteDiscount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     await admin.from("discount_codes").delete().eq("id", data.id);
     return { ok: true };
   });
@@ -205,7 +205,7 @@ export const adminDeleteDiscount = createServerFn({ method: "POST" })
 export const adminListStaff = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await getStaffAdmin(context, true);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context, true);
     const { data: roles } = await admin.from("user_roles").select("user_id, role").in("role", ["owner", "employee"]);
     if (!roles?.length) return [];
     const userIds: string[] = [...new Set(roles.map((r: any) => String(r.user_id)))];
@@ -221,7 +221,7 @@ export const adminAssignRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { email: string; role: "owner" | "employee" }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context, true);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context, true);
     const { data: prof } = await admin.from("profiles").select("id").eq("email", data.email).maybeSingle();
     if (!prof) throw new Error("No user with that email — they must sign up first.");
     const { error } = await admin.from("user_roles").insert({ user_id: prof.id, role: data.role });
@@ -233,7 +233,7 @@ export const adminRevokeRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { userId: string; role: "owner" | "employee" }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context, true);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context, true);
     await admin.from("user_roles").delete().eq("user_id", data.userId).eq("role", data.role);
     return { ok: true };
   });
@@ -242,7 +242,7 @@ export const adminRevokeRole = createServerFn({ method: "POST" })
 export const adminListCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data, error } = await admin
       .from("categories")
       .select("id, name, slug, description, sort_order, image_url, accent")
@@ -265,7 +265,7 @@ export const adminSaveCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: z.input<typeof categorySchema>) => categorySchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     if (data.id) {
       const { error } = await admin.from("categories").update(data as any).eq("id", data.id);
       if (error) throw new Error(error.message);
@@ -280,7 +280,7 @@ export const adminDeleteCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     // Detach products from this category (do not delete products).
     await admin.from("products").update({ category_id: null }).eq("category_id", data.id);
     const { error } = await admin.from("categories").delete().eq("id", data.id);
@@ -292,7 +292,7 @@ export const adminReorderCategories = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { ids: string[] }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     for (let i = 0; i < data.ids.length; i++) {
       const { error } = await admin.from("categories").update({ sort_order: i }).eq("id", data.ids[i]);
       if (error) throw new Error(error.message);
@@ -304,7 +304,7 @@ export const adminReorderProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { ids: string[] }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     for (let i = 0; i < data.ids.length; i++) {
       const { error } = await admin.from("products").update({ sort_order: i } as any).eq("id", data.ids[i]);
       if (error) throw new Error(error.message);
@@ -316,7 +316,7 @@ export const adminToggleProductFlag = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string; field: "is_featured" | "is_published"; value: boolean }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const patch: any = { [data.field]: data.value };
     const { error } = await admin.from("products").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -327,7 +327,7 @@ export const adminToggleProductFlag = createServerFn({ method: "POST" })
 export const adminListCustomers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     // profiles with 'customer' role (or without staff role): aggregate order data.
     const { data: profiles } = await admin.from("profiles").select("id, email, full_name, created_at").order("created_at", { ascending: false }).limit(500);
     if (!profiles?.length) return [];
@@ -345,7 +345,7 @@ export const adminGetCustomer = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data: profile } = await admin.from("profiles").select("*").eq("id", data.id).maybeSingle();
     const { data: orders } = await admin.from("orders").select("id, order_number, total, status, created_at, order_items(quantity, product_name)").eq("user_id", data.id).order("created_at", { ascending: false });
     return { profile, orders: orders ?? [] };
@@ -356,7 +356,7 @@ export const adminSalesSeries = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { days?: number }) => input)
   .handler(async ({ data, context }) => {
-    const { admin, roles } = await getStaffAdmin(context);
+    const { admin, roles } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     if (!roles.includes("owner")) throw new Error("Forbidden");
     const days = data.days ?? 30;
     const since = new Date(Date.now() - days * 86400_000).toISOString();
@@ -379,7 +379,7 @@ export const adminSalesSeries = createServerFn({ method: "GET" })
 export const adminTopProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data } = await admin.from("order_items").select("product_name, quantity, unit_price").limit(2000);
     const map = new Map<string, { name: string; units: number; revenue: number }>();
     for (const r of data ?? []) {
@@ -396,7 +396,7 @@ export const adminLowStock = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { threshold?: number }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const t = data.threshold ?? 10;
     const { data: variants } = await admin
       .from("product_variants")
@@ -415,7 +415,7 @@ export const adminGetOrder = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
-    const { admin } = await getStaffAdmin(context);
+    const { admin } = await (await import("@/lib/admin.server")).getStaffAdmin(context);
     const { data: order } = await admin.from("orders").select("*, order_items(*)").eq("id", data.id).maybeSingle();
     return order;
   });
