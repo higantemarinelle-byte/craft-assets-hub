@@ -1,43 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { requireStaffAccess, requireOwnerAccess } from "@/lib/permissions.server";
-import { z } from "zod";
+import { uuidSchema, productSchema, discountSchema, categorySchema } from "@/lib/admin.schemas";
+import type { z } from "zod";
 
-// Route every admin server function through the centralized permission helpers
-// and the centralized Supabase admin client. Do NOT create another Supabase
-// client anywhere in this file — the centralized one handles the current
-// sb_secret_* key format correctly.
-async function getStaffAdmin(ctx: any, ownerOnly = false) {
-  const access = ownerOnly
-    ? await requireOwnerAccess(ctx)
-    : await requireStaffAccess(ctx);
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return { admin: supabaseAdmin, roles: access.roles };
-}
-
-const uuidSchema = z.string().uuid();
+// This file must stay a thin wrapper: only imports, types and server-function
+// declarations. Runtime helpers live in `@/lib/admin.server` and are loaded
+// inside each handler — the server-function splitter strips module-scope
+// runtime siblings from this file.
 
 // ============== PRODUCTS ==============
-const productSchema = z.object({
-  id: z.string().uuid().optional(),
-  slug: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().optional().nullable(),
-  care_instructions: z.string().optional().nullable(),
-  category_id: z.string().uuid().optional().nullable(),
-  base_price: z.number().nonnegative(),
-  images: z.array(z.string()).default([]),
-  tags: z.array(z.string()).default([]),
-  is_featured: z.boolean().default(false),
-  is_published: z.boolean().default(true),
-  variants: z.array(z.object({
-    id: z.string().uuid().optional(),
-    label: z.string().min(1),
-    price: z.number().nonnegative(),
-    stock: z.number().int().nonnegative(),
-    sort_order: z.number().int().default(0),
-  })).default([]),
-});
+
 
 export const adminListProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
