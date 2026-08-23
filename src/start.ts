@@ -10,6 +10,18 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
     }
+    // Server-function RPC calls must keep their serialized error so the
+    // browser can read the real message. Only genuine page/SSR crashes get
+    // the friendly full-page HTML fallback.
+    let isServerFn = false;
+    try {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const url = getRequest()?.url ?? "";
+      isServerFn = url.includes("_serverFn");
+    } catch {
+      isServerFn = false;
+    }
+    if (isServerFn) throw error;
     console.error(error);
     return new Response(renderErrorPage(), {
       status: 500,
@@ -17,6 +29,7 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
     });
   }
 });
+
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],

@@ -30,13 +30,13 @@ import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPortalAdminThemeRouteImport } from './routes/_authenticated/portal-admin/theme'
 import { Route as AuthenticatedPortalAdminQuoteRequestsRouteImport } from './routes/_authenticated/portal-admin/quote-requests'
 import { Route as AuthenticatedPortalAdminProjectsRouteImport } from './routes/_authenticated/portal-admin/projects'
-import { Route as AuthenticatedPortalAdminProductsRouteImport } from './routes/_authenticated/portal-admin/products'
 import { Route as AuthenticatedPortalAdminOrdersRouteImport } from './routes/_authenticated/portal-admin/orders'
 import { Route as AuthenticatedPortalAdminEmployeesRouteImport } from './routes/_authenticated/portal-admin/employees'
 import { Route as AuthenticatedPortalAdminDiscountsRouteImport } from './routes/_authenticated/portal-admin/discounts'
 import { Route as AuthenticatedPortalAdminCustomersRouteImport } from './routes/_authenticated/portal-admin/customers'
 import { Route as AuthenticatedPortalAdminCraftStudioRouteImport } from './routes/_authenticated/portal-admin/craft-studio'
 import { Route as AuthenticatedPortalAdminCategoriesRouteImport } from './routes/_authenticated/portal-admin/categories'
+import { Route as AuthenticatedPortalAdminProductsIndexRouteImport } from './routes/_authenticated/portal-admin/products.index'
 import { Route as AuthenticatedPortalAdminQuoteRequestsIdRouteImport } from './routes/_authenticated/portal-admin/quote-requests.$id'
 import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes/_authenticated/portal-admin/projects.$id'
 import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
@@ -157,12 +157,6 @@ const AuthenticatedPortalAdminProjectsRoute =
     path: '/projects',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminProductsRoute =
-  AuthenticatedPortalAdminProductsRouteImport.update({
-    id: '/products',
-    path: '/products',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
 const AuthenticatedPortalAdminOrdersRoute =
   AuthenticatedPortalAdminOrdersRouteImport.update({
     id: '/orders',
@@ -199,6 +193,12 @@ const AuthenticatedPortalAdminCategoriesRoute =
     path: '/categories',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
+const AuthenticatedPortalAdminProductsIndexRoute =
+  AuthenticatedPortalAdminProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
 const AuthenticatedPortalAdminQuoteRequestsIdRoute =
   AuthenticatedPortalAdminQuoteRequestsIdRouteImport.update({
     id: '/$id',
@@ -213,15 +213,15 @@ const AuthenticatedPortalAdminProjectsIdRoute =
   } as any)
 const AuthenticatedPortalAdminProductsNewRoute =
   AuthenticatedPortalAdminProductsNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AuthenticatedPortalAdminProductsRoute,
+    id: '/products/new',
+    path: '/products/new',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
 const AuthenticatedPortalAdminProductsIdRoute =
   AuthenticatedPortalAdminProductsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedPortalAdminProductsRoute,
+    id: '/products/$id',
+    path: '/products/$id',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
 const AuthenticatedPortalAdminGangSheetPricingRoute =
   AuthenticatedPortalAdminGangSheetPricingRouteImport.update({
@@ -282,7 +282,6 @@ export interface FileRoutesByFullPath {
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
   '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
-  '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
   '/portal-admin/quote-requests': typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
@@ -297,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
   '/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
+  '/portal-admin/products/': typeof AuthenticatedPortalAdminProductsIndexRoute
   '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRoutesByTo {
@@ -320,7 +320,6 @@ export interface FileRoutesByTo {
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
   '/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
-  '/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
   '/portal-admin/quote-requests': typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   '/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
@@ -335,6 +334,7 @@ export interface FileRoutesByTo {
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
   '/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
+  '/portal-admin/products': typeof AuthenticatedPortalAdminProductsIndexRoute
   '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRoutesById {
@@ -361,7 +361,6 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/_authenticated/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
   '/_authenticated/portal-admin/orders': typeof AuthenticatedPortalAdminOrdersRouteWithChildren
-  '/_authenticated/portal-admin/products': typeof AuthenticatedPortalAdminProductsRouteWithChildren
   '/_authenticated/portal-admin/projects': typeof AuthenticatedPortalAdminProjectsRouteWithChildren
   '/_authenticated/portal-admin/quote-requests': typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   '/_authenticated/portal-admin/theme': typeof AuthenticatedPortalAdminThemeRoute
@@ -376,6 +375,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/_authenticated/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
   '/_authenticated/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
+  '/_authenticated/portal-admin/products/': typeof AuthenticatedPortalAdminProductsIndexRoute
   '/_authenticated/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
 export interface FileRouteTypes {
@@ -402,7 +402,6 @@ export interface FileRouteTypes {
     | '/portal-admin/discounts'
     | '/portal-admin/employees'
     | '/portal-admin/orders'
-    | '/portal-admin/products'
     | '/portal-admin/projects'
     | '/portal-admin/quote-requests'
     | '/portal-admin/theme'
@@ -417,6 +416,7 @@ export interface FileRouteTypes {
     | '/portal-admin/products/new'
     | '/portal-admin/projects/$id'
     | '/portal-admin/quote-requests/$id'
+    | '/portal-admin/products/'
     | '/portal-admin/orders/$id/packing-slip'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -440,7 +440,6 @@ export interface FileRouteTypes {
     | '/portal-admin/discounts'
     | '/portal-admin/employees'
     | '/portal-admin/orders'
-    | '/portal-admin/products'
     | '/portal-admin/projects'
     | '/portal-admin/quote-requests'
     | '/portal-admin/theme'
@@ -455,6 +454,7 @@ export interface FileRouteTypes {
     | '/portal-admin/products/new'
     | '/portal-admin/projects/$id'
     | '/portal-admin/quote-requests/$id'
+    | '/portal-admin/products'
     | '/portal-admin/orders/$id/packing-slip'
   id:
     | '__root__'
@@ -480,7 +480,6 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin/discounts'
     | '/_authenticated/portal-admin/employees'
     | '/_authenticated/portal-admin/orders'
-    | '/_authenticated/portal-admin/products'
     | '/_authenticated/portal-admin/projects'
     | '/_authenticated/portal-admin/quote-requests'
     | '/_authenticated/portal-admin/theme'
@@ -495,6 +494,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin/products/new'
     | '/_authenticated/portal-admin/projects/$id'
     | '/_authenticated/portal-admin/quote-requests/$id'
+    | '/_authenticated/portal-admin/products/'
     | '/_authenticated/portal-admin/orders/$id/packing-slip'
   fileRoutesById: FileRoutesById
 }
@@ -662,13 +662,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminProjectsRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/products': {
-      id: '/_authenticated/portal-admin/products'
-      path: '/products'
-      fullPath: '/portal-admin/products'
-      preLoaderRoute: typeof AuthenticatedPortalAdminProductsRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
     '/_authenticated/portal-admin/orders': {
       id: '/_authenticated/portal-admin/orders'
       path: '/orders'
@@ -711,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
+    '/_authenticated/portal-admin/products/': {
+      id: '/_authenticated/portal-admin/products/'
+      path: '/products'
+      fullPath: '/portal-admin/products/'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProductsIndexRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
     '/_authenticated/portal-admin/quote-requests/$id': {
       id: '/_authenticated/portal-admin/quote-requests/$id'
       path: '/$id'
@@ -727,17 +727,17 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/portal-admin/products/new': {
       id: '/_authenticated/portal-admin/products/new'
-      path: '/new'
+      path: '/products/new'
       fullPath: '/portal-admin/products/new'
       preLoaderRoute: typeof AuthenticatedPortalAdminProductsNewRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminProductsRoute
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
     '/_authenticated/portal-admin/products/$id': {
       id: '/_authenticated/portal-admin/products/$id'
-      path: '/$id'
+      path: '/products/$id'
       fullPath: '/portal-admin/products/$id'
       preLoaderRoute: typeof AuthenticatedPortalAdminProductsIdRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminProductsRoute
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
     '/_authenticated/portal-admin/gang-sheet/pricing': {
       id: '/_authenticated/portal-admin/gang-sheet/pricing'
@@ -835,24 +835,6 @@ const AuthenticatedPortalAdminOrdersRouteWithChildren =
     AuthenticatedPortalAdminOrdersRouteChildren,
   )
 
-interface AuthenticatedPortalAdminProductsRouteChildren {
-  AuthenticatedPortalAdminProductsIdRoute: typeof AuthenticatedPortalAdminProductsIdRoute
-  AuthenticatedPortalAdminProductsNewRoute: typeof AuthenticatedPortalAdminProductsNewRoute
-}
-
-const AuthenticatedPortalAdminProductsRouteChildren: AuthenticatedPortalAdminProductsRouteChildren =
-  {
-    AuthenticatedPortalAdminProductsIdRoute:
-      AuthenticatedPortalAdminProductsIdRoute,
-    AuthenticatedPortalAdminProductsNewRoute:
-      AuthenticatedPortalAdminProductsNewRoute,
-  }
-
-const AuthenticatedPortalAdminProductsRouteWithChildren =
-  AuthenticatedPortalAdminProductsRoute._addFileChildren(
-    AuthenticatedPortalAdminProductsRouteChildren,
-  )
-
 interface AuthenticatedPortalAdminProjectsRouteChildren {
   AuthenticatedPortalAdminProjectsIdRoute: typeof AuthenticatedPortalAdminProjectsIdRoute
 }
@@ -890,12 +872,14 @@ interface AuthenticatedPortalAdminRouteRouteChildren {
   AuthenticatedPortalAdminDiscountsRoute: typeof AuthenticatedPortalAdminDiscountsRoute
   AuthenticatedPortalAdminEmployeesRoute: typeof AuthenticatedPortalAdminEmployeesRoute
   AuthenticatedPortalAdminOrdersRoute: typeof AuthenticatedPortalAdminOrdersRouteWithChildren
-  AuthenticatedPortalAdminProductsRoute: typeof AuthenticatedPortalAdminProductsRouteWithChildren
   AuthenticatedPortalAdminProjectsRoute: typeof AuthenticatedPortalAdminProjectsRouteWithChildren
   AuthenticatedPortalAdminQuoteRequestsRoute: typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   AuthenticatedPortalAdminThemeRoute: typeof AuthenticatedPortalAdminThemeRoute
   AuthenticatedPortalAdminIndexRoute: typeof AuthenticatedPortalAdminIndexRoute
   AuthenticatedPortalAdminGangSheetPricingRoute: typeof AuthenticatedPortalAdminGangSheetPricingRoute
+  AuthenticatedPortalAdminProductsIdRoute: typeof AuthenticatedPortalAdminProductsIdRoute
+  AuthenticatedPortalAdminProductsNewRoute: typeof AuthenticatedPortalAdminProductsNewRoute
+  AuthenticatedPortalAdminProductsIndexRoute: typeof AuthenticatedPortalAdminProductsIndexRoute
 }
 
 const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteRouteChildren =
@@ -912,8 +896,6 @@ const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteR
       AuthenticatedPortalAdminEmployeesRoute,
     AuthenticatedPortalAdminOrdersRoute:
       AuthenticatedPortalAdminOrdersRouteWithChildren,
-    AuthenticatedPortalAdminProductsRoute:
-      AuthenticatedPortalAdminProductsRouteWithChildren,
     AuthenticatedPortalAdminProjectsRoute:
       AuthenticatedPortalAdminProjectsRouteWithChildren,
     AuthenticatedPortalAdminQuoteRequestsRoute:
@@ -922,6 +904,12 @@ const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteR
     AuthenticatedPortalAdminIndexRoute: AuthenticatedPortalAdminIndexRoute,
     AuthenticatedPortalAdminGangSheetPricingRoute:
       AuthenticatedPortalAdminGangSheetPricingRoute,
+    AuthenticatedPortalAdminProductsIdRoute:
+      AuthenticatedPortalAdminProductsIdRoute,
+    AuthenticatedPortalAdminProductsNewRoute:
+      AuthenticatedPortalAdminProductsNewRoute,
+    AuthenticatedPortalAdminProductsIndexRoute:
+      AuthenticatedPortalAdminProductsIndexRoute,
   }
 
 const AuthenticatedPortalAdminRouteRouteWithChildren =
