@@ -1,50 +1,50 @@
+# Fix: Pre-made Products cannot be opened, edited, or created
 
-## Problem
+## What I verified first
 
-Clicking the edit (pencil) icon on any pre-made product leaves the editor page stuck on **"Loading product…"** forever. No error toast, no console error, nothing to act on. The list page (`/portal-admin/products`) loads fine, so the failure is specific to the `/portal-admin/products/$id` route or its `adminGetProduct` server function call.
+Live database (queried directly, not the generated types):
 
-The current query in `src/routes/_authenticated/portal-admin/products.$id.tsx` shows a spinner while `query.isLoading` is `true` and shows an error UI only when `query.isError` fires. If the network request never resolves and never rejects, we sit on the spinner forever with no feedback — exactly what you're seeing.
+- `products` has all expected columns: id, slug, name, description, care_instructions, category_id, base_price, images, tags, is_featured, is_published, sort_order, created_at, updated_at.
+- `product_variants` has: id, product_id, label, price, stock, sort_order, created_at.
+- `categories` has: id, slug, name, description, sort_order, image_url, accent.
+- Real product rows exist (e.g. "Custom Artwork Tee", "Press Play Tee").
+- Table privileges for anon/authenticated/service_role are present on products, product_variants, categories, profiles, user_roles.
+- Both owner accounts have the `owner` role, and `has_role` is still executable by `authenticated`, so the role lookup used by the permission helpers is not blocked.
 
-## Diagnosis first (no code changes yet)
+So there is no schema mismatch and no missing migration. The failure is in application code, not the database.
 
-I will not change product logic before I have a real signal. Steps:
+## Root cause (to be confirmed by a live signed-in test as step 1 of the work)
 
-1. Open the preview in a headless browser signed in as owner (using the injected Supabase session).
-2. Navigate to `/portal-admin/products`, click the pencil on a product, capture:
-   - Screenshot of the stuck state.
-   - Full console output.
-   - Network tab entry for the `adminGetProduct` call (status, response body, timing, whether it's pending/aborted/redirected).
-3. From that signal, classify the failure into one of:
-   - **A.** Request never fires (routing / hydration bug).
-   - **B.** Request fires and hangs (server function never returns).
-   - **C.** Request returns 401/403 (auth middleware rejecting) — silently swallowed.
-   - **D.** Request returns 200 with unexpected shape and `useQuery` never settles.
+`src/lib/admin.functions.ts` declares server functions **and** module-scope runtime code in the same file: the `getStaffAdmin()` helper, `uuidSchema`, `productSchema`, `discountSchema`, `categorySchema`. TanStack's server-function splitting plugin extracts handler bodies into a separate server bundle and strips runtime siblings from the module. Handlers that call `getStaffAdmin(...)` then hit a missing binding at runtime — the request fails before any query runs, while typecheck and build both pass. This matches the observed behaviour exactly: list/edit/new all hang or fail with nothing useful surfacing.
 
-## Fix per outcome
+A second, compounding problem: the `errorMiddleware` in `src/start.ts` is a **request** middleware and wraps server-function RPC requests too. Any thrown error is converted into an HTML 500 page, which the client RPC layer cannot parse — so a real error becomes an endless "Loading product…" instead of a readable message.
 
-- **A** — Fix the route mount. Usually a missing/incorrect param, layout wrapping, or a stale `routeTree.gen.ts`. Restart the route registration.
-- **B** — Add an `AbortSignal` timeout on the client query (10s), plus surface the timeout in the error UI. On the server, harden `adminGetProduct` with a `try/catch` around the Supabase call and structured error messages.
-- **C** — The most likely culprit given "no error at all". The bearer attacher may not be attaching the token for this specific route, or the session is expired but the client doesn't know. Fix by:
-  - Making `useQuery` surface non-2xx responses as thrown errors so the error UI actually renders.
-  - Adding a one-shot re-auth check: on 401 from any admin server fn, redirect to `/auth` with a return path.
-- **D** — Normalize `adminGetProduct` return type and ensure `useQuery` never stays pending on a resolved-null value.
+## The fix
 
-## Regardless of outcome — small UX/observability fixes I will ship
+1. **Make `admin.functions.ts` a thin wrapper.**
+   - New `src/lib/admin.server.ts`: `getStaffAdmin()` (permission check + centralized `supabaseAdmin` from `src/integrations/supabase/client.server.ts`). No change to the auth model.
+   - New `src/lib/admin.schemas.ts`: the Zod schemas (client-safe).
+   - `admin.functions.ts` keeps only imports and `createServerFn` declarations.
+   - No change to `requireSupabaseAuth`, `requireStaffAccess`, `requireOwnerAccess`, or the owner allowlist. Admin functions stay authenticated.
 
-These are cheap and eliminate the "silent stuck spinner" class of bug for the whole admin:
+2. **Stop the error middleware from mangling server-function errors.**
+   In `src/start.ts`, let requests to the server-function RPC path fall through with their normal serialized error instead of being replaced by the HTML error page. The friendly full-page error handling stays for real SSR/page crashes.
 
-1. In `products.$id.tsx`: replace the raw `useQuery` with one that has `retry: 0`, a 15s query timeout, and an explicit "Loading is taking longer than expected — reload" fallback after 8s.
-2. Wrap the server-fn call in the component so a thrown error is logged to `console.error` before being handed to React Query (so we always have breadcrumbs next time).
-3. Add a `console.error` inside `adminGetProduct`'s `catch` path so server-side failures always show in logs.
+3. **Remove the temporary diagnostics** added in the previous attempt: the 15-second race/timeout and the 8-second "taking longer than usual" panel in `src/routes/_authenticated/portal-admin/products.$id.tsx`, and the extra `console.error` wrappers in `adminGetProduct`. A normal loading state plus a real error state with Retry remains.
+
+## Verification before I report back
+
+Signed in as an owner against the running app (browser automation), I will:
+
+- Open `/portal-admin/products` — list renders with category, stock, and order.
+- Open an existing product, change a field, save, hard-refresh, confirm the change persisted.
+- Add, edit, and remove a variant on that product and confirm each persists.
+- Create a new product at `/portal-admin/products/new` with a unique slug and one variant, confirm it appears in the list, reopens for edit, and survives refresh; remove the test record afterwards.
+- Confirm `/portal-admin/categories` returns real categories.
+- Run build and lint.
+
+I will report: root cause, files changed, whether any migration was needed (currently: none), existing-product test result, new-product test result, refresh-persistence result, build result, lint result.
 
 ## Out of scope
 
-- No changes to `ProductForm`, `adminSaveProduct`, categories, images, or variants until the loader path is proven working.
-- No schema or RLS changes (this uses the service-role admin client and bypasses RLS anyway).
-- No changes to the storefront.
-
-## Acceptance
-
-- I can open an existing product's edit page, see the form populate with its real data, change a field, save, refresh, and see the change persist.
-- If any step fails, the UI shows a specific error message (never a silent spinner).
-- Screenshot + network log of a working edit round-trip attached in the reply.
+No redesign of ProductForm. No changes to Projects, Project Cart, Theme Builder, Asset Manager, Gang Sheet Builder, or the Customer Portal. No checkout or payment processing. No new diagnostic UI.
