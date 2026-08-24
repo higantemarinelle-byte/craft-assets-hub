@@ -1,6 +1,6 @@
-// Craft Studio configuration foundation. Future milestones will replace these
-// in-memory descriptors with database-backed settings (theme, homepage, nav,
-// footer, announcements, SEO, media library, drafts & published versions).
+// Craft Studio module descriptors. Runtime status/timestamps come from
+// `adminGetCraftStudioStatus` (src/lib/craft-studio.functions.ts) — never
+// from hardcoded values here.
 
 export type CraftModuleStatus = "available" | "coming_soon";
 
@@ -24,15 +24,15 @@ export type CraftModule = {
   status: CraftModuleStatus;
   href?: string;
   quickActionLabel: string;
-  lastUpdated?: string | null;
 };
 
 export const CRAFT_MODULES: CraftModule[] = [
   {
     id: "homepage",
     title: "Homepage",
-    description: "Hero, featured sections, and homepage layout.",
-    status: "coming_soon",
+    description: "Hero, marquee, homepage sections, ordering and visibility.",
+    status: "available",
+    href: "/portal-admin/theme?panel=homepage",
     quickActionLabel: "Edit homepage",
   },
   {
@@ -40,7 +40,7 @@ export const CRAFT_MODULES: CraftModule[] = [
     title: "Theme",
     description: "Visual Theme Builder — colours, typography, buttons, layout, presets and version history.",
     status: "available",
-    href: "/portal-admin/theme",
+    href: "/portal-admin/theme?panel=theme",
     quickActionLabel: "Open Theme Builder",
   },
   {
@@ -63,7 +63,8 @@ export const CRAFT_MODULES: CraftModule[] = [
     id: "announcement",
     title: "Announcement Bar",
     description: "Site-wide banner for promos and updates.",
-    status: "coming_soon",
+    status: "available",
+    href: "/portal-admin/theme?panel=announcement",
     quickActionLabel: "Edit announcement",
   },
   {
@@ -99,30 +100,54 @@ export const CRAFT_MODULES: CraftModule[] = [
     id: "drafts",
     title: "Drafts",
     description: "Work-in-progress storefront changes before they go live.",
-    status: "coming_soon",
-    quickActionLabel: "Review drafts",
+    status: "available",
+    href: "/portal-admin/theme?panel=draft",
+    quickActionLabel: "Review draft",
   },
   {
     id: "publish",
     title: "Publish",
     description: "Push draft changes live and manage version history.",
-    status: "coming_soon",
+    status: "available",
+    href: "/portal-admin/theme?panel=history",
     quickActionLabel: "Publish changes",
   },
 ];
 
 export type StorefrontStatus = {
   storefront: "live" | "offline";
-  draftStatus: "no_draft" | "draft_pending";
+  hasUnpublishedChanges: boolean;
   lastPublished: string | null;
   lastUpdated: string | null;
   currentTheme: string;
 };
 
-export const DEFAULT_STOREFRONT_STATUS: StorefrontStatus = {
-  storefront: "live",
-  draftStatus: "no_draft",
-  lastPublished: null,
-  lastUpdated: null,
-  currentTheme: "Craft & Cling default",
-};
+/** Absolute, human readable: "24 Aug 2026, 7:30 AM". */
+export function formatAbsolute(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+/** Relative: "12 minutes ago". Falls back to the absolute date when old. */
+export function formatRelative(iso: string | null | undefined): string {
+  if (!iso) return "Never";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "Never";
+  const diff = Date.now() - d.getTime();
+  const min = Math.round(diff / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${min} minute${min === 1 ? "" : "s"} ago`;
+  const hrs = Math.round(min / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.round(hrs / 24);
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  return formatAbsolute(iso);
+}

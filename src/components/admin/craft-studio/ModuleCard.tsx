@@ -2,9 +2,29 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Clock } from "lucide-react";
 import type { CraftModule } from "@/lib/craft-studio";
+import { formatAbsolute, formatRelative } from "@/lib/craft-studio";
 
-export function ModuleCard({ module, icon }: { module: CraftModule; icon?: ReactNode }) {
+function splitHref(href: string): { to: string; search: Record<string, string> } {
+  const [to, qs] = href.split("?");
+  const search: Record<string, string> = {};
+  if (qs) {
+    for (const [k, v] of new URLSearchParams(qs).entries()) search[k] = v;
+  }
+  return { to, search };
+}
+
+export function ModuleCard({
+  module,
+  icon,
+  lastUpdated,
+}: {
+  module: CraftModule;
+  icon?: ReactNode;
+  /** Real ISO timestamp for this module's underlying data, or null. */
+  lastUpdated?: string | null;
+}) {
   const isAvailable = module.status === "available" && !!module.href;
+  const link = module.href ? splitHref(module.href) : null;
 
   return (
     <div className="flex h-full flex-col rounded-lg border-2 border-ink bg-cream p-4">
@@ -17,13 +37,14 @@ export function ModuleCard({ module, icon }: { module: CraftModule; icon?: React
       </div>
       <p className="mb-3 text-sm text-muted-foreground">{module.description}</p>
       <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
+        <span className="inline-flex items-center gap-1" title={lastUpdated ? formatAbsolute(lastUpdated) : undefined}>
           <Clock className="h-3 w-3" />
-          {module.lastUpdated ? `Updated ${module.lastUpdated}` : "Never updated"}
+          {lastUpdated ? `Updated ${formatRelative(lastUpdated)}` : "Never updated"}
         </span>
-        {isAvailable ? (
+        {isAvailable && link ? (
           <Link
-            to={module.href!}
+            to={link.to}
+            search={link.search}
             className="inline-flex items-center gap-1 rounded border-2 border-ink bg-yellow px-3 py-1 text-xs font-bold hover:bg-yellow/80"
           >
             {module.quickActionLabel} <ArrowRight className="h-3 w-3" />

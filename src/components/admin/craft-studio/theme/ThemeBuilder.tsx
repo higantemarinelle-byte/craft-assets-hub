@@ -1,12 +1,15 @@
-// Craft Studio Theme Builder — 004D.
-// Owner-only visual editor that composes design tokens + preserved content
-// controls into a single unified surface with live preview.
+// Craft Studio Theme Builder — Shopify-style customizer shell.
+// Left: editor sidebar (header/announcement, homepage sections, footer,
+// theme settings, version history). Right: persistent live preview.
+// Backend (save draft / publish / versions) is unchanged.
 
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getRouteApi } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
+  ChevronLeft,
   ExternalLink,
   History,
   Rocket,
@@ -16,7 +19,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   adminGetTheme,
   adminSaveThemeDraft,
@@ -27,7 +29,7 @@ import {
 import { DEFAULT_THEME, mergeTheme, syncLegacyBrandFromTokens, type Theme } from "@/lib/theme";
 import { DEFAULT_DESIGN_TOKENS } from "@/lib/storefront/tokens";
 import { useAuth } from "@/lib/auth";
-import { themeQueryKeys } from "@/lib/theme-query-keys";
+import { themeQueryKeys, craftStudioQueryKeys } from "@/lib/theme-query-keys";
 
 import {
   ThemeBrandEditor,
@@ -37,12 +39,63 @@ import {
   ThemeLayoutEditor,
   ThemePresetPicker,
 } from "./DesignEditors";
-import { ThemeContentEditor } from "./ContentEditors";
+import {
+  ThemeAnnouncementEditor,
+  ThemeHeroEditor,
+  ThemeMarqueeEditor,
+  ThemeSectionSettingsEditor,
+  ThemeLegacyNavEditor,
+  ThemeLegacyFooterEditor,
+  ThemePagesEditor,
+  ThemeInventoryEditor,
+  ThemeCommerceEditor,
+  SectionsEditor,
+  sectionLabel,
+} from "./ContentEditors";
 import { ThemePreviewCanvas } from "./ThemePreviewCanvas";
+
+const routeApi = getRouteApi("/_authenticated/portal-admin/theme");
+
+type PanelId =
+  | "homepage"
+  | "hero"
+  | "marquee"
+  | "sections"
+  | "announcement"
+  | "navigation"
+  | "footer"
+  | "brand"
+  | "colors"
+  | "typography"
+  | "buttons"
+  | "layout"
+  | "presets"
+  | "pages"
+  | "inventory"
+  | "commerce"
+  | "history";
+
+/** Maps the ?panel= search param to an internal panel. */
+function panelFromSearch(panel: string | undefined): PanelId {
+  switch (panel) {
+    case "theme":
+      return "brand";
+    case "announcement":
+      return "announcement";
+    case "history":
+      return "history";
+    case "draft":
+    case "homepage":
+      return "homepage";
+    default:
+      return "homepage";
+  }
+}
 
 export function ThemeBuilder() {
   const { isOwner } = useAuth();
   const qc = useQueryClient();
+  const search = routeApi.useSearch();
 
   const getFn = useServerFn(adminGetTheme);
   const saveFn = useServerFn(adminSaveThemeDraft);
@@ -60,10 +113,17 @@ export function ThemeBuilder() {
   const [draft, setDraft] = useState<Theme | null>(null);
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState<"save" | "publish" | null>(null);
+  const [statusNote, setStatusNote] = useState<string | null>(null);
+  const [panel, setPanel] = useState<PanelId>(() => panelFromSearch((search as any)?.panel));
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+
+  // Follow ?panel= changes coming from Craft Studio module links.
+  useEffect(() => {
+    setPanel(panelFromSearch((search as any)?.panel));
+    setActiveSectionId(null);
+  }, [(search as any)?.panel]);
 
   // Hydrate once — do not stomp local edits when the query refreshes.
-  // If the theme_settings row is missing (row === null), still hydrate with
-  // DEFAULT_THEME so the editor is usable instead of stuck on "Loading…".
   useEffect(() => {
     if (isLoading || draft) return;
     if (row) {
@@ -84,6 +144,7 @@ export function ThemeBuilder() {
   const update = useMemo(() => (fn: (t: Theme) => Theme) => {
     setDraft((prev) => (prev ? fn(prev) : prev));
     setDirty(true);
+    setStatusNote(null);
   }, []);
 
   if (isLoading && !draft) {
@@ -124,9 +185,11 @@ export function ThemeBuilder() {
       await saveFn({ data: { draft: synced } });
       setDraft(synced);
       setDirty(false);
+      setStatusNote("Draft saved");
       await Promise.all([
         qc.invalidateQueries({ queryKey: themeQueryKeys.admin }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.draft }),
+        qc.invalidateQueries({ queryKey: craftStudioQueryKeys.dashboard, refetchType: "all" }),
       ]);
       toast.success("Draft saved");
     } catch (e: any) {
@@ -147,11 +210,13 @@ export function ThemeBuilder() {
       }
       await publishFn({ data: {} });
       setDirty(false);
+      setStatusNote("Live · Published just now");
       await Promise.all([
         qc.invalidateQueries({ queryKey: themeQueryKeys.admin }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.published, refetchType: "all" }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.draft }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.versions }),
+        qc.invalidateQueries({ queryKey: craftStudioQueryKeys.dashboard, refetchType: "all" }),
       ]);
       toast.success("Published live 🎉");
     } catch (e: any) {
@@ -179,14 +244,28 @@ export function ThemeBuilder() {
     update((t) => ({ ...t, tokens: DEFAULT_DESIGN_TOKENS }));
   };
 
+  const selectSection = (id: string) => {
+    setActiveSectionId(id);
+    setPanel("sections");
+  };
+
+  const activeSection = activeSectionId
+    ? draft.home.sections.find((s) => s.id === activeSectionId) ?? null
+    : null;
+
+  const statusText = dirty ? "Unsaved changes" : statusNote ?? "All changes saved";
+
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      {/* Persistent toolbar */}
+      <div className="sticky top-0 z-20 -mx-4 mb-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-cream px-4 py-3 sm:-mx-6 sm:px-6">
         <div>
-          <h1 className="text-display text-3xl">Theme Builder</h1>
+          <h1 className="text-display text-2xl">Theme Builder</h1>
           <p className="text-sm text-muted-foreground">
-            Craft Studio · Visual storefront design
-            {dirty && <span className="ml-2 rounded bg-yellow px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-ink">Unsaved</span>}
+            Craft Studio ·{" "}
+            <span className={dirty ? "rounded bg-yellow px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-ink" : "font-semibold"}>
+              {statusText}
+            </span>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -195,7 +274,7 @@ export function ThemeBuilder() {
             Save draft
           </Button>
           <a href="/?theme=draft" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-cream px-4 py-2 text-sm font-bold hover:bg-yellow">
-            <ExternalLink className="h-4 w-4" /> Full preview
+            <ExternalLink className="h-4 w-4" /> Preview
           </a>
           {isOwner && (
             <Button onClick={publish} disabled={busy !== null} className="bg-magenta text-cream hover:bg-magenta/90">
@@ -206,52 +285,185 @@ export function ThemeBuilder() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        {/* Settings panel */}
-        <div className="rounded-lg border-2 border-ink bg-cream p-4">
-          <Tabs defaultValue="brand">
-            <TabsList className="mb-4 flex w-full flex-wrap gap-1 bg-ink/5">
-              <TabsTrigger value="brand">Brand</TabsTrigger>
-              <TabsTrigger value="colors">Colours</TabsTrigger>
-              <TabsTrigger value="typography">Typography</TabsTrigger>
-              <TabsTrigger value="buttons">Buttons</TabsTrigger>
-              <TabsTrigger value="layout">Layout</TabsTrigger>
-              <TabsTrigger value="presets">Presets</TabsTrigger>
-              <TabsTrigger value="content">Content</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+        {/* Editor sidebar */}
+        <div className="space-y-4">
+          <nav className="rounded-lg border-2 border-ink bg-cream p-3">
+            <SidebarGroup label="Storefront">
+              <SidebarItem active={panel === "announcement"} onClick={() => setPanel("announcement")}>Announcement</SidebarItem>
+              <SidebarItem active={panel === "navigation"} onClick={() => setPanel("navigation")}>Header / navigation</SidebarItem>
+            </SidebarGroup>
 
-            <TabsContent value="brand"><ThemeBrandEditor theme={draft} update={update} /></TabsContent>
-            <TabsContent value="colors"><ThemeColorEditor theme={draft} update={update} /></TabsContent>
-            <TabsContent value="typography"><ThemeTypographyEditor theme={draft} update={update} /></TabsContent>
-            <TabsContent value="buttons"><ThemeButtonEditor theme={draft} update={update} /></TabsContent>
-            <TabsContent value="layout">
-              <ThemeLayoutEditor theme={draft} update={update} />
-              <div className="mt-6 border-t border-ink/10 pt-4">
-                <Button variant="outline" size="sm" onClick={resetAllDesign}>
-                  <RotateCcw className="mr-2 h-3.5 w-3.5" /> Reset ALL design tokens
-                </Button>
+            <SidebarGroup label="Homepage">
+              <SidebarItem active={panel === "homepage"} onClick={() => { setPanel("homepage"); setActiveSectionId(null); }}>Sections</SidebarItem>
+              <SidebarItem active={panel === "hero"} onClick={() => setPanel("hero")}>Hero</SidebarItem>
+              <SidebarItem active={panel === "marquee"} onClick={() => setPanel("marquee")}>Marquee</SidebarItem>
+              {draft.home.sections.map((s) => (
+                <SidebarItem
+                  key={s.id}
+                  nested
+                  active={panel === "sections" && activeSectionId === s.id}
+                  onClick={() => selectSection(s.id)}
+                >
+                  {sectionLabel(s)}
+                </SidebarItem>
+              ))}
+            </SidebarGroup>
+
+            <SidebarGroup label="Footer">
+              <SidebarItem active={panel === "footer"} onClick={() => setPanel("footer")}>Footer content</SidebarItem>
+            </SidebarGroup>
+
+            <SidebarGroup label="Theme settings">
+              <SidebarItem active={panel === "brand"} onClick={() => setPanel("brand")}>Brand</SidebarItem>
+              <SidebarItem active={panel === "colors"} onClick={() => setPanel("colors")}>Colours</SidebarItem>
+              <SidebarItem active={panel === "typography"} onClick={() => setPanel("typography")}>Typography</SidebarItem>
+              <SidebarItem active={panel === "buttons"} onClick={() => setPanel("buttons")}>Buttons</SidebarItem>
+              <SidebarItem active={panel === "layout"} onClick={() => setPanel("layout")}>Layout</SidebarItem>
+              <SidebarItem active={panel === "presets"} onClick={() => setPanel("presets")}>Presets</SidebarItem>
+            </SidebarGroup>
+
+            <SidebarGroup label="Other content">
+              <SidebarItem active={panel === "pages"} onClick={() => setPanel("pages")}>Pages</SidebarItem>
+              <SidebarItem active={panel === "inventory"} onClick={() => setPanel("inventory")}>Inventory</SidebarItem>
+              <SidebarItem active={panel === "commerce"} onClick={() => setPanel("commerce")}>Commerce</SidebarItem>
+            </SidebarGroup>
+
+            <SidebarGroup label="Publishing">
+              <SidebarItem active={panel === "history"} onClick={() => setPanel("history")}>Version history</SidebarItem>
+            </SidebarGroup>
+          </nav>
+
+          <div className="rounded-lg border-2 border-ink bg-cream p-4">
+            {panel === "sections" && activeSection && (
+              <button
+                type="button"
+                onClick={() => { setPanel("homepage"); setActiveSectionId(null); }}
+                className="mb-3 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-ink"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> Back to homepage
+              </button>
+            )}
+            <div className="mb-3 text-sm font-bold uppercase tracking-widest">
+              {panel === "sections" && activeSection ? sectionLabel(activeSection) : PANEL_TITLES[panel]}
+            </div>
+
+            {panel === "homepage" && (
+              <SectionsEditor
+                sections={draft.home.sections}
+                onChange={(sections) => update((t) => ({ ...t, home: { ...t.home, sections } }))}
+                onSelect={selectSection}
+              />
+            )}
+            {panel === "hero" && <ThemeHeroEditor theme={draft} update={update} />}
+            {panel === "marquee" && <ThemeMarqueeEditor theme={draft} update={update} />}
+            {panel === "sections" && activeSectionId && (
+              <ThemeSectionSettingsEditor theme={draft} sectionId={activeSectionId} update={update} />
+            )}
+            {panel === "announcement" && <ThemeAnnouncementEditor theme={draft} update={update} />}
+            {panel === "navigation" && (
+              <div className="space-y-3">
+                <p className="rounded border-2 border-ink/20 bg-yellow/40 p-3 text-xs">
+                  Full menu structure lives in the dedicated Navigation Builder (Craft Studio → Navigation).
+                  These legacy links are kept for backwards compatibility.
+                </p>
+                <ThemeLegacyNavEditor theme={draft} update={update} />
               </div>
-            </TabsContent>
-            <TabsContent value="presets"><ThemePresetPicker update={update} onApply={() => toast.success("Preset applied — remember to save")} /></TabsContent>
-            <TabsContent value="content" className="space-y-4">
-              <p className="rounded border-2 border-ink/20 bg-yellow/40 p-3 text-xs">
-                Existing storefront content controls — announcements, homepage, navigation, footer, pages and inventory. These will move into dedicated Craft Studio modules in later engineering tasks.
-              </p>
-              <ThemeContentEditor theme={draft} update={update} />
-            </TabsContent>
-            <TabsContent value="history">
-              <VersionPanel versions={versions as any[]} onRevert={revert} isOwner={isOwner} />
-            </TabsContent>
-          </Tabs>
+            )}
+            {panel === "footer" && (
+              <div className="space-y-3">
+                <p className="rounded border-2 border-ink/20 bg-yellow/40 p-3 text-xs">
+                  Advanced footer layout lives in the dedicated Footer Builder (Craft Studio → Footer).
+                </p>
+                <ThemeLegacyFooterEditor theme={draft} update={update} />
+              </div>
+            )}
+            {panel === "brand" && <ThemeBrandEditor theme={draft} update={update} />}
+            {panel === "colors" && <ThemeColorEditor theme={draft} update={update} />}
+            {panel === "typography" && <ThemeTypographyEditor theme={draft} update={update} />}
+            {panel === "buttons" && <ThemeButtonEditor theme={draft} update={update} />}
+            {panel === "layout" && (
+              <>
+                <ThemeLayoutEditor theme={draft} update={update} />
+                <div className="mt-6 border-t border-ink/10 pt-4">
+                  <Button variant="outline" size="sm" onClick={resetAllDesign}>
+                    <RotateCcw className="mr-2 h-3.5 w-3.5" /> Reset ALL design tokens
+                  </Button>
+                </div>
+              </>
+            )}
+            {panel === "presets" && (
+              <ThemePresetPicker update={update} onApply={() => toast.success("Preset applied — remember to save")} />
+            )}
+            {panel === "pages" && <ThemePagesEditor theme={draft} update={update} />}
+            {panel === "inventory" && <ThemeInventoryEditor theme={draft} update={update} />}
+            {panel === "commerce" && <ThemeCommerceEditor theme={draft} update={update} />}
+            {panel === "history" && <VersionPanel versions={versions as any[]} onRevert={revert} isOwner={isOwner} />}
+          </div>
         </div>
 
-        {/* Preview panel */}
-        <div className="lg:sticky lg:top-4 lg:h-fit">
+        {/* Live preview */}
+        <div className="lg:sticky lg:top-24 lg:h-fit">
           <ThemePreviewCanvas theme={draft} />
         </div>
       </div>
     </div>
+  );
+}
+
+const PANEL_TITLES: Record<PanelId, string> = {
+  homepage: "Homepage sections",
+  hero: "Hero",
+  marquee: "Marquee",
+  sections: "Section settings",
+  announcement: "Announcement bar",
+  navigation: "Header / navigation",
+  footer: "Footer",
+  brand: "Brand",
+  colors: "Colours",
+  typography: "Typography",
+  buttons: "Buttons",
+  layout: "Layout",
+  presets: "Presets",
+  pages: "Pages",
+  inventory: "Inventory",
+  commerce: "Commerce",
+  history: "Version history",
+};
+
+function SidebarGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-3 last:mb-0">
+      <div className="mb-1 px-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</div>
+      <ul className="space-y-0.5">{children}</ul>
+    </div>
+  );
+}
+
+function SidebarItem({
+  active,
+  nested,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  nested?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        aria-current={active ? "true" : undefined}
+        className={`w-full rounded px-2 py-1.5 text-left text-sm font-semibold transition-colors ${
+          nested ? "pl-6 text-[13px] font-medium" : ""
+        } ${active ? "bg-ink text-cream" : "hover:bg-ink/10"}`}
+      >
+        {children}
+      </button>
+    </li>
   );
 }
 

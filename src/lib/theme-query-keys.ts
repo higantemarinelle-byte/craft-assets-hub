@@ -7,3 +7,7 @@ export const themeQueryKeys = {
   published: ["theme", "published"] as const,
   versions: ["theme", "versions"] as const,
 };
+
+export const craftStudioQueryKeys = {
+  dashboard: ["craft-studio", "dashboard"] as const,
+};
