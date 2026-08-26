@@ -114,6 +114,52 @@ export const CRAFT_MODULES: CraftModule[] = [
   },
 ];
 
+// ---------- Grouped dashboard ----------
+// The dashboard shows three real groups instead of one card per Theme
+// Builder panel; the builder's own sidebar already covers that navigation.
+
+export type CraftGroupId = "storefront_editor" | "media_library" | "publishing";
+
+export type CraftGroup = {
+  id: CraftGroupId;
+  title: string;
+  description: string;
+  primary: { label: string; href: string };
+  links: { label: string; href: string }[];
+};
+
+export const CRAFT_GROUPS: CraftGroup[] = [
+  {
+    id: "storefront_editor",
+    title: "Storefront Editor",
+    description: "Theme, homepage sections, hero, announcement bar, navigation and footer.",
+    primary: { label: "Open Storefront Editor", href: "/portal-admin/theme" },
+    links: [
+      { label: "Homepage", href: "/portal-admin/theme?panel=homepage" },
+      { label: "Theme", href: "/portal-admin/theme?panel=theme" },
+      { label: "Announcement", href: "/portal-admin/theme?panel=announcement" },
+      { label: "Navigation", href: "/portal-admin/craft-studio/navigation" },
+      { label: "Footer", href: "/portal-admin/craft-studio/footer" },
+    ],
+  },
+  {
+    id: "media_library",
+    title: "Media Library",
+    description: "Banners, gallery images, logos and other storefront media assets.",
+    primary: { label: "Open library", href: "/portal-admin/craft-studio/assets" },
+    links: [],
+  },
+  {
+    id: "publishing",
+    title: "Publishing",
+    description: "Review the current draft, publish it live, and browse version history.",
+    primary: { label: "Review & publish", href: "/portal-admin/theme?panel=draft" },
+    links: [{ label: "Version history", href: "/portal-admin/theme?panel=history" }],
+  },
+];
+
+export const CRAFT_COMING_SOON = ["Gallery", "SEO", "Campaigns", "AI assistants"];
+
 export type StorefrontStatus = {
   storefront: "live" | "offline";
   hasUnpublishedChanges: boolean;
