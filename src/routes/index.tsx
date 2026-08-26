@@ -63,6 +63,26 @@ function CtaLink({
 }
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Custom DTF Transfers & Direct to Film Printing | Craft & Cling" },
+      {
+        name: "description",
+        content:
+          "Craft & Cling prints premium custom DTF transfers and gang sheets. Upload your artwork, submit a project, and we press it onto your garments.",
+      },
+      { property: "og:title", content: "Custom DTF Transfers & Direct to Film Printing | Craft & Cling" },
+      {
+        property: "og:description",
+        content:
+          "Premium DTF transfers and gang sheets for creators, businesses, and brands. Crafted with care. Made to cling.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://craftandcling.shop/" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://craftandcling.shop/" }],
+  }),
   ssr: false,
   component: Home,
 });
