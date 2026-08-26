@@ -1,16 +1,48 @@
-import { useState } from "react";
-import type { Theme } from "@/lib/theme";
+// Live storefront preview for the Theme Builder. Renders the real editable
+// homepage — announcement, header, hero, marquee, every homepage section in
+// order, and the footer — from the unsaved draft theme, and focuses the
+// region matching the editor panel the user is currently in.
+
+import { useEffect, useRef, useState } from "react";
+import type { Theme, ThemeHomeSection } from "@/lib/theme";
 import { StorefrontThemeScope } from "@/components/site/StorefrontThemeScope";
 import { Button } from "@/components/ui/button";
 import { Monitor, Tablet, Smartphone } from "lucide-react";
+import { currentYearReplace } from "@/lib/storefront/site-config";
 
 type Device = "desktop" | "tablet" | "mobile";
 const WIDTHS: Record<Device, number> = { desktop: 1200, tablet: 834, mobile: 390 };
 
-export function ThemePreviewCanvas({ theme }: { theme: Theme }) {
+/** Stable identifier for a previewable storefront region. */
+export type PreviewFocus = string | null;
+
+export function sectionRegionId(sectionId: string) {
+  return `section:${sectionId}`;
+}
+
+export function ThemePreviewCanvas({
+  theme,
+  focus = null,
+}: {
+  theme: Theme;
+  /** Region to scroll to and outline — e.g. "hero" or "section:featured". */
+  focus?: PreviewFocus;
+}) {
   const [device, setDevice] = useState<Device>("desktop");
+  const scrollRef = useRef<HTMLDivElement>(null);
   const width = WIDTHS[device];
   const hero = theme.home.hero;
+
+  // Scroll the focused region into view inside the preview viewport.
+  useEffect(() => {
+    if (!focus) return;
+    const container = scrollRef.current;
+    if (!container) return;
+    const el = container.querySelector<HTMLElement>(`[data-region="${CSS.escape(focus)}"]`);
+    if (!el) return;
+    const top = el.offsetTop - 12;
+    container.scrollTo({ top: top < 0 ? 0 : top, behavior: "smooth" });
+  }, [focus, device]);
 
   return (
     <div className="rounded-lg border-2 border-ink bg-muted/40 p-3">
@@ -28,66 +60,252 @@ export function ThemePreviewCanvas({ theme }: { theme: Theme }) {
           </Button>
         </div>
       </div>
-      <div className="mx-auto overflow-hidden rounded-md border-2 border-ink bg-background transition-all"
+      <div
+        ref={scrollRef}
+        className="mx-auto max-h-[70vh] overflow-y-auto overflow-x-hidden rounded-md border-2 border-ink bg-background transition-all"
         style={{ maxWidth: width, width: "100%" }}
       >
         <StorefrontThemeScope tokens={theme.tokens}>
           <div style={{ background: "var(--background)", color: "var(--foreground)", fontFamily: "var(--font-sans)", fontSize: "var(--font-base-size)" }}>
             {/* Announcement */}
-            {theme.announcement.enabled && theme.announcement.text && (
-              <div style={{ background: "var(--accent)", color: "var(--accent-foreground)" }} className="px-4 py-2 text-center text-xs font-semibold">
-                {theme.announcement.text}
-              </div>
-            )}
+            <Region id="announcement" focus={focus}>
+              {theme.announcement.enabled && theme.announcement.text ? (
+                <div style={{ background: "var(--accent)", color: "var(--accent-foreground)" }} className="px-4 py-2 text-center text-xs font-semibold">
+                  {theme.announcement.text}
+                </div>
+              ) : (
+                <HiddenNote label="Announcement bar hidden" />
+              )}
+            </Region>
+
             {/* Header */}
-            <div className="flex items-center justify-between border-b-2 px-4 py-3" style={{ borderColor: "var(--border)" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)", letterSpacing: "var(--font-heading-letter-spacing)" }} className="text-xl">
-                {theme.brand.name}
+            <Region id="navigation" focus={focus}>
+              <div className="flex items-center justify-between gap-3 border-b-2 px-4 py-3" style={{ borderColor: "var(--border)" }}>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)", letterSpacing: "var(--font-heading-letter-spacing)" }} className="text-xl">
+                  {theme.brand.name}
+                </div>
+                <div className="flex flex-wrap justify-end gap-3 text-xs">
+                  {(theme.navigation?.links ?? []).filter((l) => l.enabled).slice(0, 6).map((l) => (
+                    <span key={l.id}>{l.label}</span>
+                  ))}
+                  {theme.navigation?.showProjectCart !== false && (
+                    <span
+                      className="rounded px-2 py-0.5 font-semibold"
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)", borderRadius: "var(--button-radius)" }}
+                    >
+                      {theme.navigation?.projectCartLabel || "Project Cart"}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="hidden gap-4 text-xs md:flex">
-                {theme.nav.items.slice(0, 4).map((n) => <span key={n.label}>{n.label}</span>)}
-              </div>
-            </div>
+            </Region>
+
             {/* Hero */}
-            <div className="px-6 py-10">
-              <div className="mb-2 inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest" style={{ background: "var(--highlight, var(--secondary))", color: "var(--foreground)" }}>
-                {hero.eyebrow}
+            <Region id="hero" focus={focus}>
+              <div className="px-6 py-10">
+                <div className="mb-2 inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest" style={{ background: "var(--highlight, var(--secondary))", color: "var(--foreground)" }}>
+                  {hero.eyebrow}
+                </div>
+                <h1 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)", letterSpacing: "var(--font-heading-letter-spacing)" }} className="text-3xl leading-tight md:text-5xl">
+                  <span style={{ color: hero.headlineAColor ?? "var(--foreground)" }}>{hero.headlineA}</span>{" "}
+                  <span style={{ color: hero.headlineHighlightAColor ?? "var(--accent)" }}>{hero.headlineHighlightA}</span>{" "}
+                  <span style={{ color: hero.headlineBColor ?? "var(--foreground)" }}>{hero.headlineB}</span>{" "}
+                  <span style={{ color: hero.headlineHighlightBColor ?? "var(--secondary)" }}>{hero.headlineHighlightB}</span>
+                </h1>
+                <p className="mt-3 max-w-md text-sm opacity-80">{hero.body}</p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <PreviewButton theme={theme} variant="primary">{hero.ctaPrimaryLabel}</PreviewButton>
+                  <PreviewButton theme={theme} variant="secondary">{hero.ctaSecondaryLabel}</PreviewButton>
+                </div>
               </div>
-              <h1 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)", letterSpacing: "var(--font-heading-letter-spacing)" }} className="text-3xl leading-tight md:text-5xl">
-                <span style={{ color: hero.headlineAColor ?? "var(--foreground)" }}>{hero.headlineA}</span>{" "}
-                <span style={{ color: hero.headlineHighlightAColor ?? "var(--accent)" }}>{hero.headlineHighlightA}</span>{" "}
-                <span style={{ color: hero.headlineBColor ?? "var(--foreground)" }}>{hero.headlineB}</span>{" "}
-                <span style={{ color: hero.headlineHighlightBColor ?? "var(--secondary)" }}>{hero.headlineHighlightB}</span>
-              </h1>
-              <p className="mt-3 max-w-md text-sm opacity-80">{hero.body}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <PreviewButton theme={theme} variant="primary">{hero.ctaPrimaryLabel}</PreviewButton>
-                <PreviewButton theme={theme} variant="secondary">{hero.ctaSecondaryLabel}</PreviewButton>
-                <PreviewButton theme={theme} variant="primary" disabled>Disabled</PreviewButton>
-              </div>
-            </div>
-            {/* Card + form + badge */}
-            <div className="grid gap-4 px-6 pb-8 md:grid-cols-3">
-              <div className="rounded p-4" style={{ background: "var(--card)", color: "var(--card-foreground)", border: "1px solid var(--border)", borderRadius: "var(--card-radius)" }}>
-                <div className="text-xs font-bold uppercase" style={{ color: "var(--accent)" }}>New</div>
-                <div className="mt-1 text-lg font-semibold">Product card</div>
-                <div className="text-xs opacity-70">Sample copy for a storefront card.</div>
-              </div>
-              <div className="rounded p-4" style={{ background: "var(--muted)", color: "var(--muted-foreground)", borderRadius: "var(--card-radius)" }}>
-                <label className="text-xs font-semibold">Email</label>
-                <input className="mt-1 w-full rounded px-2 py-1 text-sm" style={{ background: "var(--background)", color: "var(--foreground)", border: "1px solid var(--border)", borderRadius: "var(--radius)" }} placeholder="you@example.com" readOnly />
-              </div>
-              <div className="flex items-center gap-2 rounded p-4" style={{ background: "var(--secondary)", color: "var(--secondary-foreground)", borderRadius: "var(--card-radius)" }}>
-                <span className="text-xs font-bold uppercase">Badge</span>
-                <span className="text-sm">Featured</span>
-              </div>
-            </div>
-            {/* Footer sample */}
-            <div className="px-6 py-4 text-center text-[10px]" style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}>
-              {theme.footer.legal || `© ${theme.brand.name}`}
-            </div>
+            </Region>
+
+            {/* Marquee */}
+            <Region id="marquee" focus={focus}>
+              {theme.home.marquee.enabled && theme.home.marquee.items.length > 0 ? (
+                <div className="overflow-hidden border-y-2 px-4 py-2" style={{ borderColor: "var(--border)", background: "var(--secondary)", color: "var(--secondary-foreground)" }}>
+                  <div className="flex flex-wrap gap-4 text-[10px] font-semibold uppercase tracking-widest">
+                    {theme.home.marquee.items.filter(Boolean).map((s, i) => <span key={i}>{s}</span>)}
+                  </div>
+                </div>
+              ) : (
+                <HiddenNote label="Marquee hidden" />
+              )}
+            </Region>
+
+            {/* Homepage sections in saved order */}
+            {theme.home.sections.map((section) => (
+              <Region key={section.id} id={sectionRegionId(section.id)} focus={focus}>
+                {section.enabled ? (
+                  <SectionPreview section={section} theme={theme} />
+                ) : (
+                  <HiddenNote label={`${(section as any).title || section.type} hidden`} />
+                )}
+              </Region>
+            ))}
+
+            {/* Footer */}
+            <Region id="footer" focus={focus}>
+              {theme.footerV2?.enabled === false ? (
+                <HiddenNote label="Footer hidden" />
+              ) : (
+                <div className="px-6 py-6" style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}>
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <div>
+                      <div className="text-sm font-bold">{theme.footerV2?.businessName || theme.brand.name}</div>
+                      {theme.footerV2?.description && (
+                        <p className="mt-1 text-[10px] opacity-80">{theme.footerV2.description}</p>
+                      )}
+                    </div>
+                    {(theme.footerV2?.columns ?? []).filter((c) => c.enabled).slice(0, 2).map((col) => (
+                      <div key={col.id}>
+                        <div className="text-[10px] font-bold uppercase tracking-widest opacity-80">{col.heading}</div>
+                        <ul className="mt-1 space-y-0.5 text-[10px]">
+                          {col.links.filter((l) => l.enabled).map((l) => <li key={l.id}>{l.label}</li>)}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 border-t pt-3 text-center text-[10px] opacity-70" style={{ borderColor: "currentColor" }}>
+                    {currentYearReplace(theme.footerV2?.copyrightText || `© {year} ${theme.brand.name}`)}
+                  </div>
+                </div>
+              )}
+            </Region>
           </div>
         </StorefrontThemeScope>
+      </div>
+    </div>
+  );
+}
+
+/** Wraps a previewable storefront area with a focus outline + scroll target. */
+function Region({ id, focus, children }: { id: string; focus: PreviewFocus; children: React.ReactNode }) {
+  const active = focus === id;
+  return (
+    <div
+      data-region={id}
+      className="relative scroll-mt-3"
+      style={active ? { outline: "2px solid var(--accent)", outlineOffset: "-2px" } : undefined}
+    >
+      {children}
+    </div>
+  );
+}
+
+function HiddenNote({ label }: { label: string }) {
+  return (
+    <div className="px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-widest opacity-50">
+      {label}
+    </div>
+  );
+}
+
+function SectionHeading({ eyebrow, title }: { eyebrow?: string; title: string }) {
+  return (
+    <div className="mb-3">
+      {eyebrow && (
+        <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--accent)" }}>{eyebrow}</div>
+      )}
+      <h2
+        className="text-xl"
+        style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)", letterSpacing: "var(--font-heading-letter-spacing)" }}
+      >
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+function SectionPreview({ section, theme }: { section: ThemeHomeSection; theme: Theme }) {
+  const cardStyle: React.CSSProperties = {
+    background: "var(--card)",
+    color: "var(--card-foreground)",
+    border: "1px solid var(--border)",
+    borderRadius: "var(--card-radius)",
+  };
+
+  if (section.type === "categories") {
+    return (
+      <div className="px-6 py-6">
+        <SectionHeading title={section.title || "Explore by category"} />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {["Apparel", "Gang sheets", "Custom prints", "Accessories"].map((name) => (
+            <div key={name} className="p-3 text-xs font-semibold" style={cardStyle}>
+              {name}
+              <div className="mt-1 text-[10px] font-normal opacity-60">Sample category</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (section.type === "featured") {
+    return (
+      <div className="px-6 py-6">
+        <SectionHeading eyebrow={section.eyebrow} title={section.title || "Popular designs"} />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="overflow-hidden" style={cardStyle}>
+              <div className="h-14 w-full" style={{ background: "var(--muted)" }} />
+              <div className="p-2">
+                <div className="text-[11px] font-semibold">Sample product {n}</div>
+                <div className="text-[10px] opacity-60">$00.00</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (section.type === "how") {
+    return (
+      <div className="px-6 py-6" style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}>
+        <SectionHeading eyebrow={section.eyebrow} title={section.title || "How it works"} />
+        <div className="grid gap-3 sm:grid-cols-4">
+          {["Explore products", "Upload artwork", "Submit project", "We review & contact"].map((step, i) => (
+            <div key={step}>
+              <div className="text-lg font-black" style={{ color: "var(--accent)" }}>{`0${i + 1}`}</div>
+              <div className="text-[11px] font-semibold">{step}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (section.type === "testimonials") {
+    const items = section.items?.length ? section.items : [{ quote: "The whites are actually white.", author: "Maya R." }];
+    return (
+      <div className="px-6 py-6">
+        <SectionHeading title={section.title || "Makers who create with us"} />
+        <div className="grid gap-3 sm:grid-cols-3">
+          {items.slice(0, 3).map((t, i) => (
+            <blockquote key={i} className="p-3" style={cardStyle}>
+              <p className="text-[11px] leading-snug">“{t.quote}”</p>
+              <footer className="mt-2 text-[10px] uppercase tracking-widest opacity-60">— {t.author}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // banner
+  return (
+    <div className="px-6 py-6">
+      <div className="p-6 text-center" style={{ background: "var(--secondary)", color: "var(--secondary-foreground)", borderRadius: "var(--card-radius)" }}>
+        {section.title && (
+          <h2 className="text-xl" style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)" }}>{section.title}</h2>
+        )}
+        {section.body && <p className="mx-auto mt-2 max-w-md text-xs opacity-80">{section.body}</p>}
+        {section.ctaLabel && (
+          <div className="mt-3 flex justify-center">
+            <PreviewButton theme={theme} variant="primary">{section.ctaLabel}</PreviewButton>
+          </div>
+        )}
       </div>
     </div>
   );

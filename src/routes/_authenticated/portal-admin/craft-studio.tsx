@@ -3,25 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { isOwnerUser } from "@/lib/permissions";
-import { CRAFT_MODULES, type CraftModuleId, type StorefrontStatus } from "@/lib/craft-studio";
+import {
+  CRAFT_GROUPS,
+  CRAFT_COMING_SOON,
+  type CraftGroupId,
+  type StorefrontStatus,
+} from "@/lib/craft-studio";
 import { adminGetCraftStudioStatus } from "@/lib/craft-studio.functions";
 import { craftStudioQueryKeys } from "@/lib/theme-query-keys";
 import { ModuleCard } from "@/components/admin/craft-studio/ModuleCard";
 import { StatusPanel } from "@/components/admin/craft-studio/StatusPanel";
-import { AIActions } from "@/components/admin/craft-studio/AIActions";
-import {
-  Palette,
-  LayoutTemplate,
-  Menu,
-  PanelBottom,
-  Megaphone,
-  Images,
-  Search,
-  FolderOpen,
-  CalendarDays,
-  FileEdit,
-  Rocket,
-} from "lucide-react";
+import { Palette, FolderOpen, Rocket } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/portal-admin/craft-studio")({
   ssr: false,
@@ -35,18 +27,10 @@ export const Route = createFileRoute("/_authenticated/portal-admin/craft-studio"
   component: CraftStudioLanding,
 });
 
-const ICONS: Record<string, React.ReactNode> = {
-  homepage: <LayoutTemplate className="h-5 w-5" />,
-  theme: <Palette className="h-5 w-5" />,
-  navigation: <Menu className="h-5 w-5" />,
-  footer: <PanelBottom className="h-5 w-5" />,
-  announcement: <Megaphone className="h-5 w-5" />,
-  gallery: <Images className="h-5 w-5" />,
-  seo: <Search className="h-5 w-5" />,
+const ICONS: Record<CraftGroupId, React.ReactNode> = {
+  storefront_editor: <Palette className="h-5 w-5" />,
   media_library: <FolderOpen className="h-5 w-5" />,
-  campaigns: <CalendarDays className="h-5 w-5" />,
-  drafts: <FileEdit className="h-5 w-5" />,
-  publish: <Rocket className="h-5 w-5" />,
+  publishing: <Rocket className="h-5 w-5" />,
 };
 
 function CraftStudioLanding() {
@@ -65,20 +49,14 @@ function CraftStudioLanding() {
     currentTheme: data?.themeName ?? "—",
   };
 
-  const moduleTimestamp = (id: CraftModuleId): string | null => {
+  const groupTimestamp = (id: CraftGroupId): string | null => {
     if (!data) return null;
     switch (id) {
       case "media_library":
         return data.assetsUpdatedAt;
-      case "publish":
+      case "publishing":
         return data.publishedAt ?? data.lastVersionAt;
-      case "drafts":
-        return data.draftUpdatedAt;
-      case "homepage":
-      case "theme":
-      case "navigation":
-      case "footer":
-      case "announcement":
+      case "storefront_editor":
         return data.draftUpdatedAt ?? data.updatedAt;
       default:
         return null;
@@ -103,15 +81,17 @@ function CraftStudioLanding() {
       <StatusPanel status={status} loading={isLoading || isFetching} />
 
       <div>
-        <div className="mb-3 text-sm font-bold uppercase tracking-widest">Modules</div>
+        <div className="mb-3 text-sm font-bold uppercase tracking-widest">Areas</div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {CRAFT_MODULES.map((m) => (
-            <ModuleCard key={m.id} module={m} icon={ICONS[m.id]} lastUpdated={moduleTimestamp(m.id)} />
+          {CRAFT_GROUPS.map((g) => (
+            <ModuleCard key={g.id} group={g} icon={ICONS[g.id]} lastUpdated={groupTimestamp(g.id)} />
           ))}
         </div>
       </div>
 
-      <AIActions />
+      <p className="text-xs text-muted-foreground">
+        Coming soon: {CRAFT_COMING_SOON.join(" · ")}.
+      </p>
     </div>
   );
 }

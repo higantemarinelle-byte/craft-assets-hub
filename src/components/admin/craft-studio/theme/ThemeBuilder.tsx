@@ -52,7 +52,7 @@ import {
   SectionsEditor,
   sectionLabel,
 } from "./ContentEditors";
-import { ThemePreviewCanvas } from "./ThemePreviewCanvas";
+import { ThemePreviewCanvas, sectionRegionId, type PreviewFocus } from "./ThemePreviewCanvas";
 
 const routeApi = getRouteApi("/_authenticated/portal-admin/theme");
 
@@ -255,6 +255,25 @@ export function ThemeBuilder() {
 
   const statusText = dirty ? "Unsaved changes" : statusNote ?? "All changes saved";
 
+  // Which storefront region the preview should focus for the current panel.
+  const previewFocus: PreviewFocus = (() => {
+    if (panel === "sections" && activeSectionId) return sectionRegionId(activeSectionId);
+    switch (panel) {
+      case "announcement":
+        return "announcement";
+      case "navigation":
+        return "navigation";
+      case "hero":
+        return "hero";
+      case "marquee":
+        return "marquee";
+      case "footer":
+        return "footer";
+      default:
+        return null;
+    }
+  })();
+
   return (
     <div>
       {/* Persistent toolbar */}
@@ -404,7 +423,7 @@ export function ThemeBuilder() {
 
         {/* Live preview */}
         <div className="lg:sticky lg:top-24 lg:h-fit">
-          <ThemePreviewCanvas theme={draft} />
+          <ThemePreviewCanvas theme={draft} focus={previewFocus} />
         </div>
       </div>
     </div>
