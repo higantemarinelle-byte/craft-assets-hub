@@ -59,6 +59,7 @@ function Shop() {
           className="max-w-xs border-2 border-ink bg-cream"
         />
         <select
+          aria-label="Sort products"
           value={searchParams.sort ?? "featured"}
           onChange={(e) => navigate({ search: (s: any) => ({ ...s, sort: e.target.value as any }) })}
           className="rounded-md border-2 border-ink bg-cream px-3 py-2 text-sm font-medium"
