@@ -423,7 +423,7 @@ export function ThemeBuilder() {
 
         {/* Live preview */}
         <div className="lg:sticky lg:top-24 lg:h-fit">
-          <ThemePreviewCanvas theme={draft} />
+          <ThemePreviewCanvas theme={draft} focus={previewFocus} />
         </div>
       </div>
     </div>
