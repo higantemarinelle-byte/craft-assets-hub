@@ -263,7 +263,7 @@ function Home() {
                 {section.body && <p className="mx-auto mt-3 max-w-2xl text-lg">{section.body}</p>}
                 {section.ctaHref && (
                   <a href={section.ctaHref} className="mt-6 inline-flex items-center gap-2 rounded-md border-2 border-ink bg-ink px-6 py-3 text-sm font-bold text-cream hover:bg-magenta">
-                    {section.ctaLabel ?? "Learn more"} <ArrowRight className="h-4 w-4" />
+                    {section.ctaLabel ?? "Start a DTF transfer project"} <ArrowRight className="h-4 w-4" />
                   </a>
                 )}
               </div>
