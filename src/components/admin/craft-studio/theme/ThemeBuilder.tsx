@@ -255,6 +255,25 @@ export function ThemeBuilder() {
 
   const statusText = dirty ? "Unsaved changes" : statusNote ?? "All changes saved";
 
+  // Which storefront region the preview should focus for the current panel.
+  const previewFocus: PreviewFocus = (() => {
+    if (panel === "sections" && activeSectionId) return sectionRegionId(activeSectionId);
+    switch (panel) {
+      case "announcement":
+        return "announcement";
+      case "navigation":
+        return "navigation";
+      case "hero":
+        return "hero";
+      case "marquee":
+        return "marquee";
+      case "footer":
+        return "footer";
+      default:
+        return null;
+    }
+  })();
+
   return (
     <div>
       {/* Persistent toolbar */}
