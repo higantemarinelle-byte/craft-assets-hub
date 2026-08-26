@@ -6,4 +6,4 @@ Disallow: /cart
 Disallow: /checkout
 Disallow: /auth
 
-Sitemap: /sitemap.xml
+Sitemap: https://craftandcling.shop/sitemap.xml
