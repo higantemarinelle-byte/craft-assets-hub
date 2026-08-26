@@ -261,6 +261,7 @@ function GangSheet() {
                     min={1}
                     max={sheetW}
                     value={d.w}
+                    aria-label={`Width in inches for ${d.name}`}
                     onChange={(e) => resize(d.id, +e.target.value)}
                     className="w-14 rounded border border-ink px-1 text-xs"
                   />
