@@ -63,6 +63,26 @@ function CtaLink({
 }
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Custom DTF Transfers & Direct to Film Printing | Craft & Cling" },
+      {
+        name: "description",
+        content:
+          "Craft & Cling prints premium custom DTF transfers and gang sheets. Upload your artwork, submit a project, and we press it onto your garments.",
+      },
+      { property: "og:title", content: "Custom DTF Transfers & Direct to Film Printing | Craft & Cling" },
+      {
+        property: "og:description",
+        content:
+          "Premium DTF transfers and gang sheets for creators, businesses, and brands. Crafted with care. Made to cling.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://craftandcling.shop/" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://craftandcling.shop/" }],
+  }),
   ssr: false,
   component: Home,
 });
@@ -243,7 +263,7 @@ function Home() {
                 {section.body && <p className="mx-auto mt-3 max-w-2xl text-lg">{section.body}</p>}
                 {section.ctaHref && (
                   <a href={section.ctaHref} className="mt-6 inline-flex items-center gap-2 rounded-md border-2 border-ink bg-ink px-6 py-3 text-sm font-bold text-cream hover:bg-magenta">
-                    {section.ctaLabel ?? "Learn more"} <ArrowRight className="h-4 w-4" />
+                    {section.ctaLabel ?? "Start a DTF transfer project"} <ArrowRight className="h-4 w-4" />
                   </a>
                 )}
               </div>

@@ -24,19 +24,57 @@ export const Route = createFileRoute("/shop/$slug")({
     });
     return { product };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: [{ title: "Product — Craft & Cling" }] };
     const p = loaderData.product;
     const first = p.images?.[0];
     // Only surface direct URLs in og:image — asset:<id> refs need signing.
     const img = first && !first.startsWith("asset:") ? first : undefined;
+    const url = `https://craftandcling.shop/shop/${params.slug}`;
+    const variants = (p.variants ?? []) as Array<{ price: number; stock: number }>;
+    const prices = variants.map((v) => Number(v.price)).filter((n) => isFinite(n));
+    const inStock = variants.some((v) => Number(v.stock) > 0);
+    const description = p.description?.slice(0, 155) ?? `${p.name} DTF transfer`;
     return {
       meta: [
         { title: `${p.name} — Craft & Cling` },
-        { name: "description", content: p.description?.slice(0, 155) ?? `${p.name} DTF transfer` },
+        { name: "description", content: description },
         { property: "og:title", content: `${p.name} — Craft & Cling` },
-        { property: "og:description", content: p.description?.slice(0, 155) ?? `${p.name} DTF transfer` },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
         ...(img ? [{ property: "og:image", content: img } as any, { name: "twitter:image", content: img } as any] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: p.name,
+            description,
+            ...(img ? { image: [img] } : {}),
+            url,
+            brand: { "@type": "Brand", name: "Craft & Cling" },
+            ...(prices.length
+              ? {
+                  offers: {
+                    "@type": "AggregateOffer",
+                    priceCurrency: "USD",
+                    lowPrice: Math.min(...prices).toFixed(2),
+                    highPrice: Math.max(...prices).toFixed(2),
+                    offerCount: prices.length,
+                    availability: inStock
+                      ? "https://schema.org/InStock"
+                      : "https://schema.org/OutOfStock",
+                    url,
+                  },
+                }
+              : {}),
+          }),
+        },
       ],
     };
   },

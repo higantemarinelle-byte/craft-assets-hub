@@ -232,10 +232,10 @@ export const DEFAULT_THEME: Theme = {
   home: {
     hero: {
       eyebrow: "Custom DTF · Made to order",
-      headlineA: "Bring Your",
-      headlineHighlightA: "Ideas",
-      headlineB: "to",
-      headlineHighlightB: "Life.",
+      headlineA: "Custom",
+      headlineHighlightA: "DTF Transfers",
+      headlineB: "&",
+      headlineHighlightB: "Direct to Film Printing",
       headlineAColor: null,
       headlineHighlightAColor: null,
       headlineBColor: null,

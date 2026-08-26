@@ -261,6 +261,7 @@ function GangSheet() {
                     min={1}
                     max={sheetW}
                     value={d.w}
+                    aria-label={`Width in inches for ${d.name}`}
                     onChange={(e) => resize(d.id, +e.target.value)}
                     className="w-14 rounded border border-ink px-1 text-xs"
                   />
@@ -302,10 +303,10 @@ function GangSheet() {
             <p className="mt-1 text-sm text-muted-foreground">We'll review the artwork and confirm your quote by email.</p>
 
             <div className="mt-4 grid gap-3">
-              <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Jane Doe" /></div>
-              <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="jane@example.com" /></div>
-              <div><Label>Phone (optional)</Label><Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} /></div>
-              <div><Label>Notes (optional)</Label><Textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Anything we should know about colours, deadlines, etc." /></div>
+              <div><Label htmlFor="gs-name">Name</Label><Input id="gs-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Jane Doe" /></div>
+              <div><Label htmlFor="gs-email">Email</Label><Input id="gs-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="jane@example.com" /></div>
+              <div><Label htmlFor="gs-phone">Phone (optional)</Label><Input id="gs-phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} /></div>
+              <div><Label htmlFor="gs-notes">Notes (optional)</Label><Textarea id="gs-notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Anything we should know about colours, deadlines, etc." /></div>
             </div>
 
             <div className="mt-4 rounded border-2 border-ink/20 bg-white p-3 text-sm">
