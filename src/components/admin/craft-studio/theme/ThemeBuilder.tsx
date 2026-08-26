@@ -52,7 +52,7 @@ import {
   SectionsEditor,
   sectionLabel,
 } from "./ContentEditors";
-import { ThemePreviewCanvas } from "./ThemePreviewCanvas";
+import { ThemePreviewCanvas, sectionRegionId, type PreviewFocus } from "./ThemePreviewCanvas";
 
 const routeApi = getRouteApi("/_authenticated/portal-admin/theme");
 
