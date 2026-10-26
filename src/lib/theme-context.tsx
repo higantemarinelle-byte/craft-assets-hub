@@ -7,7 +7,19 @@ import { designTokensToCssVariables } from "./storefront/tokens";
 import { buildGoogleFontsHref } from "./storefront/fonts";
 import { themeQueryKeys } from "./theme-query-keys";
 
-const ThemeCtx = createContext<{ theme: Theme; isDraftPreview: boolean }>({ theme: DEFAULT_THEME, isDraftPreview: false });
+type PublishedStatus = "loading" | "ok" | "empty" | "error";
+type ThemeCtxValue = {
+  theme: Theme;
+  isDraftPreview: boolean;
+  publishedStatus: PublishedStatus;
+  publishedAt: string | null;
+};
+const ThemeCtx = createContext<ThemeCtxValue>({
+  theme: DEFAULT_THEME,
+  isDraftPreview: false,
+  publishedStatus: "loading",
+  publishedAt: null,
+});
 
 function useIsDraftPreview() {
   if (typeof window === "undefined") return false;
@@ -29,6 +41,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
+    // Gentle freshness check for already-open tabs (paused when hidden).
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
   });
   const { data: adminData } = useQuery({
     queryKey: themeQueryKeys.draft,
@@ -38,11 +53,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     refetchOnMount: "always",
   });
 
+  const publishedStatus: PublishedStatus = data ? ((data as any).status ?? "ok") : "loading";
+  useEffect(() => {
+    if (publishedStatus === "error") {
+      console.error("[ThemeProvider] Published theme failed to load — showing default theme as a safe fallback.");
+    }
+  }, [publishedStatus]);
+
   const theme = useMemo(() => {
-    if (draftPreview && adminData) return mergeTheme(adminData.draft);
-    if (data) return mergeTheme(data.theme);
+    if (draftPreview && adminData) return mergeTheme((adminData as any).draft);
+    if (data && publishedStatus === "ok") return mergeTheme(data.theme as any);
     return DEFAULT_THEME;
-  }, [data, adminData, draftPreview]);
+  }, [data, adminData, draftPreview, publishedStatus]);
 
   const cssText = useMemo(() => {
     const vars = designTokensToCssVariables(theme.tokens);

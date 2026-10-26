@@ -38,32 +38,49 @@ async function serviceClient(): Promise<any> {
   return supabaseAdmin;
 }
 
+export type PublishedThemeResult = {
+  status: "ok" | "empty" | "error";
+  theme: Record<string, unknown>;
+  published_at: string | null;
+};
+
 // Public: read published theme JSON for the storefront.
 // Uses the centralized server-only admin client because theme_settings RLS
-// permits SELECT only to staff. We deliberately return only the published
-// fields — never draft, updated_by, or other internal metadata.
-export const getPublishedTheme = createServerFn({ method: "GET" }).handler(async () => {
-  try {
-    const admin = await serviceClient();
-    const { data, error } = await admin
-      .from("theme_settings" as any)
-      .select("published, published_at")
-      .limit(1)
-      .maybeSingle();
-    if (error) {
-      console.error("[getPublishedTheme] supabase error:", {
-        message: error.message,
-        code: (error as any).code,
-        details: (error as any).details,
-      });
-      return { theme: {}, published_at: null };
+// permits SELECT only to staff. Only published fields are returned.
+// Failures are reported as status "error" — never disguised as an empty theme.
+export const getPublishedTheme = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublishedThemeResult> => {
+    try {
+      const { setResponseHeader } = await import("@tanstack/react-start/server");
+      setResponseHeader("Cache-Control", "no-store");
+    } catch {
+      /* header is best-effort */
     }
-    return { theme: (data?.published as any) ?? {}, published_at: data?.published_at ?? null };
-  } catch (e: any) {
-    console.error("[getPublishedTheme] failed to load published theme:", e?.message ?? e);
-    return { theme: {}, published_at: null };
-  }
-});
+    try {
+      const admin = await serviceClient();
+      const { data, error } = await admin
+        .from("theme_settings" as any)
+        .select("published, published_at")
+        .limit(1)
+        .maybeSingle();
+      if (error) {
+        console.error("[getPublishedTheme] supabase error:", {
+          message: error.message,
+          code: (error as any).code,
+        });
+        return { status: "error", theme: {}, published_at: null };
+      }
+      const published = (data?.published as any) ?? null;
+      if (!published || Object.keys(published).length === 0) {
+        return { status: "empty", theme: {}, published_at: data?.published_at ?? null };
+      }
+      return { status: "ok", theme: published, published_at: data?.published_at ?? null };
+    } catch (e: any) {
+      console.error("[getPublishedTheme] failed to load published theme:", e?.message ?? String(e));
+      return { status: "error", theme: {}, published_at: null };
+    }
+  },
+);
 
 // Staff: read both draft and published.
 export const adminGetTheme = createServerFn({ method: "GET" })
