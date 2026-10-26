@@ -8,6 +8,8 @@ import { useState } from "react";
 import { Archive, ArchiveRestore, Loader2, Trash2, Upload } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { AssetFileDropzone } from "@/components/admin/craft-studio/AssetFileDropzone";
 import { isOwnerUser } from "@/lib/permissions";
 import {
   adminArchiveAsset,
@@ -185,6 +187,7 @@ function UploadButton({ onUploaded }: { onUploaded: () => void }) {
       setFile(null);
       setName("");
       setAlt("");
+      toast.success("Uploaded");
       onUploaded();
     },
     onError: (e: any) => setError(e?.message ?? "Upload failed"),
@@ -193,16 +196,15 @@ function UploadButton({ onUploaded }: { onUploaded: () => void }) {
   return (
     <>
       <Button onClick={() => setOpen(true)}><Upload className="mr-2 h-4 w-4" /> Upload asset</Button>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setFile(null); setError(null); } }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Upload asset</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <input
-              type="file"
-              accept={ALLOWED_MIME_TYPES.join(",")}
-              onChange={(e) => {
-                const f = e.target.files?.[0] ?? null;
+            <AssetFileDropzone
+              file={file}
+              onChange={(f, err) => {
                 setFile(f);
+                setError(err);
                 if (f && !name) setName(f.name.replace(/\.[^.]+$/, ""));
               }}
             />
@@ -212,6 +214,7 @@ function UploadButton({ onUploaded }: { onUploaded: () => void }) {
             <Button onClick={() => { setError(null); mutation.mutate(); }} disabled={!file || mutation.isPending}>
               {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Upload
             </Button>
+            {!file && !mutation.isPending ? <p className="text-xs text-muted-foreground">Choose an image first.</p> : null}
           </div>
         </DialogContent>
       </Dialog>

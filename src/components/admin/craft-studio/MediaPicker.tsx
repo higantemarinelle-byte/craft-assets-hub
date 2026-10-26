@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+import { AssetFileDropzone } from "./AssetFileDropzone";
 // Reusable Media Picker for Craft Studio. Used by any editor that stores an
 // Asset ID (logo, hero, gallery, section images, etc.).
 //
@@ -215,6 +217,7 @@ function UploadPanel({ onUploaded }: { onUploaded: (v: AssetPickerValue) => void
         height: reserved.asset.height,
       });
       queryClient.invalidateQueries({ queryKey: ["craft-assets"] });
+      toast.success("Uploaded");
     },
     onError: (e: any) => setError(e?.message ?? "Upload failed"),
   });
@@ -223,13 +226,11 @@ function UploadPanel({ onUploaded }: { onUploaded: (v: AssetPickerValue) => void
     <div className="space-y-3">
       <div>
         <label className="text-xs font-semibold">File</label>
-        <input
-          type="file"
-          accept={ALLOWED_MIME_TYPES.join(",")}
-          className="mt-1 block w-full text-sm"
-          onChange={(e) => {
-            const f = e.target.files?.[0] ?? null;
+        <AssetFileDropzone
+          file={file}
+          onChange={(f, err) => {
             setFile(f);
+            setError(err);
             if (f && !name) setName(f.name.replace(/\.[^.]+$/, ""));
           }}
         />
@@ -257,6 +258,7 @@ function UploadPanel({ onUploaded }: { onUploaded: (v: AssetPickerValue) => void
           <><Upload className="mr-2 h-4 w-4" /> Upload</>
         )}
       </Button>
+      {!file && !mutation.isPending ? <p className="text-xs text-muted-foreground">Choose an image first.</p> : null}
     </div>
   );
 }
