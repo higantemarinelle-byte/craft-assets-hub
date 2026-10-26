@@ -12,6 +12,7 @@ import {
   adminGetTheme,
   adminPublishTheme,
   adminSaveThemeDraft,
+  getPublishedTheme,
 } from "@/lib/theme.functions";
 import { mergeTheme, syncLegacyBrandFromTokens, type Theme } from "@/lib/theme";
 import { themeQueryKeys } from "@/lib/theme-query-keys";
@@ -79,15 +80,18 @@ export function useThemeDraft() {
         await saveFn({ data: { draft: synced } });
         setDraft(synced);
       }
-      await publishFn({ data: {} });
+      const res: any = await publishFn({ data: {} });
       setDirty(false);
       await Promise.all([
         qc.invalidateQueries({ queryKey: themeQueryKeys.admin }),
-        qc.invalidateQueries({ queryKey: themeQueryKeys.published, refetchType: "all" }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.draft }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.versions }),
       ]);
-      toast.success("Published live 🎉");
+      const live: any = await qc.fetchQuery({ queryKey: themeQueryKeys.published, queryFn: () => getPublishedTheme(), staleTime: 0 });
+      const same = live?.status === "ok" && !!res?.published_at &&
+        new Date(live.published_at).getTime() === new Date(res.published_at).getTime();
+      if (same) toast.success("Published live");
+      else toast.error("Theme was saved but live storefront sync could not be verified.");
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to publish");
     } finally {
