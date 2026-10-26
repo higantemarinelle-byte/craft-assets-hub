@@ -349,3 +349,101 @@ export function ThemeCommerceEditor({ theme, update }: { theme: Theme; update: U
   );
 }
 
+
+// ---------- Live header + footer editors (write theme.navigation / theme.footerV2) ----------
+
+function hrefType(href: string): "internal" | "external" {
+  return href.trim().startsWith("/") ? "internal" : "external";
+}
+
+type SimpleLink = { id: string; label: string; href: string; enabled: boolean };
+
+function SimpleLinkRows<T extends SimpleLink>({
+  items, onChange, make, max,
+}: { items: T[]; onChange: (items: T[]) => void; make: () => T; max: number }) {
+  const set = (i: number, patch: Partial<T>) => {
+    const next = [...items];
+    next[i] = { ...next[i], ...patch };
+    onChange(next);
+  };
+  return (
+    <div className="space-y-2">
+      {items.map((l, i) => (
+        <div key={l.id} className="flex items-center gap-2">
+          <Switch checked={l.enabled} onCheckedChange={(v) => set(i, { enabled: !!v } as Partial<T>)} aria-label="Show link" />
+          <Input value={l.label} placeholder="Label" onChange={(e) => set(i, { label: e.target.value } as Partial<T>)} />
+          <Input value={l.href} placeholder="/shop or https://…" onChange={(e) => set(i, { href: e.target.value, type: hrefType(e.target.value) } as any)} />
+          <Button variant="ghost" size="icon" disabled={i === 0} onClick={() => { const n = [...items]; [n[i - 1], n[i]] = [n[i], n[i - 1]]; onChange(n); }}><ArrowUp className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="icon" onClick={() => onChange(items.filter((_, j) => j !== i))}><Trash2 className="h-4 w-4" /></Button>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" disabled={items.length >= max} onClick={() => onChange([...items, make()])}>
+        <Plus className="mr-1 h-4 w-4" /> Add link
+      </Button>
+    </div>
+  );
+}
+
+function rid(p: string) { return `${p}_${Math.random().toString(36).slice(2, 9)}`; }
+
+export function ThemeNavigationEditor({ theme, update }: { theme: Theme; update: Updater }) {
+  const nav = theme.navigation;
+  const setNav = (patch: Partial<typeof nav>) => update((t) => ({ ...t, navigation: { ...t.navigation, ...patch } }));
+  return (
+    <div className="space-y-4">
+      <Section title="Menu links">
+        <SimpleLinkRows
+          items={nav.links}
+          max={12}
+          onChange={(links) => setNav({ links })}
+          make={() => ({ id: rid("nav"), label: "New link", type: "internal" as const, href: "/", enabled: true, openInNewTab: false, children: [] })}
+        />
+      </Section>
+      <Field label="Project Cart label"><Input value={nav.projectCartLabel} onChange={(e) => setNav({ projectCartLabel: e.target.value })} /></Field>
+      <label className="flex items-center gap-2 text-sm"><Switch checked={nav.showProjectCart} onCheckedChange={(v) => setNav({ showProjectCart: !!v })} /> Show Project Cart</label>
+      <label className="flex items-center gap-2 text-sm"><Switch checked={nav.showAccount} onCheckedChange={(v) => setNav({ showAccount: !!v })} /> Show account link</label>
+      <label className="flex items-center gap-2 text-sm"><Switch checked={nav.stickyHeader} onCheckedChange={(v) => setNav({ stickyHeader: !!v })} /> Sticky header</label>
+    </div>
+  );
+}
+
+export function ThemeFooterEditor({ theme, update }: { theme: Theme; update: Updater }) {
+  const f = theme.footerV2;
+  const setF = (fn: (x: typeof f) => typeof f) => update((t) => ({ ...t, footerV2: fn(t.footerV2) }));
+  return (
+    <div className="space-y-4">
+      <label className="flex items-center gap-2 text-sm"><Switch checked={f.enabled} onCheckedChange={(v) => setF((x) => ({ ...x, enabled: !!v }))} /> Footer enabled</label>
+      <Field label="Business name"><Input value={f.businessName} onChange={(e) => setF((x) => ({ ...x, businessName: e.target.value }))} /></Field>
+      <Field label="Description"><Textarea value={f.description} onChange={(e) => setF((x) => ({ ...x, description: e.target.value }))} /></Field>
+      <Section title="Link columns">
+        <div className="space-y-4">
+          {f.columns.map((col, ci) => (
+            <div key={col.id} className="space-y-2 rounded border-2 border-ink/20 p-3">
+              <div className="flex items-center gap-2">
+                <Switch checked={col.enabled} onCheckedChange={(v) => setF((x) => ({ ...x, columns: x.columns.map((c, j) => j === ci ? { ...c, enabled: !!v } : c) }))} aria-label="Show column" />
+                <Input value={col.heading} placeholder="Column heading" onChange={(e) => setF((x) => ({ ...x, columns: x.columns.map((c, j) => j === ci ? { ...c, heading: e.target.value } : c) }))} />
+                <Button variant="ghost" size="icon" onClick={() => setF((x) => ({ ...x, columns: x.columns.filter((_, j) => j !== ci) }))}><Trash2 className="h-4 w-4" /></Button>
+              </div>
+              <SimpleLinkRows
+                items={col.links}
+                max={12}
+                onChange={(links) => setF((x) => ({ ...x, columns: x.columns.map((c, j) => j === ci ? { ...c, links } : c) }))}
+                make={() => ({ id: rid("fl"), label: "New link", type: "internal", href: "/", enabled: true } as any)}
+              />
+            </div>
+          ))}
+          <Button variant="outline" size="sm" disabled={f.columns.length >= 6} onClick={() => setF((x) => ({ ...x, columns: [...x.columns, { id: rid("col"), heading: "New column", enabled: true, links: [] }] }))}>
+            <Plus className="mr-1 h-4 w-4" /> Add column
+          </Button>
+        </div>
+      </Section>
+      <Section title="Contact">
+        <label className="mb-2 flex items-center gap-2 text-sm"><Switch checked={f.contact.enabled} onCheckedChange={(v) => setF((x) => ({ ...x, contact: { ...x.contact, enabled: !!v } }))} /> Show contact details</label>
+        <Field label="Email"><Input value={f.contact.email} onChange={(e) => setF((x) => ({ ...x, contact: { ...x.contact, email: e.target.value } }))} /></Field>
+        <Field label="Phone"><Input value={f.contact.phone} onChange={(e) => setF((x) => ({ ...x, contact: { ...x.contact, phone: e.target.value } }))} /></Field>
+        <Field label="Address"><Input value={f.contact.address} onChange={(e) => setF((x) => ({ ...x, contact: { ...x.contact, address: e.target.value } }))} /></Field>
+      </Section>
+      <Field label="Copyright text ({year} becomes the current year)"><Input value={f.copyrightText} onChange={(e) => setF((x) => ({ ...x, copyrightText: e.target.value }))} /></Field>
+    </div>
+  );
+}

@@ -27,7 +27,6 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as AuthenticatedPortalAdminIndexRouteImport } from './routes/_authenticated/portal-admin/index'
 import { Route as AuthenticatedPortalAdminCategoriesRouteImport } from './routes/_authenticated/portal-admin/categories'
-import { Route as AuthenticatedPortalAdminCraftStudioRouteImport } from './routes/_authenticated/portal-admin/craft-studio'
 import { Route as AuthenticatedPortalAdminCustomersRouteImport } from './routes/_authenticated/portal-admin/customers'
 import { Route as AuthenticatedPortalAdminDiscountsRouteImport } from './routes/_authenticated/portal-admin/discounts'
 import { Route as AuthenticatedPortalAdminEmployeesRouteImport } from './routes/_authenticated/portal-admin/employees'
@@ -36,6 +35,7 @@ import { Route as AuthenticatedPortalAdminProjectsRouteImport } from './routes/_
 import { Route as AuthenticatedPortalAdminQuoteRequestsRouteImport } from './routes/_authenticated/portal-admin/quote-requests'
 import { Route as AuthenticatedPortalAdminThemeRouteImport } from './routes/_authenticated/portal-admin/theme'
 import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects.$id'
+import { Route as AuthenticatedPortalAdminCraftStudioIndexRouteImport } from './routes/_authenticated/portal-admin/craft-studio.index'
 import { Route as AuthenticatedPortalAdminCraftStudioAssetsRouteImport } from './routes/_authenticated/portal-admin/craft-studio.assets'
 import { Route as AuthenticatedPortalAdminCraftStudioFooterRouteImport } from './routes/_authenticated/portal-admin/craft-studio.footer'
 import { Route as AuthenticatedPortalAdminCraftStudioNavigationRouteImport } from './routes/_authenticated/portal-admin/craft-studio.navigation'
@@ -140,12 +140,6 @@ const AuthenticatedPortalAdminCategoriesRoute =
     path: '/categories',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminCraftStudioRoute =
-  AuthenticatedPortalAdminCraftStudioRouteImport.update({
-    id: '/craft-studio',
-    path: '/craft-studio',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
 const AuthenticatedPortalAdminCustomersRoute =
   AuthenticatedPortalAdminCustomersRouteImport.update({
     id: '/customers',
@@ -193,23 +187,29 @@ const AuthenticatedProjectsIdRoute = AuthenticatedProjectsIdRouteImport.update({
   path: '/projects/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPortalAdminCraftStudioIndexRoute =
+  AuthenticatedPortalAdminCraftStudioIndexRouteImport.update({
+    id: '/craft-studio/',
+    path: '/craft-studio/',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
 const AuthenticatedPortalAdminCraftStudioAssetsRoute =
   AuthenticatedPortalAdminCraftStudioAssetsRouteImport.update({
-    id: '/assets',
-    path: '/assets',
-    getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
+    id: '/craft-studio/assets',
+    path: '/craft-studio/assets',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
 const AuthenticatedPortalAdminCraftStudioFooterRoute =
   AuthenticatedPortalAdminCraftStudioFooterRouteImport.update({
-    id: '/footer',
-    path: '/footer',
-    getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
+    id: '/craft-studio/footer',
+    path: '/craft-studio/footer',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
 const AuthenticatedPortalAdminCraftStudioNavigationRoute =
   AuthenticatedPortalAdminCraftStudioNavigationRouteImport.update({
-    id: '/navigation',
-    path: '/navigation',
-    getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
+    id: '/craft-studio/navigation',
+    path: '/craft-studio/navigation',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
 const AuthenticatedPortalAdminCustomersIdRoute =
   AuthenticatedPortalAdminCustomersIdRouteImport.update({
@@ -277,7 +277,6 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
-  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
@@ -296,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
   '/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
+  '/portal-admin/craft-studio/': typeof AuthenticatedPortalAdminCraftStudioIndexRoute
   '/portal-admin/products/': typeof AuthenticatedPortalAdminProductsIndexRoute
   '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
@@ -315,7 +315,6 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
-  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
@@ -334,6 +333,7 @@ export interface FileRoutesByTo {
   '/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
   '/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
+  '/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioIndexRoute
   '/portal-admin/products': typeof AuthenticatedPortalAdminProductsIndexRoute
   '/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
@@ -356,7 +356,6 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/_authenticated/portal-admin/categories': typeof AuthenticatedPortalAdminCategoriesRoute
-  '/_authenticated/portal-admin/craft-studio': typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   '/_authenticated/portal-admin/customers': typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   '/_authenticated/portal-admin/discounts': typeof AuthenticatedPortalAdminDiscountsRoute
   '/_authenticated/portal-admin/employees': typeof AuthenticatedPortalAdminEmployeesRoute
@@ -375,6 +374,7 @@ export interface FileRoutesById {
   '/_authenticated/portal-admin/products/new': typeof AuthenticatedPortalAdminProductsNewRoute
   '/_authenticated/portal-admin/projects/$id': typeof AuthenticatedPortalAdminProjectsIdRoute
   '/_authenticated/portal-admin/quote-requests/$id': typeof AuthenticatedPortalAdminQuoteRequestsIdRoute
+  '/_authenticated/portal-admin/craft-studio/': typeof AuthenticatedPortalAdminCraftStudioIndexRoute
   '/_authenticated/portal-admin/products/': typeof AuthenticatedPortalAdminProductsIndexRoute
   '/_authenticated/portal-admin/orders/$id/packing-slip': typeof AuthenticatedPortalAdminOrdersIdPackingSlipRoute
 }
@@ -397,7 +397,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/shop/$slug'
     | '/portal-admin/categories'
-    | '/portal-admin/craft-studio'
     | '/portal-admin/customers'
     | '/portal-admin/discounts'
     | '/portal-admin/employees'
@@ -416,6 +415,7 @@ export interface FileRouteTypes {
     | '/portal-admin/products/new'
     | '/portal-admin/projects/$id'
     | '/portal-admin/quote-requests/$id'
+    | '/portal-admin/craft-studio/'
     | '/portal-admin/products/'
     | '/portal-admin/orders/$id/packing-slip'
   fileRoutesByTo: FileRoutesByTo
@@ -435,7 +435,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/shop/$slug'
     | '/portal-admin/categories'
-    | '/portal-admin/craft-studio'
     | '/portal-admin/customers'
     | '/portal-admin/discounts'
     | '/portal-admin/employees'
@@ -454,6 +453,7 @@ export interface FileRouteTypes {
     | '/portal-admin/products/new'
     | '/portal-admin/projects/$id'
     | '/portal-admin/quote-requests/$id'
+    | '/portal-admin/craft-studio'
     | '/portal-admin/products'
     | '/portal-admin/orders/$id/packing-slip'
   id:
@@ -475,7 +475,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/shop/$slug'
     | '/_authenticated/portal-admin/categories'
-    | '/_authenticated/portal-admin/craft-studio'
     | '/_authenticated/portal-admin/customers'
     | '/_authenticated/portal-admin/discounts'
     | '/_authenticated/portal-admin/employees'
@@ -494,6 +493,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal-admin/products/new'
     | '/_authenticated/portal-admin/projects/$id'
     | '/_authenticated/portal-admin/quote-requests/$id'
+    | '/_authenticated/portal-admin/craft-studio/'
     | '/_authenticated/portal-admin/products/'
     | '/_authenticated/portal-admin/orders/$id/packing-slip'
   fileRoutesById: FileRoutesById
@@ -641,13 +641,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/craft-studio': {
-      id: '/_authenticated/portal-admin/craft-studio'
-      path: '/craft-studio'
-      fullPath: '/portal-admin/craft-studio'
-      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
     '/_authenticated/portal-admin/customers': {
       id: '/_authenticated/portal-admin/customers'
       path: '/customers'
@@ -704,26 +697,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/portal-admin/craft-studio/': {
+      id: '/_authenticated/portal-admin/craft-studio/'
+      path: '/craft-studio'
+      fullPath: '/portal-admin/craft-studio/'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioIndexRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
     '/_authenticated/portal-admin/craft-studio/assets': {
       id: '/_authenticated/portal-admin/craft-studio/assets'
-      path: '/assets'
+      path: '/craft-studio/assets'
       fullPath: '/portal-admin/craft-studio/assets'
       preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
     '/_authenticated/portal-admin/craft-studio/footer': {
       id: '/_authenticated/portal-admin/craft-studio/footer'
-      path: '/footer'
+      path: '/craft-studio/footer'
       fullPath: '/portal-admin/craft-studio/footer'
       preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioFooterRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
     '/_authenticated/portal-admin/craft-studio/navigation': {
       id: '/_authenticated/portal-admin/craft-studio/navigation'
-      path: '/navigation'
+      path: '/craft-studio/navigation'
       fullPath: '/portal-admin/craft-studio/navigation'
       preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioNavigationRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
     '/_authenticated/portal-admin/customers/$id': {
       id: '/_authenticated/portal-admin/customers/$id'
@@ -783,27 +783,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AuthenticatedPortalAdminCraftStudioRouteChildren {
-  AuthenticatedPortalAdminCraftStudioAssetsRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
-  AuthenticatedPortalAdminCraftStudioFooterRoute: typeof AuthenticatedPortalAdminCraftStudioFooterRoute
-  AuthenticatedPortalAdminCraftStudioNavigationRoute: typeof AuthenticatedPortalAdminCraftStudioNavigationRoute
-}
-
-const AuthenticatedPortalAdminCraftStudioRouteChildren: AuthenticatedPortalAdminCraftStudioRouteChildren =
-  {
-    AuthenticatedPortalAdminCraftStudioAssetsRoute:
-      AuthenticatedPortalAdminCraftStudioAssetsRoute,
-    AuthenticatedPortalAdminCraftStudioFooterRoute:
-      AuthenticatedPortalAdminCraftStudioFooterRoute,
-    AuthenticatedPortalAdminCraftStudioNavigationRoute:
-      AuthenticatedPortalAdminCraftStudioNavigationRoute,
-  }
-
-const AuthenticatedPortalAdminCraftStudioRouteWithChildren =
-  AuthenticatedPortalAdminCraftStudioRoute._addFileChildren(
-    AuthenticatedPortalAdminCraftStudioRouteChildren,
-  )
 
 interface AuthenticatedPortalAdminCustomersRouteChildren {
   AuthenticatedPortalAdminCustomersIdRoute: typeof AuthenticatedPortalAdminCustomersIdRoute
@@ -867,7 +846,6 @@ const AuthenticatedPortalAdminQuoteRequestsRouteWithChildren =
 
 interface AuthenticatedPortalAdminRouteRouteChildren {
   AuthenticatedPortalAdminCategoriesRoute: typeof AuthenticatedPortalAdminCategoriesRoute
-  AuthenticatedPortalAdminCraftStudioRoute: typeof AuthenticatedPortalAdminCraftStudioRouteWithChildren
   AuthenticatedPortalAdminCustomersRoute: typeof AuthenticatedPortalAdminCustomersRouteWithChildren
   AuthenticatedPortalAdminDiscountsRoute: typeof AuthenticatedPortalAdminDiscountsRoute
   AuthenticatedPortalAdminEmployeesRoute: typeof AuthenticatedPortalAdminEmployeesRoute
@@ -876,9 +854,13 @@ interface AuthenticatedPortalAdminRouteRouteChildren {
   AuthenticatedPortalAdminQuoteRequestsRoute: typeof AuthenticatedPortalAdminQuoteRequestsRouteWithChildren
   AuthenticatedPortalAdminThemeRoute: typeof AuthenticatedPortalAdminThemeRoute
   AuthenticatedPortalAdminIndexRoute: typeof AuthenticatedPortalAdminIndexRoute
+  AuthenticatedPortalAdminCraftStudioAssetsRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRoute
+  AuthenticatedPortalAdminCraftStudioFooterRoute: typeof AuthenticatedPortalAdminCraftStudioFooterRoute
+  AuthenticatedPortalAdminCraftStudioNavigationRoute: typeof AuthenticatedPortalAdminCraftStudioNavigationRoute
   AuthenticatedPortalAdminGangSheetPricingRoute: typeof AuthenticatedPortalAdminGangSheetPricingRoute
   AuthenticatedPortalAdminProductsIdRoute: typeof AuthenticatedPortalAdminProductsIdRoute
   AuthenticatedPortalAdminProductsNewRoute: typeof AuthenticatedPortalAdminProductsNewRoute
+  AuthenticatedPortalAdminCraftStudioIndexRoute: typeof AuthenticatedPortalAdminCraftStudioIndexRoute
   AuthenticatedPortalAdminProductsIndexRoute: typeof AuthenticatedPortalAdminProductsIndexRoute
 }
 
@@ -886,8 +868,6 @@ const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteR
   {
     AuthenticatedPortalAdminCategoriesRoute:
       AuthenticatedPortalAdminCategoriesRoute,
-    AuthenticatedPortalAdminCraftStudioRoute:
-      AuthenticatedPortalAdminCraftStudioRouteWithChildren,
     AuthenticatedPortalAdminCustomersRoute:
       AuthenticatedPortalAdminCustomersRouteWithChildren,
     AuthenticatedPortalAdminDiscountsRoute:
@@ -902,12 +882,20 @@ const AuthenticatedPortalAdminRouteRouteChildren: AuthenticatedPortalAdminRouteR
       AuthenticatedPortalAdminQuoteRequestsRouteWithChildren,
     AuthenticatedPortalAdminThemeRoute: AuthenticatedPortalAdminThemeRoute,
     AuthenticatedPortalAdminIndexRoute: AuthenticatedPortalAdminIndexRoute,
+    AuthenticatedPortalAdminCraftStudioAssetsRoute:
+      AuthenticatedPortalAdminCraftStudioAssetsRoute,
+    AuthenticatedPortalAdminCraftStudioFooterRoute:
+      AuthenticatedPortalAdminCraftStudioFooterRoute,
+    AuthenticatedPortalAdminCraftStudioNavigationRoute:
+      AuthenticatedPortalAdminCraftStudioNavigationRoute,
     AuthenticatedPortalAdminGangSheetPricingRoute:
       AuthenticatedPortalAdminGangSheetPricingRoute,
     AuthenticatedPortalAdminProductsIdRoute:
       AuthenticatedPortalAdminProductsIdRoute,
     AuthenticatedPortalAdminProductsNewRoute:
       AuthenticatedPortalAdminProductsNewRoute,
+    AuthenticatedPortalAdminCraftStudioIndexRoute:
+      AuthenticatedPortalAdminCraftStudioIndexRoute,
     AuthenticatedPortalAdminProductsIndexRoute:
       AuthenticatedPortalAdminProductsIndexRoute,
   }

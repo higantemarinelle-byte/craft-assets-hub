@@ -47,6 +47,8 @@ import {
   ThemeMarqueeEditor,
   ThemeSectionSettingsEditor,
   ThemePagesEditor,
+  ThemeNavigationEditor,
+  ThemeFooterEditor,
   ThemeCommerceEditor,
   SectionsEditor,
   sectionLabel,
@@ -397,12 +399,18 @@ export function ThemeBuilder() {
             )}
             {panel === "announcement" && <ThemeAnnouncementEditor theme={draft} update={update} />}
             {panel === "navigation" && (
-              <BuilderLink to="/portal-admin/craft-studio/navigation" title="Navigation Builder"
-                text="The live header menu is edited in the Navigation Builder. Save any changes here first." />
+              <div className="space-y-4">
+                <ThemeNavigationEditor theme={draft} update={update} />
+                <BuilderLink to="/portal-admin/craft-studio/navigation" title="Navigation Builder"
+                  text="Need dropdown menus or more options? Save here first, then open the full builder." />
+              </div>
             )}
             {panel === "footer" && (
-              <BuilderLink to="/portal-admin/craft-studio/footer" title="Footer Builder"
-                text="The live footer is edited in the Footer Builder. Save any changes here first." />
+              <div className="space-y-4">
+                <ThemeFooterEditor theme={draft} update={update} />
+                <BuilderLink to="/portal-admin/craft-studio/footer" title="Footer Builder"
+                  text="Need social links or a footer logo? Save here first, then open the full builder." />
+              </div>
             )}
             {panel === "brand" && <ThemeBrandEditor theme={draft} update={update} />}
             {panel === "colors" && <ThemeColorEditor theme={draft} update={update} />}

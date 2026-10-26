@@ -15,7 +15,7 @@ import { ModuleCard } from "@/components/admin/craft-studio/ModuleCard";
 import { StatusPanel } from "@/components/admin/craft-studio/StatusPanel";
 import { Palette, FolderOpen, Rocket } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/portal-admin/craft-studio")({
+export const Route = createFileRoute("/_authenticated/portal-admin/craft-studio/")({
   ssr: false,
   head: () => ({ meta: [{ title: "Craft Studio — Admin" }, { name: "robots", content: "noindex" }] }),
   beforeLoad: async () => {
