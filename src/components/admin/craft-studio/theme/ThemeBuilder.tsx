@@ -47,7 +47,6 @@ import {
   ThemeMarqueeEditor,
   ThemeSectionSettingsEditor,
   ThemePagesEditor,
-  ThemeInventoryEditor,
   ThemeCommerceEditor,
   SectionsEditor,
   sectionLabel,
@@ -362,7 +361,6 @@ export function ThemeBuilder() {
 
             <SidebarGroup label="Other content">
               <SidebarItem active={panel === "pages"} onClick={() => setPanel("pages")}>Pages</SidebarItem>
-              <SidebarItem active={panel === "inventory"} onClick={() => setPanel("inventory")}>Inventory</SidebarItem>
               <SidebarItem active={panel === "commerce"} onClick={() => setPanel("commerce")}>Commerce</SidebarItem>
             </SidebarGroup>
 
@@ -424,7 +422,6 @@ export function ThemeBuilder() {
               <ThemePresetPicker update={update} onApply={() => toast.success("Preset applied — remember to save")} />
             )}
             {panel === "pages" && <ThemePagesEditor theme={draft} update={update} />}
-            {panel === "inventory" && <ThemeInventoryEditor theme={draft} update={update} />}
             {panel === "commerce" && <ThemeCommerceEditor theme={draft} update={update} />}
             {panel === "history" && <VersionPanel versions={versions as any[]} onRevert={revert} isOwner={isOwner} />}
           </div>
