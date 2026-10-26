@@ -89,7 +89,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme.tokens.typography.headingFont, theme.tokens.typography.bodyFont]);
 
   return (
-    <ThemeCtx.Provider value={{ theme, isDraftPreview: draftPreview }}>
+    <ThemeCtx.Provider value={{ theme, isDraftPreview: draftPreview, publishedStatus, publishedAt: (data as any)?.published_at ?? null }}>
       {/* Scoped CSS variables — only apply where .storefront-theme is set. */}
       <style dangerouslySetInnerHTML={{ __html: cssText }} />
       {children}
