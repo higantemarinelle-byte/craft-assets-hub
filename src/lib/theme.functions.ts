@@ -40,7 +40,7 @@ async function serviceClient(): Promise<any> {
 
 export type PublishedThemeResult = {
   status: "ok" | "empty" | "error";
-  theme: Record<string, unknown>;
+  theme: any;
   published_at: string | null;
 };
 
