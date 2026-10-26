@@ -14,3 +14,11 @@
 | Footer (Footer Builder) | footerV2.* | Footer.tsx |
 
 Legacy only (no active editor): `nav`, `footer`, `inventory`.
+
+## Shown in Theme Builder preview
+| Field | Preview |
+|---|---|
+| home.hero.imageAssetId / imageUrl | Yes — right column, same image component as live |
+| brand.logoAssetId / logoUrl | Yes — preview header |
+| pages.product.trustBadges | Yes — under hero buttons |
+| Categories / Best sellers cards | Sample cards (real catalog data only on live site) |
