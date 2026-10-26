@@ -119,11 +119,15 @@ export function ThemeBuilder() {
   const publishedAt: string | null = (row as any)?.published_at ?? null;
   const [panel, setPanel] = useState<PanelId>(() => panelFromSearch((search as any)?.panel));
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+  const [inPanel, setInPanel] = useState<boolean>(() => !!(search as any)?.panel);
+  const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
+  const [previewExpanded, setPreviewExpanded] = useState(false);
 
   // Follow ?panel= changes coming from Craft Studio module links.
   useEffect(() => {
     setPanel(panelFromSearch((search as any)?.panel));
     setActiveSectionId(null);
+    if ((search as any)?.panel) setInPanel(true);
   }, [(search as any)?.panel]);
 
   // Hydrate once — do not stomp local edits when the query refreshes.
@@ -256,11 +260,6 @@ export function ThemeBuilder() {
     update((t) => ({ ...t, tokens: DEFAULT_DESIGN_TOKENS }));
   };
 
-  const selectSection = (id: string) => {
-    setActiveSectionId(id);
-    setPanel("sections");
-  };
-
   const activeSection = activeSectionId
     ? draft.home.sections.find((s) => s.id === activeSectionId) ?? null
     : null;
@@ -286,10 +285,15 @@ export function ThemeBuilder() {
     }
   })();
 
+  const open = (p: PanelId) => { setPanel(p); setActiveSectionId(null); setInPanel(true); };
+  const openSection = (id: string) => { setActiveSectionId(id); setPanel("sections"); setInPanel(true); };
+  const back = () => { setInPanel(false); setActiveSectionId(null); };
+  const isOn = (p: PanelId) => inPanel && panel === p;
+
   return (
-    <div>
-      {/* Persistent toolbar */}
-      <div className="sticky top-0 z-20 -mx-4 mb-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-cream px-4 py-3 sm:-mx-6 sm:px-6">
+    <div className="flex h-[calc(100dvh-6.5rem)] flex-col md:h-[calc(100dvh-7.5rem)]">
+      {/* Persistent toolbar (outside the scrolling workspace) */}
+      <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-3 border-b-2 border-ink pb-3">
         <div>
           <h1 className="text-display text-2xl">Theme Builder</h1>
           <p className="text-sm text-muted-foreground">
@@ -323,121 +327,128 @@ export function ThemeBuilder() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
-        {/* Editor sidebar */}
-        <div className="space-y-4">
-          <nav className="rounded-lg border-2 border-ink bg-cream p-3">
-            <SidebarGroup label="Storefront">
-              <SidebarItem active={panel === "announcement"} onClick={() => setPanel("announcement")}>Announcement</SidebarItem>
-              <SidebarItem active={panel === "navigation"} onClick={() => setPanel("navigation")}>Header / navigation</SidebarItem>
-            </SidebarGroup>
+      {/* Mobile Edit | Preview toggle */}
+      <div className="mb-3 flex shrink-0 gap-1 md:hidden">
+        <Button size="sm" variant={mobileTab === "edit" ? "default" : "outline"} onClick={() => setMobileTab("edit")} className="flex-1">Edit</Button>
+        <Button size="sm" variant={mobileTab === "preview" ? "default" : "outline"} onClick={() => setMobileTab("preview")} className="flex-1">Preview</Button>
+      </div>
 
-            <SidebarGroup label="Homepage">
-              <SidebarItem active={panel === "homepage"} onClick={() => { setPanel("homepage"); setActiveSectionId(null); }}>Sections</SidebarItem>
-              <SidebarItem active={panel === "hero"} onClick={() => setPanel("hero")}>Hero</SidebarItem>
-              <SidebarItem active={panel === "marquee"} onClick={() => setPanel("marquee")}>Marquee</SidebarItem>
-              {draft.home.sections.map((s) => (
-                <SidebarItem
-                  key={s.id}
-                  nested
-                  active={panel === "sections" && activeSectionId === s.id}
-                  onClick={() => selectSection(s.id)}
-                >
-                  {sectionLabel(s)}
-                </SidebarItem>
-              ))}
-            </SidebarGroup>
+      {/* Workspace: editor | preview — each scrolls independently */}
+      <div className="flex min-h-0 flex-1 gap-4 overflow-hidden">
+        {!previewExpanded && (
+          <aside
+            className={`${mobileTab === "edit" ? "flex" : "hidden"} min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-lg border-2 border-ink bg-cream md:flex md:w-[300px] lg:w-[360px]`}
+          >
+            <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3">
+              {!inPanel ? (
+                <nav>
+                  <SidebarGroup label="Storefront">
+                    <SidebarItem active={false} onClick={() => open("announcement")}>Announcement</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("navigation")}>Header / navigation</SidebarItem>
+                  </SidebarGroup>
+                  <SidebarGroup label="Homepage">
+                    <SidebarItem active={false} onClick={() => open("homepage")}>Sections</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("hero")}>Hero</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("marquee")}>Marquee</SidebarItem>
+                    {draft.home.sections.map((s) => (
+                      <SidebarItem key={s.id} nested active={false} onClick={() => openSection(s.id)}>
+                        {sectionLabel(s)}
+                      </SidebarItem>
+                    ))}
+                  </SidebarGroup>
+                  <SidebarGroup label="Footer">
+                    <SidebarItem active={false} onClick={() => open("footer")}>Footer content</SidebarItem>
+                  </SidebarGroup>
+                  <SidebarGroup label="Theme settings">
+                    <SidebarItem active={false} onClick={() => open("brand")}>Brand</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("colors")}>Colours</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("typography")}>Typography</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("buttons")}>Buttons</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("layout")}>Layout</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("presets")}>Presets</SidebarItem>
+                  </SidebarGroup>
+                  <SidebarGroup label="Other">
+                    <SidebarItem active={false} onClick={() => open("pages")}>Pages</SidebarItem>
+                    <SidebarItem active={false} onClick={() => open("commerce")}>Commerce</SidebarItem>
+                  </SidebarGroup>
+                  <SidebarGroup label="Publishing">
+                    <SidebarItem active={false} onClick={() => open("history")}>Version history</SidebarItem>
+                  </SidebarGroup>
+                </nav>
+              ) : (
+                <div>
+                  <button
+                    type="button"
+                    onClick={back}
+                    className="mb-3 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-ink"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" /> Back
+                  </button>
+                  <div className="mb-3 text-sm font-bold uppercase tracking-widest">
+                    {panel === "sections" && activeSection ? sectionLabel(activeSection) : PANEL_TITLES[panel]}
+                  </div>
 
-            <SidebarGroup label="Footer">
-              <SidebarItem active={panel === "footer"} onClick={() => setPanel("footer")}>Footer content</SidebarItem>
-            </SidebarGroup>
-
-            <SidebarGroup label="Theme settings">
-              <SidebarItem active={panel === "brand"} onClick={() => setPanel("brand")}>Brand</SidebarItem>
-              <SidebarItem active={panel === "colors"} onClick={() => setPanel("colors")}>Colours</SidebarItem>
-              <SidebarItem active={panel === "typography"} onClick={() => setPanel("typography")}>Typography</SidebarItem>
-              <SidebarItem active={panel === "buttons"} onClick={() => setPanel("buttons")}>Buttons</SidebarItem>
-              <SidebarItem active={panel === "layout"} onClick={() => setPanel("layout")}>Layout</SidebarItem>
-              <SidebarItem active={panel === "presets"} onClick={() => setPanel("presets")}>Presets</SidebarItem>
-            </SidebarGroup>
-
-            <SidebarGroup label="Other content">
-              <SidebarItem active={panel === "pages"} onClick={() => setPanel("pages")}>Pages</SidebarItem>
-              <SidebarItem active={panel === "commerce"} onClick={() => setPanel("commerce")}>Commerce</SidebarItem>
-            </SidebarGroup>
-
-            <SidebarGroup label="Publishing">
-              <SidebarItem active={panel === "history"} onClick={() => setPanel("history")}>Version history</SidebarItem>
-            </SidebarGroup>
-          </nav>
-
-          <div className="rounded-lg border-2 border-ink bg-cream p-4">
-            {panel === "sections" && activeSection && (
-              <button
-                type="button"
-                onClick={() => { setPanel("homepage"); setActiveSectionId(null); }}
-                className="mb-3 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-ink"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" /> Back to homepage
-              </button>
-            )}
-            <div className="mb-3 text-sm font-bold uppercase tracking-widest">
-              {panel === "sections" && activeSection ? sectionLabel(activeSection) : PANEL_TITLES[panel]}
-            </div>
-
-            {panel === "homepage" && (
-              <SectionsEditor
-                sections={draft.home.sections}
-                onChange={(sections) => update((t) => ({ ...t, home: { ...t.home, sections } }))}
-                onSelect={selectSection}
-              />
-            )}
-            {panel === "hero" && <ThemeHeroEditor theme={draft} update={update} />}
-            {panel === "marquee" && <ThemeMarqueeEditor theme={draft} update={update} />}
-            {panel === "sections" && activeSectionId && (
-              <ThemeSectionSettingsEditor theme={draft} sectionId={activeSectionId} update={update} />
-            )}
-            {panel === "announcement" && <ThemeAnnouncementEditor theme={draft} update={update} />}
-            {panel === "navigation" && (
-              <div className="space-y-4">
-                <ThemeNavigationEditor theme={draft} update={update} />
-                <BuilderLink to="/portal-admin/craft-studio/navigation" title="Navigation Builder"
-                  text="Need dropdown menus or more options? Save here first, then open the full builder." />
-              </div>
-            )}
-            {panel === "footer" && (
-              <div className="space-y-4">
-                <ThemeFooterEditor theme={draft} update={update} />
-                <BuilderLink to="/portal-admin/craft-studio/footer" title="Footer Builder"
-                  text="Need social links or a footer logo? Save here first, then open the full builder." />
-              </div>
-            )}
-            {panel === "brand" && <ThemeBrandEditor theme={draft} update={update} />}
-            {panel === "colors" && <ThemeColorEditor theme={draft} update={update} />}
-            {panel === "typography" && <ThemeTypographyEditor theme={draft} update={update} />}
-            {panel === "buttons" && <ThemeButtonEditor theme={draft} update={update} />}
-            {panel === "layout" && (
-              <>
-                <ThemeLayoutEditor theme={draft} update={update} />
-                <div className="mt-6 border-t border-ink/10 pt-4">
-                  <Button variant="outline" size="sm" onClick={resetAllDesign}>
-                    <RotateCcw className="mr-2 h-3.5 w-3.5" /> Reset ALL design tokens
-                  </Button>
+                  {isOn("homepage") && (
+                    <SectionsEditor
+                      sections={draft.home.sections}
+                      onChange={(sections) => update((t) => ({ ...t, home: { ...t.home, sections } }))}
+                      onSelect={openSection}
+                    />
+                  )}
+                  {isOn("hero") && <ThemeHeroEditor theme={draft} update={update} />}
+                  {isOn("marquee") && <ThemeMarqueeEditor theme={draft} update={update} />}
+                  {isOn("sections") && activeSectionId && (
+                    <ThemeSectionSettingsEditor theme={draft} sectionId={activeSectionId} update={update} />
+                  )}
+                  {isOn("announcement") && <ThemeAnnouncementEditor theme={draft} update={update} />}
+                  {isOn("navigation") && (
+                    <div className="space-y-4">
+                      <ThemeNavigationEditor theme={draft} update={update} />
+                      <BuilderLink to="/portal-admin/craft-studio/navigation" title="Navigation Builder"
+                        text="Need dropdown menus or more options? Save here first, then open the full builder." />
+                    </div>
+                  )}
+                  {isOn("footer") && (
+                    <div className="space-y-4">
+                      <ThemeFooterEditor theme={draft} update={update} />
+                      <BuilderLink to="/portal-admin/craft-studio/footer" title="Footer Builder"
+                        text="Need social links or a footer logo? Save here first, then open the full builder." />
+                    </div>
+                  )}
+                  {isOn("brand") && <ThemeBrandEditor theme={draft} update={update} />}
+                  {isOn("colors") && <ThemeColorEditor theme={draft} update={update} />}
+                  {isOn("typography") && <ThemeTypographyEditor theme={draft} update={update} />}
+                  {isOn("buttons") && <ThemeButtonEditor theme={draft} update={update} />}
+                  {isOn("layout") && (
+                    <>
+                      <ThemeLayoutEditor theme={draft} update={update} />
+                      <div className="mt-6 border-t border-ink/10 pt-4">
+                        <Button variant="outline" size="sm" onClick={resetAllDesign}>
+                          <RotateCcw className="mr-2 h-3.5 w-3.5" /> Reset ALL design tokens
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                  {isOn("presets") && (
+                    <ThemePresetPicker update={update} onApply={() => toast.success("Preset applied — remember to save")} />
+                  )}
+                  {isOn("pages") && <ThemePagesEditor theme={draft} update={update} />}
+                  {isOn("commerce") && <ThemeCommerceEditor theme={draft} update={update} />}
+                  {isOn("history") && <VersionPanel versions={versions as any[]} onRevert={revert} isOwner={isOwner} />}
                 </div>
-              </>
-            )}
-            {panel === "presets" && (
-              <ThemePresetPicker update={update} onApply={() => toast.success("Preset applied — remember to save")} />
-            )}
-            {panel === "pages" && <ThemePagesEditor theme={draft} update={update} />}
-            {panel === "commerce" && <ThemeCommerceEditor theme={draft} update={update} />}
-            {panel === "history" && <VersionPanel versions={versions as any[]} onRevert={revert} isOwner={isOwner} />}
-          </div>
-        </div>
+              )}
+            </div>
+          </aside>
+        )}
 
         {/* Live preview */}
-        <div className="lg:sticky lg:top-24 lg:h-fit">
-          <ThemePreviewCanvas theme={draft} focus={previewFocus} />
+        <div className={`${mobileTab === "preview" ? "flex" : "hidden"} min-h-0 min-w-0 flex-1 flex-col md:flex`}>
+          <ThemePreviewCanvas
+            theme={draft}
+            focus={inPanel ? previewFocus : null}
+            expanded={previewExpanded}
+            onToggleExpanded={() => setPreviewExpanded((v) => !v)}
+          />
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Theme, ThemeHomeSection } from "@/lib/theme";
 import { StorefrontThemeScope } from "@/components/site/StorefrontThemeScope";
 import { Button } from "@/components/ui/button";
-import { Monitor, Tablet, Smartphone } from "lucide-react";
+import { Monitor, Tablet, Smartphone, Maximize2, PanelLeftOpen } from "lucide-react";
 import { currentYearReplace } from "@/lib/storefront/site-config";
 
 type Device = "desktop" | "tablet" | "mobile";
@@ -23,7 +23,11 @@ export function sectionRegionId(sectionId: string) {
 export function ThemePreviewCanvas({
   theme,
   focus = null,
+  expanded = false,
+  onToggleExpanded,
 }: {
+  expanded?: boolean;
+  onToggleExpanded?: () => void;
   theme: Theme;
   /** Region to scroll to and outline — e.g. "hero" or "section:featured". */
   focus?: PreviewFocus;
@@ -45,10 +49,15 @@ export function ThemePreviewCanvas({
   }, [focus, device]);
 
   return (
-    <div className="rounded-lg border-2 border-ink bg-muted/40 p-3">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="flex h-full min-h-0 w-full flex-col rounded-lg border-2 border-ink bg-muted/40 p-3">
+      <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
         <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Live preview</div>
         <div className="flex items-center gap-1">
+          {onToggleExpanded && (
+            <Button type="button" size="sm" variant="outline" onClick={onToggleExpanded} className="mr-2 hidden md:inline-flex">
+              {expanded ? <><PanelLeftOpen className="mr-1 h-4 w-4" /> Show editor</> : <><Maximize2 className="mr-1 h-4 w-4" /> Expand preview</>}
+            </Button>
+          )}
           <Button type="button" size="sm" variant={device === "desktop" ? "default" : "outline"} onClick={() => setDevice("desktop")} aria-label="Desktop">
             <Monitor className="h-4 w-4" />
           </Button>
@@ -62,7 +71,7 @@ export function ThemePreviewCanvas({
       </div>
       <div
         ref={scrollRef}
-        className="mx-auto max-h-[70vh] overflow-y-auto overflow-x-hidden rounded-md border-2 border-ink bg-background transition-all"
+        className="mx-auto min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-md border-2 border-ink bg-background transition-all"
         style={{ maxWidth: width, width: "100%" }}
       >
         <StorefrontThemeScope tokens={theme.tokens}>
