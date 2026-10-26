@@ -316,46 +316,6 @@ export function ThemeSectionSettingsEditor({
   );
 }
 
-export function ThemeLegacyFooterEditor({ theme, update }: { theme: Theme; update: Updater }) {
-  return (
-    <div className="space-y-6">
-      <Field label="Blurb"><Textarea value={theme.footer.blurb} onChange={(e) => update((t) => ({ ...t, footer: { ...t.footer, blurb: e.target.value } }))} /></Field>
-      <Field label="Contact email"><Input value={theme.footer.contactEmail ?? ""} onChange={(e) => update((t) => ({ ...t, footer: { ...t.footer, contactEmail: e.target.value } }))} /></Field>
-      <Field label="Legal text"><Input value={theme.footer.legal ?? ""} onChange={(e) => update((t) => ({ ...t, footer: { ...t.footer, legal: e.target.value } }))} /></Field>
-
-      <Section title="Columns">
-        {theme.footer.columns.map((col, ci) => (
-          <div key={ci} className="rounded border-2 border-ink/20 p-3">
-            <div className="mb-2 flex items-center gap-2">
-              <Input value={col.title} onChange={(e) => update((t) => { const c = [...t.footer.columns]; c[ci] = { ...c[ci], title: e.target.value }; return { ...t, footer: { ...t.footer, columns: c } }; })} />
-              <Button variant="ghost" size="icon" onClick={() => update((t) => ({ ...t, footer: { ...t.footer, columns: t.footer.columns.filter((_, i) => i !== ci) } }))}><Trash2 className="h-4 w-4" /></Button>
-            </div>
-            <LinkList items={col.links} onChange={(links) => update((t) => { const c = [...t.footer.columns]; c[ci] = { ...c[ci], links }; return { ...t, footer: { ...t.footer, columns: c } }; })} />
-          </div>
-        ))}
-        <Button variant="outline" size="sm" onClick={() => update((t) => ({ ...t, footer: { ...t.footer, columns: [...t.footer.columns, { title: "New column", links: [] }] } }))}><Plus className="mr-2 h-4 w-4" /> Add column</Button>
-      </Section>
-
-      <Section title="Social links">
-        {theme.footer.socials.map((s, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <select value={s.kind} onChange={(e) => update((t) => { const arr = [...t.footer.socials]; arr[i] = { ...arr[i], kind: e.target.value as any }; return { ...t, footer: { ...t.footer, socials: arr } }; })} className="rounded border-2 border-ink bg-cream px-2 py-1 text-sm">
-              {["instagram", "tiktok", "twitter", "facebook", "email"].map((k) => <option key={k}>{k}</option>)}
-            </select>
-            <Input value={s.href} onChange={(e) => update((t) => { const arr = [...t.footer.socials]; arr[i] = { ...arr[i], href: e.target.value }; return { ...t, footer: { ...t.footer, socials: arr } }; })} />
-            <Button variant="ghost" size="icon" onClick={() => update((t) => ({ ...t, footer: { ...t.footer, socials: t.footer.socials.filter((_, x) => x !== i) } }))}><Trash2 className="h-4 w-4" /></Button>
-          </div>
-        ))}
-        <Button variant="outline" size="sm" onClick={() => update((t) => ({ ...t, footer: { ...t.footer, socials: [...t.footer.socials, { kind: "instagram", href: "" }] } }))}><Plus className="mr-2 h-4 w-4" /> Add social</Button>
-      </Section>
-    </div>
-  );
-}
-
-export function ThemeLegacyNavEditor({ theme, update }: { theme: Theme; update: Updater }) {
-  return <LinkList items={theme.nav.items} onChange={(items) => update((t) => ({ ...t, nav: { items } }))} />;
-}
-
 export function ThemePagesEditor({ theme, update }: { theme: Theme; update: Updater }) {
   return (
     <div className="space-y-6">
@@ -416,34 +376,3 @@ export function ThemeCommerceEditor({ theme, update }: { theme: Theme; update: U
   );
 }
 
-export function ThemeContentEditor({ theme, update }: { theme: Theme; update: Updater }) {
-  return (
-    <Tabs defaultValue="announcement" className="w-full">
-      <TabsList className="mb-4 flex w-full flex-wrap gap-1 bg-ink/5">
-        <TabsTrigger value="announcement">Announcement</TabsTrigger>
-        <TabsTrigger value="home">Homepage</TabsTrigger>
-        <TabsTrigger value="nav">Navigation</TabsTrigger>
-        <TabsTrigger value="footer">Footer</TabsTrigger>
-        <TabsTrigger value="pages">Pages</TabsTrigger>
-        <TabsTrigger value="inventory">Inventory</TabsTrigger>
-        <TabsTrigger value="commerce">Commerce</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="announcement"><ThemeAnnouncementEditor theme={theme} update={update} /></TabsContent>
-
-      <TabsContent value="home" className="space-y-6">
-        <Section title="Hero"><ThemeHeroEditor theme={theme} update={update} /></Section>
-        <Section title="Marquee ticker"><ThemeMarqueeEditor theme={theme} update={update} /></Section>
-        <Section title="Sections (reorder)">
-          <SectionsEditor sections={theme.home.sections} onChange={(sections) => update((t) => ({ ...t, home: { ...t.home, sections } }))} />
-        </Section>
-      </TabsContent>
-
-      <TabsContent value="nav"><ThemeLegacyNavEditor theme={theme} update={update} /></TabsContent>
-      <TabsContent value="footer"><ThemeLegacyFooterEditor theme={theme} update={update} /></TabsContent>
-      <TabsContent value="pages"><ThemePagesEditor theme={theme} update={update} /></TabsContent>
-      <TabsContent value="inventory"><ThemeInventoryEditor theme={theme} update={update} /></TabsContent>
-      <TabsContent value="commerce"><ThemeCommerceEditor theme={theme} update={update} /></TabsContent>
-    </Tabs>
-  );
-}
