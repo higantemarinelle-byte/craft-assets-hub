@@ -115,14 +115,20 @@ function Home() {
               <span style={{ color: heroColors.headlineHighlightB }}>{hero.headlineHighlightB}</span>
             </h1>
             <p className="mt-6 max-w-lg text-lg text-ink/75">{hero.body}</p>
+            {(isCtaVisible(hero.ctaPrimaryEnabled) || isCtaVisible(hero.ctaSecondaryEnabled)) && (
             <div className="mt-8 flex flex-wrap gap-3">
+              {isCtaVisible(hero.ctaPrimaryEnabled) && (
               <CtaLink cta={primaryCta} className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-ink px-6 py-3 text-sm font-bold text-cream transition hover:bg-magenta hover:border-magenta">
                 {hero.ctaPrimaryLabel} <ArrowRight className="h-4 w-4" />
               </CtaLink>
+              )}
+              {isCtaVisible(hero.ctaSecondaryEnabled) && (
               <CtaLink cta={secondaryCta} className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-cream px-6 py-3 text-sm font-bold text-ink transition hover:bg-yellow">
                 {hero.ctaSecondaryLabel}
               </CtaLink>
+              )}
             </div>
+            )}
             <div className="mt-8 flex flex-wrap gap-6 text-xs font-semibold uppercase tracking-widest text-ink/60">
               {theme.pages.product.trustBadges.map((b) => <span key={b}>✓ {b}</span>)}
             </div>
@@ -261,7 +267,7 @@ function Home() {
               <div className={`rounded-2xl border-2 border-ink ${section.bg ?? "bg-yellow"} p-10 text-center cmyk-shadow`}>
                 {section.title && <h2 className="text-display text-3xl md:text-5xl">{section.title}</h2>}
                 {section.body && <p className="mx-auto mt-3 max-w-2xl text-lg">{section.body}</p>}
-                {section.ctaHref && (
+                {section.ctaHref && isCtaVisible(section.ctaEnabled) && (
                   <a href={section.ctaHref} className="mt-6 inline-flex items-center gap-2 rounded-md border-2 border-ink bg-ink px-6 py-3 text-sm font-bold text-cream hover:bg-magenta">
                     {section.ctaLabel ?? "Start a DTF transfer project"} <ArrowRight className="h-4 w-4" />
                   </a>

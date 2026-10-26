@@ -83,7 +83,12 @@ export type ThemeHomeSection =
   | { id: string; type: "featured"; enabled: boolean; title?: string; eyebrow?: string }
   | { id: string; type: "how"; enabled: boolean; title?: string; eyebrow?: string }
   | { id: string; type: "testimonials"; enabled: boolean; title?: string; items: ThemeTestimonial[] }
-  | { id: string; type: "banner"; enabled: boolean; title?: string; body?: string; ctaLabel?: string; ctaHref?: string; bg?: string };
+  | { id: string; type: "banner"; enabled: boolean; title?: string; body?: string; ctaLabel?: string; ctaHref?: string; ctaEnabled?: boolean; bg?: string };
+
+/** A CTA is visible unless explicitly switched off. */
+export function isCtaVisible(enabled: boolean | undefined | null): boolean {
+  return enabled !== false;
+}
 
 export type Theme = {
   brand: {
@@ -128,6 +133,9 @@ export type Theme = {
       ctaPrimaryHref: string;
       ctaSecondaryLabel: string;
       ctaSecondaryHref: string;
+      /** Missing = shown. */
+      ctaPrimaryEnabled?: boolean;
+      ctaSecondaryEnabled?: boolean;
       /** Asset ID from craft_assets — new source of truth. */
       imageAssetId: string | null;
       /** Legacy URL — kept for backward compatibility with existing drafts. */

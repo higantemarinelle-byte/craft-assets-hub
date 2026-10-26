@@ -128,10 +128,12 @@ export function ThemePreviewCanvas({
                   <span style={{ color: hero.headlineHighlightBColor ?? "var(--secondary)" }}>{hero.headlineHighlightB}</span>
                 </h1>
                 <p className="mt-3 max-w-md text-sm opacity-80">{hero.body}</p>
+                {(hero.ctaPrimaryEnabled !== false || hero.ctaSecondaryEnabled !== false) && (
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <PreviewButton theme={theme} variant="primary">{hero.ctaPrimaryLabel}</PreviewButton>
-                  <PreviewButton theme={theme} variant="secondary">{hero.ctaSecondaryLabel}</PreviewButton>
+                  {hero.ctaPrimaryEnabled !== false && <PreviewButton theme={theme} variant="primary">{hero.ctaPrimaryLabel}</PreviewButton>}
+                  {hero.ctaSecondaryEnabled !== false && <PreviewButton theme={theme} variant="secondary">{hero.ctaSecondaryLabel}</PreviewButton>}
                 </div>
+                )}
                 {(theme.pages?.product?.trustBadges ?? []).length > 0 && (
                   <div className="mt-5 flex flex-wrap gap-4 text-[10px] font-semibold uppercase tracking-widest opacity-60">
                     {theme.pages.product.trustBadges.map((b) => <span key={b}>✓ {b}</span>)}
@@ -340,7 +342,7 @@ function SectionPreview({ section, theme }: { section: ThemeHomeSection; theme: 
           <h2 className="text-xl" style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)" }}>{section.title}</h2>
         )}
         {section.body && <p className="mx-auto mt-2 max-w-md text-xs opacity-80">{section.body}</p>}
-        {section.ctaLabel && (
+        {section.ctaLabel && section.ctaEnabled !== false && (
           <div className="mt-3 flex justify-center">
             <PreviewButton theme={theme} variant="primary">{section.ctaLabel}</PreviewButton>
           </div>

@@ -220,8 +220,16 @@ export function ThemeHeroEditor({ theme, update }: { theme: Theme; update: Updat
       </div>
       <Field label="Body"><Textarea value={theme.home.hero.body} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, body: e.target.value } } }))} /></Field>
       <div className="grid gap-3 md:grid-cols-2">
+        <label className="flex items-center gap-2 text-xs font-semibold md:col-span-2">
+          <Switch checked={theme.home.hero.ctaPrimaryEnabled !== false} onCheckedChange={(v) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, ctaPrimaryEnabled: v } } }))} />
+          Show primary button
+        </label>
         <Field label="Primary CTA label"><Input value={theme.home.hero.ctaPrimaryLabel} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, ctaPrimaryLabel: e.target.value } } }))} /></Field>
         <Field label="Primary CTA link"><Input value={theme.home.hero.ctaPrimaryHref} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, ctaPrimaryHref: e.target.value } } }))} /></Field>
+        <label className="flex items-center gap-2 text-xs font-semibold md:col-span-2">
+          <Switch checked={theme.home.hero.ctaSecondaryEnabled !== false} onCheckedChange={(v) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, ctaSecondaryEnabled: v } } }))} />
+          Show secondary button
+        </label>
         <Field label="Secondary CTA label"><Input value={theme.home.hero.ctaSecondaryLabel} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, ctaSecondaryLabel: e.target.value } } }))} /></Field>
         <Field label="Secondary CTA link"><Input value={theme.home.hero.ctaSecondaryHref} onChange={(e) => update((t) => ({ ...t, home: { ...t.home, hero: { ...t.home.hero, ctaSecondaryHref: e.target.value } } }))} /></Field>
       </div>
@@ -286,6 +294,10 @@ export function ThemeSectionSettingsEditor({
         <>
           <Field label="Body"><Textarea value={(section as any).body ?? ""} onChange={(e) => patch({ body: e.target.value })} /></Field>
           <div className="grid gap-3 md:grid-cols-2">
+            <label className="flex items-center gap-2 text-xs font-semibold md:col-span-2">
+              <Switch checked={(section as any).ctaEnabled !== false} onCheckedChange={(v) => patch({ ctaEnabled: v })} />
+              Show button
+            </label>
             <Field label="CTA label"><Input value={(section as any).ctaLabel ?? ""} onChange={(e) => patch({ ctaLabel: e.target.value })} /></Field>
             <Field label="CTA link"><Input value={(section as any).ctaHref ?? ""} onChange={(e) => patch({ ctaHref: e.target.value })} /></Field>
           </div>
