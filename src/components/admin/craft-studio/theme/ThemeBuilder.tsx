@@ -25,7 +25,9 @@ import {
   adminPublishTheme,
   adminListThemeVersions,
   adminRevertThemeVersion,
+  getPublishedTheme,
 } from "@/lib/theme.functions";
+import { Link } from "@tanstack/react-router";
 import { DEFAULT_THEME, mergeTheme, syncLegacyBrandFromTokens, type Theme } from "@/lib/theme";
 import { DEFAULT_DESIGN_TOKENS } from "@/lib/storefront/tokens";
 import { useAuth } from "@/lib/auth";
@@ -44,8 +46,6 @@ import {
   ThemeHeroEditor,
   ThemeMarqueeEditor,
   ThemeSectionSettingsEditor,
-  ThemeLegacyNavEditor,
-  ThemeLegacyFooterEditor,
   ThemePagesEditor,
   ThemeInventoryEditor,
   ThemeCommerceEditor,
@@ -114,6 +114,8 @@ export function ThemeBuilder() {
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState<"save" | "publish" | null>(null);
   const [statusNote, setStatusNote] = useState<string | null>(null);
+  const [liveSynced, setLiveSynced] = useState(false);
+  const publishedAt: string | null = (row as any)?.published_at ?? null;
   const [panel, setPanel] = useState<PanelId>(() => panelFromSearch((search as any)?.panel));
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
 
@@ -208,17 +210,26 @@ export function ThemeBuilder() {
         await saveFn({ data: { draft: synced } });
         setDraft(synced);
       }
-      await publishFn({ data: {} });
+      const res: any = await publishFn({ data: {} });
       setDirty(false);
-      setStatusNote("Live · Published just now");
       await Promise.all([
         qc.invalidateQueries({ queryKey: themeQueryKeys.admin }),
-        qc.invalidateQueries({ queryKey: themeQueryKeys.published, refetchType: "all" }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.draft }),
         qc.invalidateQueries({ queryKey: themeQueryKeys.versions }),
         qc.invalidateQueries({ queryKey: craftStudioQueryKeys.dashboard, refetchType: "all" }),
       ]);
-      toast.success("Published live 🎉");
+      // Verify the public reader sees the exact version we just published.
+      const live = await qc.fetchQuery({ queryKey: themeQueryKeys.published, queryFn: () => getPublishedTheme(), staleTime: 0 });
+      const same = (live as any)?.status === "ok" && !!res?.published_at &&
+        new Date((live as any).published_at).getTime() === new Date(res.published_at).getTime();
+      setLiveSynced(same);
+      if (same) {
+        setStatusNote("Live · Published just now");
+        toast.success("Published live");
+      } else {
+        setStatusNote("Saved — live sync not verified");
+        toast.error("Theme was saved but live storefront sync could not be verified.");
+      }
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to publish");
     } finally {
@@ -285,6 +296,13 @@ export function ThemeBuilder() {
             <span className={dirty ? "rounded bg-yellow px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-ink" : "font-semibold"}>
               {statusText}
             </span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Last published:{" "}
+            {publishedAt
+              ? new Date(publishedAt).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" })
+              : "Never"}
+            {liveSynced && <span className="ml-2 font-semibold text-foreground">· Live theme synced</span>}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -381,21 +399,12 @@ export function ThemeBuilder() {
             )}
             {panel === "announcement" && <ThemeAnnouncementEditor theme={draft} update={update} />}
             {panel === "navigation" && (
-              <div className="space-y-3">
-                <p className="rounded border-2 border-ink/20 bg-yellow/40 p-3 text-xs">
-                  Full menu structure lives in the dedicated Navigation Builder (Craft Studio → Navigation).
-                  These legacy links are kept for backwards compatibility.
-                </p>
-                <ThemeLegacyNavEditor theme={draft} update={update} />
-              </div>
+              <BuilderLink to="/portal-admin/craft-studio/navigation" title="Navigation Builder"
+                text="The live header menu is edited in the Navigation Builder. Save any changes here first." />
             )}
             {panel === "footer" && (
-              <div className="space-y-3">
-                <p className="rounded border-2 border-ink/20 bg-yellow/40 p-3 text-xs">
-                  Advanced footer layout lives in the dedicated Footer Builder (Craft Studio → Footer).
-                </p>
-                <ThemeLegacyFooterEditor theme={draft} update={update} />
-              </div>
+              <BuilderLink to="/portal-admin/craft-studio/footer" title="Footer Builder"
+                text="The live footer is edited in the Footer Builder. Save any changes here first." />
             )}
             {panel === "brand" && <ThemeBrandEditor theme={draft} update={update} />}
             {panel === "colors" && <ThemeColorEditor theme={draft} update={update} />}
@@ -510,3 +519,14 @@ function VersionPanel({ versions, onRevert, isOwner }: { versions: any[]; onReve
 
 // Silence "DEFAULT_THEME unused" if a future edit removes references.
 void DEFAULT_THEME;
+
+function BuilderLink({ to, title, text }: { to: "/portal-admin/craft-studio/navigation" | "/portal-admin/craft-studio/footer"; title: string; text: string }) {
+  return (
+    <div className="space-y-3 rounded border-2 border-ink/20 p-4 text-sm">
+      <p>{text}</p>
+      <Link to={to} className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-cream px-4 py-2 font-bold hover:bg-yellow">
+        Open {title} <ExternalLink className="h-4 w-4" />
+      </Link>
+    </div>
+  );
+}
