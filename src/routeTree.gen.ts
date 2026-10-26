@@ -9,88 +9,52 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ShopRouteImport } from './routes/shop'
-import { Route as QuoteSubmittedRouteImport } from './routes/quote-submitted'
-import { Route as ProjectSubmittedRouteImport } from './routes/project-submitted'
-import { Route as HowItWorksRouteImport } from './routes/how-it-works'
-import { Route as GangSheetRouteImport } from './routes/gang-sheet'
-import { Route as CheckoutRouteImport } from './routes/checkout'
-import { Route as CartRouteImport } from './routes/cart'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CartRouteImport } from './routes/cart'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as GangSheetRouteImport } from './routes/gang-sheet'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as ProjectSubmittedRouteImport } from './routes/project-submitted'
+import { Route as QuoteSubmittedRouteImport } from './routes/quote-submitted'
+import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedPortalAdminRouteRouteImport } from './routes/_authenticated/portal-admin/route'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as AuthenticatedPortalAdminIndexRouteImport } from './routes/_authenticated/portal-admin/index'
-import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects.$id'
-import { Route as AuthenticatedPortalAdminThemeRouteImport } from './routes/_authenticated/portal-admin/theme'
-import { Route as AuthenticatedPortalAdminQuoteRequestsRouteImport } from './routes/_authenticated/portal-admin/quote-requests'
-import { Route as AuthenticatedPortalAdminProjectsRouteImport } from './routes/_authenticated/portal-admin/projects'
-import { Route as AuthenticatedPortalAdminOrdersRouteImport } from './routes/_authenticated/portal-admin/orders'
-import { Route as AuthenticatedPortalAdminEmployeesRouteImport } from './routes/_authenticated/portal-admin/employees'
-import { Route as AuthenticatedPortalAdminDiscountsRouteImport } from './routes/_authenticated/portal-admin/discounts'
-import { Route as AuthenticatedPortalAdminCustomersRouteImport } from './routes/_authenticated/portal-admin/customers'
-import { Route as AuthenticatedPortalAdminCraftStudioRouteImport } from './routes/_authenticated/portal-admin/craft-studio'
 import { Route as AuthenticatedPortalAdminCategoriesRouteImport } from './routes/_authenticated/portal-admin/categories'
-import { Route as AuthenticatedPortalAdminProductsIndexRouteImport } from './routes/_authenticated/portal-admin/products.index'
-import { Route as AuthenticatedPortalAdminQuoteRequestsIdRouteImport } from './routes/_authenticated/portal-admin/quote-requests.$id'
-import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes/_authenticated/portal-admin/projects.$id'
-import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
-import { Route as AuthenticatedPortalAdminProductsIdRouteImport } from './routes/_authenticated/portal-admin/products.$id'
-import { Route as AuthenticatedPortalAdminGangSheetPricingRouteImport } from './routes/_authenticated/portal-admin/gang-sheet.pricing'
-import { Route as AuthenticatedPortalAdminCustomersIdRouteImport } from './routes/_authenticated/portal-admin/customers.$id'
-import { Route as AuthenticatedPortalAdminCraftStudioNavigationRouteImport } from './routes/_authenticated/portal-admin/craft-studio.navigation'
-import { Route as AuthenticatedPortalAdminCraftStudioFooterRouteImport } from './routes/_authenticated/portal-admin/craft-studio.footer'
+import { Route as AuthenticatedPortalAdminCraftStudioRouteImport } from './routes/_authenticated/portal-admin/craft-studio'
+import { Route as AuthenticatedPortalAdminCustomersRouteImport } from './routes/_authenticated/portal-admin/customers'
+import { Route as AuthenticatedPortalAdminDiscountsRouteImport } from './routes/_authenticated/portal-admin/discounts'
+import { Route as AuthenticatedPortalAdminEmployeesRouteImport } from './routes/_authenticated/portal-admin/employees'
+import { Route as AuthenticatedPortalAdminOrdersRouteImport } from './routes/_authenticated/portal-admin/orders'
+import { Route as AuthenticatedPortalAdminProjectsRouteImport } from './routes/_authenticated/portal-admin/projects'
+import { Route as AuthenticatedPortalAdminQuoteRequestsRouteImport } from './routes/_authenticated/portal-admin/quote-requests'
+import { Route as AuthenticatedPortalAdminThemeRouteImport } from './routes/_authenticated/portal-admin/theme'
+import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects.$id'
 import { Route as AuthenticatedPortalAdminCraftStudioAssetsRouteImport } from './routes/_authenticated/portal-admin/craft-studio.assets'
+import { Route as AuthenticatedPortalAdminCraftStudioFooterRouteImport } from './routes/_authenticated/portal-admin/craft-studio.footer'
+import { Route as AuthenticatedPortalAdminCraftStudioNavigationRouteImport } from './routes/_authenticated/portal-admin/craft-studio.navigation'
+import { Route as AuthenticatedPortalAdminCustomersIdRouteImport } from './routes/_authenticated/portal-admin/customers.$id'
+import { Route as AuthenticatedPortalAdminGangSheetPricingRouteImport } from './routes/_authenticated/portal-admin/gang-sheet.pricing'
+import { Route as AuthenticatedPortalAdminProductsIndexRouteImport } from './routes/_authenticated/portal-admin/products.index'
+import { Route as AuthenticatedPortalAdminProductsIdRouteImport } from './routes/_authenticated/portal-admin/products.$id'
+import { Route as AuthenticatedPortalAdminProductsNewRouteImport } from './routes/_authenticated/portal-admin/products.new'
+import { Route as AuthenticatedPortalAdminProjectsIdRouteImport } from './routes/_authenticated/portal-admin/projects.$id'
+import { Route as AuthenticatedPortalAdminQuoteRequestsIdRouteImport } from './routes/_authenticated/portal-admin/quote-requests.$id'
 import { Route as AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport } from './routes/_authenticated/portal-admin/orders.$id.packing-slip'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShopRoute = ShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QuoteSubmittedRoute = QuoteSubmittedRouteImport.update({
-  id: '/quote-submitted',
-  path: '/quote-submitted',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectSubmittedRoute = ProjectSubmittedRouteImport.update({
-  id: '/project-submitted',
-  path: '/project-submitted',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HowItWorksRoute = HowItWorksRouteImport.update({
-  id: '/how-it-works',
-  path: '/how-it-works',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GangSheetRoute = GangSheetRouteImport.update({
-  id: '/gang-sheet',
-  path: '/gang-sheet',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutRoute = CheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CartRoute = CartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -98,24 +62,50 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShopSlugRoute = ShopSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ShopRoute,
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/callback',
-  path: '/callback',
-  getParentRoute: () => AuthRoute,
+const GangSheetRoute = GangSheetRouteImport.update({
+  id: '/gang-sheet',
+  path: '/gang-sheet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectSubmittedRoute = ProjectSubmittedRouteImport.update({
+  id: '/project-submitted',
+  path: '/project-submitted',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteSubmittedRoute = QuoteSubmittedRouteImport.update({
+  id: '/quote-submitted',
+  path: '/quote-submitted',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
@@ -128,63 +118,20 @@ const AuthenticatedPortalAdminRouteRoute =
     path: '/portal-admin',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
+const ShopSlugRoute = ShopSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ShopRoute,
+} as any)
 const AuthenticatedPortalAdminIndexRoute =
   AuthenticatedPortalAdminIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedProjectsIdRoute = AuthenticatedProjectsIdRouteImport.update({
-  id: '/projects/$id',
-  path: '/projects/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPortalAdminThemeRoute =
-  AuthenticatedPortalAdminThemeRouteImport.update({
-    id: '/theme',
-    path: '/theme',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedPortalAdminQuoteRequestsRoute =
-  AuthenticatedPortalAdminQuoteRequestsRouteImport.update({
-    id: '/quote-requests',
-    path: '/quote-requests',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedPortalAdminProjectsRoute =
-  AuthenticatedPortalAdminProjectsRouteImport.update({
-    id: '/projects',
-    path: '/projects',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedPortalAdminOrdersRoute =
-  AuthenticatedPortalAdminOrdersRouteImport.update({
-    id: '/orders',
-    path: '/orders',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedPortalAdminEmployeesRoute =
-  AuthenticatedPortalAdminEmployeesRouteImport.update({
-    id: '/employees',
-    path: '/employees',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedPortalAdminDiscountsRoute =
-  AuthenticatedPortalAdminDiscountsRouteImport.update({
-    id: '/discounts',
-    path: '/discounts',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedPortalAdminCustomersRoute =
-  AuthenticatedPortalAdminCustomersRouteImport.update({
-    id: '/customers',
-    path: '/customers',
-    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
-  } as any)
-const AuthenticatedPortalAdminCraftStudioRoute =
-  AuthenticatedPortalAdminCraftStudioRouteImport.update({
-    id: '/craft-studio',
-    path: '/craft-studio',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
 const AuthenticatedPortalAdminCategoriesRoute =
@@ -193,52 +140,63 @@ const AuthenticatedPortalAdminCategoriesRoute =
     path: '/categories',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminProductsIndexRoute =
-  AuthenticatedPortalAdminProductsIndexRouteImport.update({
-    id: '/products/',
-    path: '/products/',
+const AuthenticatedPortalAdminCraftStudioRoute =
+  AuthenticatedPortalAdminCraftStudioRouteImport.update({
+    id: '/craft-studio',
+    path: '/craft-studio',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminQuoteRequestsIdRoute =
-  AuthenticatedPortalAdminQuoteRequestsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedPortalAdminQuoteRequestsRoute,
-  } as any)
-const AuthenticatedPortalAdminProjectsIdRoute =
-  AuthenticatedPortalAdminProjectsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedPortalAdminProjectsRoute,
-  } as any)
-const AuthenticatedPortalAdminProductsNewRoute =
-  AuthenticatedPortalAdminProductsNewRouteImport.update({
-    id: '/products/new',
-    path: '/products/new',
+const AuthenticatedPortalAdminCustomersRoute =
+  AuthenticatedPortalAdminCustomersRouteImport.update({
+    id: '/customers',
+    path: '/customers',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminProductsIdRoute =
-  AuthenticatedPortalAdminProductsIdRouteImport.update({
-    id: '/products/$id',
-    path: '/products/$id',
+const AuthenticatedPortalAdminDiscountsRoute =
+  AuthenticatedPortalAdminDiscountsRouteImport.update({
+    id: '/discounts',
+    path: '/discounts',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminGangSheetPricingRoute =
-  AuthenticatedPortalAdminGangSheetPricingRouteImport.update({
-    id: '/gang-sheet/pricing',
-    path: '/gang-sheet/pricing',
+const AuthenticatedPortalAdminEmployeesRoute =
+  AuthenticatedPortalAdminEmployeesRouteImport.update({
+    id: '/employees',
+    path: '/employees',
     getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminCustomersIdRoute =
-  AuthenticatedPortalAdminCustomersIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedPortalAdminCustomersRoute,
+const AuthenticatedPortalAdminOrdersRoute =
+  AuthenticatedPortalAdminOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
   } as any)
-const AuthenticatedPortalAdminCraftStudioNavigationRoute =
-  AuthenticatedPortalAdminCraftStudioNavigationRouteImport.update({
-    id: '/navigation',
-    path: '/navigation',
+const AuthenticatedPortalAdminProjectsRoute =
+  AuthenticatedPortalAdminProjectsRouteImport.update({
+    id: '/projects',
+    path: '/projects',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminQuoteRequestsRoute =
+  AuthenticatedPortalAdminQuoteRequestsRouteImport.update({
+    id: '/quote-requests',
+    path: '/quote-requests',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminThemeRoute =
+  AuthenticatedPortalAdminThemeRouteImport.update({
+    id: '/theme',
+    path: '/theme',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedProjectsIdRoute = AuthenticatedProjectsIdRouteImport.update({
+  id: '/projects/$id',
+  path: '/projects/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPortalAdminCraftStudioAssetsRoute =
+  AuthenticatedPortalAdminCraftStudioAssetsRouteImport.update({
+    id: '/assets',
+    path: '/assets',
     getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
   } as any)
 const AuthenticatedPortalAdminCraftStudioFooterRoute =
@@ -247,11 +205,53 @@ const AuthenticatedPortalAdminCraftStudioFooterRoute =
     path: '/footer',
     getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
   } as any)
-const AuthenticatedPortalAdminCraftStudioAssetsRoute =
-  AuthenticatedPortalAdminCraftStudioAssetsRouteImport.update({
-    id: '/assets',
-    path: '/assets',
+const AuthenticatedPortalAdminCraftStudioNavigationRoute =
+  AuthenticatedPortalAdminCraftStudioNavigationRouteImport.update({
+    id: '/navigation',
+    path: '/navigation',
     getParentRoute: () => AuthenticatedPortalAdminCraftStudioRoute,
+  } as any)
+const AuthenticatedPortalAdminCustomersIdRoute =
+  AuthenticatedPortalAdminCustomersIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortalAdminCustomersRoute,
+  } as any)
+const AuthenticatedPortalAdminGangSheetPricingRoute =
+  AuthenticatedPortalAdminGangSheetPricingRouteImport.update({
+    id: '/gang-sheet/pricing',
+    path: '/gang-sheet/pricing',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminProductsIndexRoute =
+  AuthenticatedPortalAdminProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminProductsIdRoute =
+  AuthenticatedPortalAdminProductsIdRouteImport.update({
+    id: '/products/$id',
+    path: '/products/$id',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminProductsNewRoute =
+  AuthenticatedPortalAdminProductsNewRouteImport.update({
+    id: '/products/new',
+    path: '/products/new',
+    getParentRoute: () => AuthenticatedPortalAdminRouteRoute,
+  } as any)
+const AuthenticatedPortalAdminProjectsIdRoute =
+  AuthenticatedPortalAdminProjectsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortalAdminProjectsRoute,
+  } as any)
+const AuthenticatedPortalAdminQuoteRequestsIdRoute =
+  AuthenticatedPortalAdminQuoteRequestsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortalAdminQuoteRequestsRoute,
   } as any)
 const AuthenticatedPortalAdminOrdersIdPackingSlipRoute =
   AuthenticatedPortalAdminOrdersIdPackingSlipRouteImport.update({
@@ -515,74 +515,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quote-submitted': {
-      id: '/quote-submitted'
-      path: '/quote-submitted'
-      fullPath: '/quote-submitted'
-      preLoaderRoute: typeof QuoteSubmittedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/project-submitted': {
-      id: '/project-submitted'
-      path: '/project-submitted'
-      fullPath: '/project-submitted'
-      preLoaderRoute: typeof ProjectSubmittedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/how-it-works': {
-      id: '/how-it-works'
-      path: '/how-it-works'
-      fullPath: '/how-it-works'
-      preLoaderRoute: typeof HowItWorksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gang-sheet': {
-      id: '/gang-sheet'
-      path: '/gang-sheet'
-      fullPath: '/gang-sheet'
-      preLoaderRoute: typeof GangSheetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout': {
-      id: '/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cart': {
-      id: '/cart'
-      path: '/cart'
-      fullPath: '/cart'
-      preLoaderRoute: typeof CartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -592,26 +529,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop/$slug': {
-      id: '/shop/$slug'
-      path: '/$slug'
-      fullPath: '/shop/$slug'
-      preLoaderRoute: typeof ShopSlugRouteImport
-      parentRoute: typeof ShopRoute
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof AuthRoute
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gang-sheet': {
+      id: '/gang-sheet'
+      path: '/gang-sheet'
+      fullPath: '/gang-sheet'
+      preLoaderRoute: typeof GangSheetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project-submitted': {
+      id: '/project-submitted'
+      path: '/project-submitted'
+      fullPath: '/project-submitted'
+      preLoaderRoute: typeof ProjectSubmittedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote-submitted': {
+      id: '/quote-submitted'
+      path: '/quote-submitted'
+      fullPath: '/quote-submitted'
+      preLoaderRoute: typeof QuoteSubmittedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account': {
       id: '/_authenticated/account'
@@ -627,74 +613,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/shop/$slug': {
+      id: '/shop/$slug'
+      path: '/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteImport
+      parentRoute: typeof ShopRoute
+    }
     '/_authenticated/portal-admin/': {
       id: '/_authenticated/portal-admin/'
       path: '/'
       fullPath: '/portal-admin/'
       preLoaderRoute: typeof AuthenticatedPortalAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/projects/$id': {
-      id: '/_authenticated/projects/$id'
-      path: '/projects/$id'
-      fullPath: '/projects/$id'
-      preLoaderRoute: typeof AuthenticatedProjectsIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/portal-admin/theme': {
-      id: '/_authenticated/portal-admin/theme'
-      path: '/theme'
-      fullPath: '/portal-admin/theme'
-      preLoaderRoute: typeof AuthenticatedPortalAdminThemeRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/portal-admin/quote-requests': {
-      id: '/_authenticated/portal-admin/quote-requests'
-      path: '/quote-requests'
-      fullPath: '/portal-admin/quote-requests'
-      preLoaderRoute: typeof AuthenticatedPortalAdminQuoteRequestsRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/portal-admin/projects': {
-      id: '/_authenticated/portal-admin/projects'
-      path: '/projects'
-      fullPath: '/portal-admin/projects'
-      preLoaderRoute: typeof AuthenticatedPortalAdminProjectsRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/portal-admin/orders': {
-      id: '/_authenticated/portal-admin/orders'
-      path: '/orders'
-      fullPath: '/portal-admin/orders'
-      preLoaderRoute: typeof AuthenticatedPortalAdminOrdersRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/portal-admin/employees': {
-      id: '/_authenticated/portal-admin/employees'
-      path: '/employees'
-      fullPath: '/portal-admin/employees'
-      preLoaderRoute: typeof AuthenticatedPortalAdminEmployeesRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/portal-admin/discounts': {
-      id: '/_authenticated/portal-admin/discounts'
-      path: '/discounts'
-      fullPath: '/portal-admin/discounts'
-      preLoaderRoute: typeof AuthenticatedPortalAdminDiscountsRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/portal-admin/customers': {
-      id: '/_authenticated/portal-admin/customers'
-      path: '/customers'
-      fullPath: '/portal-admin/customers'
-      preLoaderRoute: typeof AuthenticatedPortalAdminCustomersRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
-    }
-    '/_authenticated/portal-admin/craft-studio': {
-      id: '/_authenticated/portal-admin/craft-studio'
-      path: '/craft-studio'
-      fullPath: '/portal-admin/craft-studio'
-      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
     '/_authenticated/portal-admin/categories': {
@@ -704,60 +641,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/products/': {
-      id: '/_authenticated/portal-admin/products/'
-      path: '/products'
-      fullPath: '/portal-admin/products/'
-      preLoaderRoute: typeof AuthenticatedPortalAdminProductsIndexRouteImport
+    '/_authenticated/portal-admin/craft-studio': {
+      id: '/_authenticated/portal-admin/craft-studio'
+      path: '/craft-studio'
+      fullPath: '/portal-admin/craft-studio'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/quote-requests/$id': {
-      id: '/_authenticated/portal-admin/quote-requests/$id'
-      path: '/$id'
-      fullPath: '/portal-admin/quote-requests/$id'
-      preLoaderRoute: typeof AuthenticatedPortalAdminQuoteRequestsIdRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminQuoteRequestsRoute
-    }
-    '/_authenticated/portal-admin/projects/$id': {
-      id: '/_authenticated/portal-admin/projects/$id'
-      path: '/$id'
-      fullPath: '/portal-admin/projects/$id'
-      preLoaderRoute: typeof AuthenticatedPortalAdminProjectsIdRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminProjectsRoute
-    }
-    '/_authenticated/portal-admin/products/new': {
-      id: '/_authenticated/portal-admin/products/new'
-      path: '/products/new'
-      fullPath: '/portal-admin/products/new'
-      preLoaderRoute: typeof AuthenticatedPortalAdminProductsNewRouteImport
+    '/_authenticated/portal-admin/customers': {
+      id: '/_authenticated/portal-admin/customers'
+      path: '/customers'
+      fullPath: '/portal-admin/customers'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCustomersRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/products/$id': {
-      id: '/_authenticated/portal-admin/products/$id'
-      path: '/products/$id'
-      fullPath: '/portal-admin/products/$id'
-      preLoaderRoute: typeof AuthenticatedPortalAdminProductsIdRouteImport
+    '/_authenticated/portal-admin/discounts': {
+      id: '/_authenticated/portal-admin/discounts'
+      path: '/discounts'
+      fullPath: '/portal-admin/discounts'
+      preLoaderRoute: typeof AuthenticatedPortalAdminDiscountsRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/gang-sheet/pricing': {
-      id: '/_authenticated/portal-admin/gang-sheet/pricing'
-      path: '/gang-sheet/pricing'
-      fullPath: '/portal-admin/gang-sheet/pricing'
-      preLoaderRoute: typeof AuthenticatedPortalAdminGangSheetPricingRouteImport
+    '/_authenticated/portal-admin/employees': {
+      id: '/_authenticated/portal-admin/employees'
+      path: '/employees'
+      fullPath: '/portal-admin/employees'
+      preLoaderRoute: typeof AuthenticatedPortalAdminEmployeesRouteImport
       parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/customers/$id': {
-      id: '/_authenticated/portal-admin/customers/$id'
-      path: '/$id'
-      fullPath: '/portal-admin/customers/$id'
-      preLoaderRoute: typeof AuthenticatedPortalAdminCustomersIdRouteImport
-      parentRoute: typeof AuthenticatedPortalAdminCustomersRoute
+    '/_authenticated/portal-admin/orders': {
+      id: '/_authenticated/portal-admin/orders'
+      path: '/orders'
+      fullPath: '/portal-admin/orders'
+      preLoaderRoute: typeof AuthenticatedPortalAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
     }
-    '/_authenticated/portal-admin/craft-studio/navigation': {
-      id: '/_authenticated/portal-admin/craft-studio/navigation'
-      path: '/navigation'
-      fullPath: '/portal-admin/craft-studio/navigation'
-      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioNavigationRouteImport
+    '/_authenticated/portal-admin/projects': {
+      id: '/_authenticated/portal-admin/projects'
+      path: '/projects'
+      fullPath: '/portal-admin/projects'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProjectsRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/quote-requests': {
+      id: '/_authenticated/portal-admin/quote-requests'
+      path: '/quote-requests'
+      fullPath: '/portal-admin/quote-requests'
+      preLoaderRoute: typeof AuthenticatedPortalAdminQuoteRequestsRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/theme': {
+      id: '/_authenticated/portal-admin/theme'
+      path: '/theme'
+      fullPath: '/portal-admin/theme'
+      preLoaderRoute: typeof AuthenticatedPortalAdminThemeRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/projects/$id': {
+      id: '/_authenticated/projects/$id'
+      path: '/projects/$id'
+      fullPath: '/projects/$id'
+      preLoaderRoute: typeof AuthenticatedProjectsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/portal-admin/craft-studio/assets': {
+      id: '/_authenticated/portal-admin/craft-studio/assets'
+      path: '/assets'
+      fullPath: '/portal-admin/craft-studio/assets'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRouteImport
       parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
     }
     '/_authenticated/portal-admin/craft-studio/footer': {
@@ -767,12 +718,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioFooterRouteImport
       parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
     }
-    '/_authenticated/portal-admin/craft-studio/assets': {
-      id: '/_authenticated/portal-admin/craft-studio/assets'
-      path: '/assets'
-      fullPath: '/portal-admin/craft-studio/assets'
-      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioAssetsRouteImport
+    '/_authenticated/portal-admin/craft-studio/navigation': {
+      id: '/_authenticated/portal-admin/craft-studio/navigation'
+      path: '/navigation'
+      fullPath: '/portal-admin/craft-studio/navigation'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCraftStudioNavigationRouteImport
       parentRoute: typeof AuthenticatedPortalAdminCraftStudioRoute
+    }
+    '/_authenticated/portal-admin/customers/$id': {
+      id: '/_authenticated/portal-admin/customers/$id'
+      path: '/$id'
+      fullPath: '/portal-admin/customers/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminCustomersIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminCustomersRoute
+    }
+    '/_authenticated/portal-admin/gang-sheet/pricing': {
+      id: '/_authenticated/portal-admin/gang-sheet/pricing'
+      path: '/gang-sheet/pricing'
+      fullPath: '/portal-admin/gang-sheet/pricing'
+      preLoaderRoute: typeof AuthenticatedPortalAdminGangSheetPricingRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/products/': {
+      id: '/_authenticated/portal-admin/products/'
+      path: '/products'
+      fullPath: '/portal-admin/products/'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProductsIndexRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/products/$id': {
+      id: '/_authenticated/portal-admin/products/$id'
+      path: '/products/$id'
+      fullPath: '/portal-admin/products/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProductsIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/products/new': {
+      id: '/_authenticated/portal-admin/products/new'
+      path: '/products/new'
+      fullPath: '/portal-admin/products/new'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProductsNewRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminRouteRoute
+    }
+    '/_authenticated/portal-admin/projects/$id': {
+      id: '/_authenticated/portal-admin/projects/$id'
+      path: '/$id'
+      fullPath: '/portal-admin/projects/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminProjectsIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminProjectsRoute
+    }
+    '/_authenticated/portal-admin/quote-requests/$id': {
+      id: '/_authenticated/portal-admin/quote-requests/$id'
+      path: '/$id'
+      fullPath: '/portal-admin/quote-requests/$id'
+      preLoaderRoute: typeof AuthenticatedPortalAdminQuoteRequestsIdRouteImport
+      parentRoute: typeof AuthenticatedPortalAdminQuoteRequestsRoute
     }
     '/_authenticated/portal-admin/orders/$id/packing-slip': {
       id: '/_authenticated/portal-admin/orders/$id/packing-slip'
