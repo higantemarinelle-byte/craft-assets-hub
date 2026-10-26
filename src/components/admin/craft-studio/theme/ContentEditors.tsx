@@ -396,7 +396,7 @@ export function ThemeNavigationEditor({ theme, update }: { theme: Theme; update:
           items={nav.links}
           max={12}
           onChange={(links) => setNav({ links })}
-          make={() => ({ id: rid("nav"), label: "New link", type: "internal", href: "/", enabled: true, openInNewTab: false, children: [] })}
+          make={() => ({ id: rid("nav"), label: "New link", type: "internal" as const, href: "/", enabled: true, openInNewTab: false, children: [] })}
         />
       </Section>
       <Field label="Project Cart label"><Input value={nav.projectCartLabel} onChange={(e) => setNav({ projectCartLabel: e.target.value })} /></Field>
