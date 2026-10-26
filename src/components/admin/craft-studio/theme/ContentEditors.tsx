@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Trash2, Plus, ArrowUp, ArrowDown, Eye, EyeOff, GripVertical, ChevronRight } from "lucide-react";
 import { MediaPicker } from "@/components/admin/craft-studio/MediaPicker";
 import type { Theme, ThemeHomeSection } from "@/lib/theme";
@@ -93,21 +92,6 @@ function StringList({ items, onChange, placeholder }: { items: string[]; onChang
         </div>
       ))}
       <Button variant="outline" size="sm" onClick={() => onChange([...items, ""])}><Plus className="mr-2 h-4 w-4" /> Add</Button>
-    </div>
-  );
-}
-
-function LinkList({ items, onChange }: { items: { label: string; href: string }[]; onChange: (items: { label: string; href: string }[]) => void }) {
-  return (
-    <div className="space-y-2">
-      {items.map((it, i) => (
-        <div key={i} className="flex gap-2">
-          <Input value={it.label} onChange={(e) => { const arr = [...items]; arr[i] = { ...arr[i], label: e.target.value }; onChange(arr); }} placeholder="Label" />
-          <Input value={it.href} onChange={(e) => { const arr = [...items]; arr[i] = { ...arr[i], href: e.target.value }; onChange(arr); }} placeholder="/path" />
-          <Button variant="ghost" size="icon" onClick={() => onChange(items.filter((_, x) => x !== i))}><Trash2 className="h-4 w-4" /></Button>
-        </div>
-      ))}
-      <Button variant="outline" size="sm" onClick={() => onChange([...items, { label: "New", href: "/" }])}><Plus className="mr-2 h-4 w-4" /> Add link</Button>
     </div>
   );
 }
@@ -338,17 +322,6 @@ export function ThemePagesEditor({ theme, update }: { theme: Theme; update: Upda
         ))}
         <Button variant="outline" size="sm" onClick={() => update((t) => ({ ...t, pages: { ...t.pages, about: { blocks: [...t.pages.about.blocks, { heading: "", body: "" }] } } }))}><Plus className="mr-2 h-4 w-4" /> Add block</Button>
       </Section>
-    </div>
-  );
-}
-
-export function ThemeInventoryEditor({ theme, update }: { theme: Theme; update: Updater }) {
-  return (
-    <div className="space-y-4">
-      <Field label="Low stock threshold">
-        <Input type="number" min={0} value={theme.inventory.lowStockThreshold} onChange={(e) => update((t) => ({ ...t, inventory: { lowStockThreshold: Number(e.target.value) || 0 } }))} />
-      </Field>
-      <p className="text-xs text-muted-foreground">Variants at or below this stock level are flagged as low stock.</p>
     </div>
   );
 }
