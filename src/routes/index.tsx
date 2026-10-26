@@ -6,7 +6,7 @@ import { ProductCard } from "@/components/site/ProductCard";
 import { Marquee } from "@/components/site/Marquee";
 import { useTheme } from "@/lib/theme-context";
 import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
-import { resolveHeroColors } from "@/lib/theme";
+import { resolveHeroColors, isCtaVisible } from "@/lib/theme";
 
 const LEGACY_CTA_MAP: Record<string, string> = {
   "/products": "/shop",
