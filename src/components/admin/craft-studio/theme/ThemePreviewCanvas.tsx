@@ -9,6 +9,7 @@ import { StorefrontThemeScope } from "@/components/site/StorefrontThemeScope";
 import { Button } from "@/components/ui/button";
 import { Monitor, Tablet, Smartphone, Maximize2, PanelLeftOpen } from "lucide-react";
 import { currentYearReplace } from "@/lib/storefront/site-config";
+import { StorefrontAssetImage } from "@/components/site/StorefrontAssetImage";
 
 type Device = "desktop" | "tablet" | "mobile";
 const WIDTHS: Record<Device, number> = { desktop: 1200, tablet: 834, mobile: 390 };
@@ -91,7 +92,11 @@ export function ThemePreviewCanvas({
             <Region id="navigation" focus={focus}>
               <div className="flex items-center justify-between gap-3 border-b-2 px-4 py-3" style={{ borderColor: "var(--border)" }}>
                 <div style={{ fontFamily: "var(--font-display)", fontWeight: "var(--font-heading-weight)", letterSpacing: "var(--font-heading-letter-spacing)" }} className="text-xl">
-                  {theme.brand.name}
+                  {theme.brand.logoAssetId || theme.brand.logoUrl ? (
+                    <StorefrontAssetImage assetId={theme.brand.logoAssetId} fallbackUrl={theme.brand.logoUrl} alt={theme.brand.name} className="h-8 w-auto object-contain" />
+                  ) : (
+                    theme.brand.name
+                  )}
                 </div>
                 <div className="flex flex-wrap justify-end gap-3 text-xs">
                   {(theme.navigation?.links ?? []).filter((l) => l.enabled).slice(0, 6).map((l) => (
@@ -111,7 +116,8 @@ export function ThemePreviewCanvas({
 
             {/* Hero */}
             <Region id="hero" focus={focus}>
-              <div className="px-6 py-10">
+              <div className={`grid gap-6 px-6 py-10 ${device === "mobile" ? "" : "grid-cols-12 items-center"}`}>
+              <div className={device === "mobile" ? "" : "col-span-7"}>
                 <div className="mb-2 inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest" style={{ background: "var(--highlight, var(--secondary))", color: "var(--foreground)" }}>
                   {hero.eyebrow}
                 </div>
@@ -126,6 +132,30 @@ export function ThemePreviewCanvas({
                   <PreviewButton theme={theme} variant="primary">{hero.ctaPrimaryLabel}</PreviewButton>
                   <PreviewButton theme={theme} variant="secondary">{hero.ctaSecondaryLabel}</PreviewButton>
                 </div>
+                {(theme.pages?.product?.trustBadges ?? []).length > 0 && (
+                  <div className="mt-5 flex flex-wrap gap-4 text-[10px] font-semibold uppercase tracking-widest opacity-60">
+                    {theme.pages.product.trustBadges.map((b) => <span key={b}>✓ {b}</span>)}
+                  </div>
+                )}
+              </div>
+              <div className={device === "mobile" ? "" : "col-span-5"}>
+                <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border-2" style={{ borderColor: "var(--foreground)", background: "var(--foreground)" }}>
+                  {hero.imageAssetId || hero.imageUrl ? (
+                    <StorefrontAssetImage
+                      key={hero.imageAssetId ?? hero.imageUrl ?? ""}
+                      assetId={hero.imageAssetId}
+                      fallbackUrl={hero.imageUrl}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-br from-magenta via-magenta/70 to-cyan p-5 text-cream">
+                      <div className="text-[10px] font-bold uppercase tracking-[0.3em]">CMYK · Direct to film</div>
+                      <div className="text-display text-4xl leading-[0.85]">Ink<br />hits<br /><span className="text-yellow">film.</span></div>
+                    </div>
+                  )}
+                </div>
+              </div>
               </div>
             </Region>
 
